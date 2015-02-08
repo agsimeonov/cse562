@@ -7,5 +7,10 @@
 			<attribute name="javadoc_location" value="http://mjolnir.cse.buffalo.edu/resources/jsqlparser"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/expression.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://mjolnir.cse.buffalo.edu/resources/expressionlib"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
