@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.StatementVisitor;
 
 public class Main {
     public static void main(String[] args) {
@@ -15,10 +15,13 @@ public class Main {
     	File file = new File("/home/agsimeon/Downloads/sample.txt");
 		FileReader stream = new FileReader(file);
 		CCJSqlParser parser = new CCJSqlParser(stream);
-		StatementVisitor visitor = new StatementVisitorImpl();
 		Statement stmt;
 		while((stmt = parser.Statement()) != null) { 
-			stmt.accept(visitor);
+			stmt.accept(new StatementVisitorImpl());
+		}
+		Expression expr;
+		while((expr = parser.Expression()) != null) { 
+			expr.accept(new ExpressionVisitorImpl());
 		}
     	} catch(IOException e) {
     		

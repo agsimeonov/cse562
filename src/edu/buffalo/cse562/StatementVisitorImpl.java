@@ -1,7 +1,5 @@
 package edu.buffalo.cse562;
 
-import java.util.List;
-
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
@@ -18,7 +16,7 @@ public class StatementVisitorImpl implements StatementVisitor {
 	public void visit(Select select) {
 		// TODO Auto-generated method stub
 //		System.out.println("Select: " + select.getSelectBody());
-//		System.out.println(select.getSelectBody().);
+		select.getSelectBody().accept(new SelectVisitorImpl());
 //		TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
 //		List<String> tableList = tablesNamesFinder.getTableList(selectStatement);
 
@@ -38,8 +36,7 @@ public class StatementVisitorImpl implements StatementVisitor {
 
 	@Override
 	public void visit(Insert insert) {
-		// TODO Auto-generated method stub
-		
+		insert.getItemsList().accept(new ItemsListVisitorImpl());
 	}
 
 	@Override
