@@ -6,15 +6,15 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 
 public class ItemsListVisitorImpl implements ItemsListVisitor {
 
-	@Override
-	public void visit(SubSelect subSelect) {
-		subSelect.getSelectBody().accept(new SelectVisitorImpl());
-		
-	}
+  @Override
+  public void visit(SubSelect subSelect) {
+    subSelect.getSelectBody().accept(new SelectVisitorImpl());
 
-	@Override
-	public void visit(ExpressionList expressionList) {
-		System.out.println(expressionList.getExpressions());
-		
-	}
+  }
+
+  @Override
+  public void visit(ExpressionList expressionList) {
+    System.out.println(expressionList.getExpressions());
+
+  }
 }
