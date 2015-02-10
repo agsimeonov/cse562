@@ -1,4 +1,4 @@
-package edu.buffalo.cse562;
+package edu.buffalo.cse562.visitor;
 
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitor;
@@ -9,12 +9,10 @@ public class ItemsListVisitorImpl implements ItemsListVisitor {
   @Override
   public void visit(SubSelect subSelect) {
     subSelect.getSelectBody().accept(new SelectVisitorImpl());
-
   }
 
   @Override
   public void visit(ExpressionList expressionList) {
     System.out.println(expressionList.getExpressions());
-
   }
 }
