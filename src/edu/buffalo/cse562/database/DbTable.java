@@ -8,8 +8,8 @@ import java.nio.file.Paths;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 
 public class DbTable {
-  private final String name;
   private final File   data;
+  private final String name;
 
   protected DbTable(CreateTable createTable) throws IOException {
     name = createTable.getTable().getName();

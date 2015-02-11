@@ -30,7 +30,7 @@ public class StatementVisitorImpl implements StatementVisitor {
 
   @Override
   public void visit(Insert insert) {
-    insert.getItemsList().accept(new ItemsListVisitorImpl());
+    // TODO Auto-generated method stub
   }
 
   @Override

@@ -18,9 +18,6 @@ public final class Database {
   private static final AbstractMap<String, DbTable> DB_TABLES = new HashMap<String, DbTable>();
   private static String                             dataDir;
 
-  /** This class may never be instantiated. */
-  private Database() {}
-
   /**
    * Creates a new database table.
    * 
@@ -50,6 +47,16 @@ public final class Database {
   public static String getDataDir() {
     return dataDir;
   }
+  
+  /**
+   * Acquires a database table.
+   * 
+   * @param name - desired table name
+   * @return desired table
+   */
+  public static DbTable getTable(String name) {
+    return DB_TABLES.get(name);
+  }
 
   /**
    * Sets (and creates if necessary) a valid data directory path for the database.
@@ -68,4 +75,7 @@ public final class Database {
 
     if (!dir.isDirectory()) throw new NotDirectoryException(path + "is not a valid directory");
   }
+
+  /** This class may never be instantiated. */
+  private Database() {}
 }
