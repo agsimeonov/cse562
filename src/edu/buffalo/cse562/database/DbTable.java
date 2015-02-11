@@ -8,9 +8,16 @@ import java.nio.file.Paths;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 
 public class DbTable {
-  private final File   data;
-  private final String name;
+  private File   data;
+  private String name;
 
+  //TODO Create Temporary Table for results
+  public DbTable() {
+    // JUST DO SOMETHING LIKE THIS PERHAPS BETTER TO CREATE AN ABSTRACT CLASS
+    // WITH VIRTUAL TABLE
+    // AND FileBackedTable as children
+  }
+  
   protected DbTable(CreateTable createTable) throws IOException {
     name = createTable.getTable().getName();
     Path path = Paths.get(Database.getDataDir(), name + ".dat");
@@ -20,5 +27,9 @@ public class DbTable {
         throw new IOException("Could not create data file for table " + name);
       }
     }
+  }
+  
+  public String toString() {
+    return "THIS IS A TEST THAT DB TABLE " + name + " EXISTS!";
   }
 }
