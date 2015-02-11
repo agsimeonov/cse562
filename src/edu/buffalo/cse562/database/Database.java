@@ -1,7 +1,8 @@
 package edu.buffalo.cse562.database;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.NotDirectoryException;
 import java.util.AbstractMap;
 import java.util.HashMap;
 
@@ -15,24 +16,56 @@ import net.sf.jsqlparser.statement.create.table.CreateTable;
  */
 public final class Database {
   private static final AbstractMap<String, DbTable> DB_TABLES = new HashMap<String, DbTable>();
-  private static File                               dataDir;
+  private static String                             dataDir;
 
-  /** This class must never be instantiated. */
+  /** This class may never be instantiated. */
   private Database() {}
 
+  /**
+   * Creates a new database table.
+   * 
+   * @param createTable creates a new database table
+   * @return true if a new table was created, otherwise false
+   */
   public static boolean createTable(CreateTable createTable) {
-    System.out.println(createTable);
-    return false;
+    if (DB_TABLES.containsKey(createTable.getTable())) {
+      return false;
+    } else {
+      try {
+        DbTable table = new DbTable(createTable);
+        DB_TABLES.put(createTable.getTable().getName(), table);
+        return true;
+      } catch (IOException e) {
+        e.printStackTrace();
+        return false;
+      }
+    }
   }
 
   /**
-   * Sets the data directory for the database.
+   * Acquires the data directory path for the database.
+   * 
+   * @return the data directory path for the database.
+   */
+  public static String getDataDir() {
+    return dataDir;
+  }
+
+  /**
+   * Sets (and creates if necessary) a valid data directory path for the database.
    * 
    * @param path - path to the data directory
-   * @throws FileNotFoundException when the given directory is invalid
+   * @throws IOException when the given directory could not be created
+   * @throws NotDirectoryException when the given path is not a valid directory
    */
-  public static void setDataDirectory(String path) throws FileNotFoundException {
-    dataDir = new File(path);
-    if (!dataDir.exists()) throw new FileNotFoundException(path + " is not a valid directory!");
+  public static void setDataDir(String path) throws IOException, NotDirectoryException {
+    dataDir = path;
+    File dir = new File(path);
+
+    if (!dir.exists()) {
+      if (!dir.mkdirs()) throw new IOException(path + " directory could not be created!");
+    }
+
+    if (!dir.isDirectory()) throw new NotDirectoryException(path + "is not a valid directory");
   }
 }

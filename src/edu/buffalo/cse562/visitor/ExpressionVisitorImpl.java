@@ -227,7 +227,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor {
   public void visit(BitwiseAnd bitwiseAnd) {
     // TODO Auto-generated method stub
   }
-  
+
   @Override
   public void visit(BitwiseOr bitwiseOr) {
     // TODO Auto-generated method stub
