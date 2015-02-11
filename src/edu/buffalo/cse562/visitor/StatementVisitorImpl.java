@@ -15,7 +15,7 @@ public class StatementVisitorImpl implements StatementVisitor {
 
   @Override
   public void visit(Select select) {
-    select.getSelectBody().accept(new SelectVisitorImpl());
+    select.getSelectBody().accept(new SelectManager());
   }
 
   @Override

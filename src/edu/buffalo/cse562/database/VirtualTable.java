@@ -1,5 +1,10 @@
 package edu.buffalo.cse562.database;
 
-public class VirtualTable extends DbTable {
+import java.util.ArrayList;
+import java.util.HashMap;
 
+public class VirtualTable extends DbTable {
+  private HashMap<String, ArrayList<Object>> table;
+
+  
 }

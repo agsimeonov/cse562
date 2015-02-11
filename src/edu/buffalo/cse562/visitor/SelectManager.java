@@ -8,17 +8,17 @@ import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.Union;
 import edu.buffalo.cse562.database.Database;
-import edu.buffalo.cse562.database.DbTable;
+import edu.buffalo.cse562.database.FileBackedTable;
 
-public class SelectVisitorImpl implements SelectVisitor, FromItemVisitor {
-  private DbTable fromResult;
+public class SelectManager implements SelectVisitor, FromItemVisitor {
+  private FileBackedTable fromResult;
 
   @Override
   public void visit(PlainSelect plainSelect) {
     System.out.println(plainSelect);
     System.out.println(plainSelect.getFromItem());
     plainSelect.getFromItem().accept(this);
-    System.out.println(fromResult);
+//    System.out.println(fromResult);
   }
 
   @Override

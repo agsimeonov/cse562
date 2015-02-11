@@ -15,7 +15,7 @@ import net.sf.jsqlparser.statement.create.table.CreateTable;
  * @author Sunny Mistry
  */
 public final class Database {
-  private static final AbstractMap<String, DbTable> DB_TABLES = new HashMap<String, DbTable>();
+  private static final AbstractMap<String, FileBackedTable> DB_TABLES = new HashMap<String, FileBackedTable>();
   private static String                             dataDir;
 
   /**
@@ -29,7 +29,7 @@ public final class Database {
       return false;
     } else {
       try {
-        DbTable table = new DbTable(createTable);
+        FileBackedTable table = new FileBackedTable(createTable);
         DB_TABLES.put(createTable.getTable().getName(), table);
         return true;
       } catch (IOException e) {
@@ -54,7 +54,7 @@ public final class Database {
    * @param name - desired table name
    * @return desired table
    */
-  public static DbTable getTable(String name) {
+  public static FileBackedTable getTable(String name) {
     return DB_TABLES.get(name);
   }
 
