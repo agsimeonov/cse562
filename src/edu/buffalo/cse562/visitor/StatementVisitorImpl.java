@@ -1,6 +1,6 @@
 package edu.buffalo.cse562.visitor;
 
-import edu.buffalo.cse562.database.Database;
+import edu.buffalo.cse562.table.TableManager;
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
@@ -50,6 +50,6 @@ public class StatementVisitorImpl implements StatementVisitor {
 
   @Override
   public void visit(CreateTable createTable) {
-    Database.createTable(createTable);
+    TableManager.createTable(createTable);
   }
 }

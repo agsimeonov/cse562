@@ -1,4 +1,4 @@
-package edu.buffalo.cse562.database;
+package edu.buffalo.cse562.table;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,9 +14,9 @@ import net.sf.jsqlparser.statement.create.table.CreateTable;
  * @author Alexander Simeonov
  * @author Sunny Mistry
  */
-public final class Database {
-  private static final AbstractMap<String, FileBackedTable> DB_TABLES = new HashMap<String, FileBackedTable>();
-  private static String                             dataDir;
+public final class TableManager {
+  private static final AbstractMap<String, DataTable> DB_TABLES = new HashMap<String, DataTable>();
+  private static String                               dataDir;
 
   /**
    * Creates a new database table.
@@ -29,7 +29,7 @@ public final class Database {
       return false;
     } else {
       try {
-        FileBackedTable table = new FileBackedTable(createTable);
+        DataTable table = new DataTable(createTable);
         DB_TABLES.put(createTable.getTable().getName(), table);
         return true;
       } catch (IOException e) {
@@ -54,7 +54,7 @@ public final class Database {
    * @param name - desired table name
    * @return desired table
    */
-  public static FileBackedTable getTable(String name) {
+  public static DataTable getTable(String name) {
     return DB_TABLES.get(name);
   }
 
@@ -77,5 +77,5 @@ public final class Database {
   }
 
   /** This class may never be instantiated. */
-  private Database() {}
+  private TableManager() {}
 }

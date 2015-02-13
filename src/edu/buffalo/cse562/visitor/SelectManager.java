@@ -7,15 +7,16 @@ import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.Union;
-import edu.buffalo.cse562.database.Database;
-import edu.buffalo.cse562.database.FileBackedTable;
+import edu.buffalo.cse562.table.DataTable;
+import edu.buffalo.cse562.table.TableManager;
 
 public class SelectManager implements SelectVisitor, FromItemVisitor {
-  private FileBackedTable fromResult;
+  private DataTable fromResult;
 
   @Override
   public void visit(PlainSelect plainSelect) {
     System.out.println(plainSelect);
+    System.out.println(plainSelect.getSelectItems().get(0));
     System.out.println(plainSelect.getFromItem());
     plainSelect.getFromItem().accept(this);
 //    System.out.println(fromResult);
@@ -29,7 +30,7 @@ public class SelectManager implements SelectVisitor, FromItemVisitor {
   @Override
   public void visit(Table table) {
     // TODO Auto-generated method stub
-    fromResult = Database.getTable(table.getName());
+    fromResult = TableManager.getTable(table.getName());
   }
 
   @Override

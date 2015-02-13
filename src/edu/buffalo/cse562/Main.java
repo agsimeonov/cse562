@@ -5,12 +5,17 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.NotDirectoryException;
+import java.sql.SQLException;
 import java.util.LinkedHashSet;
 
+import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
+import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.statement.Statement;
-import edu.buffalo.cse562.database.Database;
+import edu.buffalo.cse562.table.DataTable;
+import edu.buffalo.cse562.table.Evaluate;
+import edu.buffalo.cse562.table.TableManager;
 import edu.buffalo.cse562.visitor.StatementVisitorImpl;
 
 /**
@@ -37,7 +42,7 @@ public class Main {
 
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("--data")) {
-        Database.setDataDir(args[i + 1]);
+        TableManager.setDataDir(args[i + 1]);
         i++;
       } else {
         File file = new File(args[i]);
@@ -71,6 +76,24 @@ public class Main {
       e.printStackTrace();
     } catch (ParseException e) {
       e.printStackTrace();
+    }
+    
+    // TESTING PORTION REMOVE LATER
+
+    Evaluate e = new Evaluate();
+    DataTable tbl = TableManager.getTable("R");
+    Addition add = new Addition(tbl.getSchema()[0], tbl.getSchema()[1]);
+    try {
+      try {
+        System.out.println(e.eval(add).toLong());
+        System.out.println(e.eval(add).toLong());
+      } catch (InvalidLeaf e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
+    } catch (SQLException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
     }
   }
 }
