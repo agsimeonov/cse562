@@ -8,8 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.sf.jsqlparser.expression.LeafValue;
-import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
-import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
@@ -24,12 +22,22 @@ public class DataTable implements Iterable<LeafValue[]> {
 
   protected DataTable(CreateTable createTable) throws IOException {
     name = createTable.getTable().getName();
+    
+    // Make sure the data file exists
     Path path = Paths.get(TableManager.getDataDir(), name + ".dat");
     data = path.toFile();
     if (!data.exists()) {
-      if (!data.createNewFile()) {
-        throw new IOException("Could not create data file for table " + name);
-      }
+      path = Paths.get(TableManager.getDataDir(), name.toLowerCase() + ".dat");
+      data = path.toFile();
+      if (!data.exists()) {
+        path = Paths.get(TableManager.getDataDir(), name.toUpperCase() + ".dat");
+        data = path.toFile();
+        if (!data.exists()) {
+          if (!data.createNewFile()) {
+            throw new IOException("Could not create data file for table " + name);
+          }
+        }
+      }            
     }
     
     @SuppressWarnings("unchecked")

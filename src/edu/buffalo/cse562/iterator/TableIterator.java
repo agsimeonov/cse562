@@ -67,6 +67,7 @@ public class TableIterator implements SQLIterator {
   public void close() {
     try {
       reader.close();
+      reader = null;
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -75,7 +76,7 @@ public class TableIterator implements SQLIterator {
   @Override
   public void open() {
     try {
-      reader = new BufferedReader(new FileReader(data));
+      if (reader == null) reader = new BufferedReader(new FileReader(data));
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     }
