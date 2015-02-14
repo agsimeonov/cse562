@@ -25,12 +25,12 @@ public final class TableManager {
    * @return true if a new table was created, otherwise false
    */
   public static boolean createTable(CreateTable createTable) {
-    if (DB_TABLES.containsKey(createTable.getTable())) {
+    if (DB_TABLES.containsKey(createTable.getTable().getName().toLowerCase())) {
       return false;
     } else {
       try {
         DataTable table = new DataTable(createTable);
-        DB_TABLES.put(createTable.getTable().getName(), table);
+        DB_TABLES.put(createTable.getTable().getName().toLowerCase(), table);
         return true;
       } catch (IOException e) {
         e.printStackTrace();
@@ -55,7 +55,7 @@ public final class TableManager {
    * @return desired table
    */
   public static DataTable getTable(String name) {
-    return DB_TABLES.get(name);
+    return DB_TABLES.get(name.toLowerCase());
   }
 
   /**

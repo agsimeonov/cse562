@@ -5,22 +5,24 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
-import net.sf.jsqlparser.expression.LeafValue;
 import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.NullValue;
 import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.schema.Column;
+import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.table.Schema;
 
 public class TableIterator implements SQLIterator {
   private File           data;
-  private String[]       types;
+  private Schema         schema;
   private BufferedReader reader;
 
-  public TableIterator(File dataFile, String[] dataTypes) {
+  public TableIterator(File dataFile, Schema tableSchema) {
     data = dataFile;
-    types = dataTypes;
+    schema = tableSchema;
     open();
   }
   
@@ -35,25 +37,30 @@ public class TableIterator implements SQLIterator {
   }
 
   @Override
-  public LeafValue[] next() {
+  public Row next() {
     try {
-      LeafValue[] row = new LeafValue[types.length];
+      Row row = new Row(schema);
+      String[] data = reader.readLine().split("\\|");      
+      Iterator<Column> columnIterator = schema.getColumns().iterator();
       
-      if (!hasNext()) {
-        for (int i = 0; i < types.length; i++)
-          row[i] = new NullValue();
+      for (int i = 0; i < schema.numColumns(); i++) {
+        Column column = columnIterator.next();
+        String type = schema.getColumnType(column).toLowerCase();
+        String name = column.getWholeColumnName();
         
-        return row;
-      }
-      
-      String[] data = reader.readLine().split("\\|");
-      
-      for (int i = 0; i < types.length; i++) {
-        String type = types[i].toLowerCase();
-        if (type.equals("int")) row[i] = new LongValue(Long.parseLong(data[i]));
-        else if (type.equals("double")) row[i] = new DoubleValue(Double.parseDouble(data[i]));
-        else if (type.equals("string")) row[i] = new StringValue(data[i]);
-        else if (type.equals("date")) row[i] = new DateValue(data[i]);
+        switch (type) {
+          case "int":
+            row.addColumnValue(name, new LongValue(Long.parseLong(data[i])));
+            break;
+          case "float":
+            row.addColumnValue(name, new DoubleValue(Double.parseDouble(data[i])));
+            break;
+          case "date":
+            row.addColumnValue(name, new DateValue("\"" + data[i] + "\""));
+            break;
+          default:
+            row.addColumnValue(name, new StringValue("\"" + data[i] + "\""));
+        }
       }
       
       return row;

@@ -1,8 +1,8 @@
 package edu.buffalo.cse562.iterator;
 
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.LeafValue;
 import net.sf.jsqlparser.schema.Column;
+import edu.buffalo.cse562.table.Row;
 
 public class ProjectIterator implements SQLIterator {
   SQLIterator source;
@@ -25,7 +25,7 @@ public class ProjectIterator implements SQLIterator {
   }
 
   @Override
-  public LeafValue[] next() {
+  public Row next() {
     // TODO Auto-generated method stub
     return null;
   }

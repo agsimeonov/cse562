@@ -5,11 +5,16 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.NotDirectoryException;
+import java.sql.SQLException;
 import java.util.LinkedHashSet;
 
+import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
+import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.statement.Statement;
+import edu.buffalo.cse562.parsetree.Evaluate;
+import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.TableManager;
 import edu.buffalo.cse562.visitor.StatementVisitorImpl;
 
@@ -77,7 +82,7 @@ public class Main {
 
 //    Evaluate e = new Evaluate();
 //    DataTable tbl = TableManager.getTable("R");
-//    Addition add = new Addition(tbl.getSchema()[0], tbl.getSchema()[1]);
+//    Addition add = new Addition(tbl.getSchema().getColumns().get(0), tbl.getSchema().getColumns().get(1));
 //    try {
 //      try {
 //        System.out.println(e.eval(add).toLong());
@@ -89,6 +94,13 @@ public class Main {
 //    } catch (SQLException e1) {
 //      // TODO Auto-generated catch block
 //      e1.printStackTrace();
+//    }
+    
+    
+    // MORE TESTING
+//    for(Object o : TableManager.getTable("R")) {
+//      Row row = (Row) o;
+//      System.out.println(row);
 //    }
   }
 }
