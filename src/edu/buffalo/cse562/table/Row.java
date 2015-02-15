@@ -47,7 +47,7 @@ public class Row {
    * Acquires row value for a given column.
    * 
    * @param column - given column for row value
-   * @return desired row value for given column
+   * @return desired row value for given column, null if the column does not exist
    */
   public LeafValue getValue(Column column) {
     return values.get(column.getWholeColumnName().toLowerCase());
