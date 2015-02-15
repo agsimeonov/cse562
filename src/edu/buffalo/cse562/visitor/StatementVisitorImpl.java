@@ -11,6 +11,12 @@ import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
 
+/**
+ * Manages evaluation of top level statements.
+ * 
+ * @author Alexander Simeonov
+ * @author Sunny Mistry
+ */
 public class StatementVisitorImpl implements StatementVisitor {
 
   @Override
@@ -19,34 +25,22 @@ public class StatementVisitorImpl implements StatementVisitor {
   }
 
   @Override
-  public void visit(Delete delete) {
-    // TODO Auto-generated method stub
-  }
+  public void visit(Delete delete) {}
 
   @Override
-  public void visit(Update update) {
-    // TODO Auto-generated method stub
-  }
+  public void visit(Update update) {}
 
   @Override
-  public void visit(Insert insert) {
-    // TODO Auto-generated method stub
-  }
+  public void visit(Insert insert) {}
 
   @Override
-  public void visit(Replace replace) {
-    // TODO Auto-generated method stub
-  }
+  public void visit(Replace replace) {}
 
   @Override
-  public void visit(Drop drop) {
-    // TODO Auto-generated method stub
-  }
+  public void visit(Drop drop) {}
 
   @Override
-  public void visit(Truncate truncate) {
-    // TODO Auto-generated method stub
-  }
+  public void visit(Truncate truncate) {}
 
   @Override
   public void visit(CreateTable createTable) {

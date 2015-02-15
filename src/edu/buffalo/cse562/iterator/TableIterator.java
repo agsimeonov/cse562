@@ -21,7 +21,7 @@ import edu.buffalo.cse562.table.Schema;
  * @author Alexander Simeonov
  * @author Sunny Mistry
  */
-public class TableIterator implements SQLIterator {
+public class TableIterator implements RowIterator {
   private File           data;
   private Schema         schema;
   private BufferedReader reader;

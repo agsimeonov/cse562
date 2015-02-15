@@ -10,7 +10,7 @@ import edu.buffalo.cse562.table.Row;
  * @author Alexander Simeonov
  * @author Sunny Mistry
  */
-public interface SQLIterator extends Iterator<Row> {
+public interface RowIterator extends Iterator<Row> {
   /**
    * This method end the iteration after all tuples, or all tuples that are consumer wanted, have
    * been obtained.  Typically, it calls close() on any arguments of the operator.
