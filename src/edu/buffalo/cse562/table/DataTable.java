@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
 
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import edu.buffalo.cse562.iterator.TableIterator;
 
@@ -18,8 +19,9 @@ import edu.buffalo.cse562.iterator.TableIterator;
  */
 public class DataTable implements Iterable<Row> {
   private Schema schema;
-  private String   name;
-  private File     data;
+  private Table  table;
+  private String name;
+  private File   data;
 
   /**
    * Creates the table by storing its schema and associating it with a file.
@@ -29,7 +31,8 @@ public class DataTable implements Iterable<Row> {
    */
   @SuppressWarnings("unchecked")
   protected DataTable(CreateTable createTable) throws IOException {
-    schema = new Schema(createTable.getTable(), createTable.getColumnDefinitions());
+    table = createTable.getTable();
+    schema = new Schema(table, createTable.getColumnDefinitions());
     name = createTable.getTable().getName();
     
     // Make sure the data file exists
@@ -66,6 +69,15 @@ public class DataTable implements Iterable<Row> {
    */
   public String getName() {
     return name;
+  }
+  
+  /**
+   * Acquires the Table object for this table.
+   * 
+   * @return the Table object for this table
+   */
+  public Table getTable() {
+    return table;
   }
 
   @Override

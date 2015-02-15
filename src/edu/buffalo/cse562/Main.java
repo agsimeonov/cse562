@@ -5,18 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.NotDirectoryException;
-import java.sql.SQLException;
 import java.util.LinkedHashSet;
 
-import net.sf.jsqlparser.expression.LeafValue;
-import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
-import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.statement.Statement;
-import edu.buffalo.cse562.parsetree.Evaluate;
-import edu.buffalo.cse562.table.DataTable;
-import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.TableManager;
 import edu.buffalo.cse562.visitor.StatementVisitorImpl;
 

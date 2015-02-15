@@ -3,6 +3,7 @@ package edu.buffalo.cse562.table;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
@@ -14,8 +15,9 @@ import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
  * @author Sunny Mistry
  */
 public class Schema {
-  private ArrayList<Column> columns = new ArrayList<Column>();
-  private ArrayList<String> types   = new ArrayList<String>();
+  private ArrayList<Column>     columns     = new ArrayList<Column>();
+  private ArrayList<String>     types       = new ArrayList<String>();
+  private ArrayList<Expression> expressions = new ArrayList<Expression>();
 
   /**
    * Creates the schema for a given table.
