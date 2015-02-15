@@ -8,6 +8,7 @@ import java.nio.file.NotDirectoryException;
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
 
+import net.sf.jsqlparser.expression.LeafValue;
 import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.parser.CCJSqlParser;
@@ -80,25 +81,25 @@ public class Main {
     
     // TESTING PORTION REMOVE LATER
 
-//    Evaluate e = new Evaluate();
-//    DataTable tbl = TableManager.getTable("R");
-//    Addition add = new Addition(tbl.getSchema().getColumns().get(0), tbl.getSchema().getColumns().get(1));
-//    try {
-//      try {
-//        System.out.println(e.eval(add).toLong());
-//        System.out.println(e.eval(add).toLong());
-//      } catch (InvalidLeaf e1) {
-//        // TODO Auto-generated catch block
-//        e1.printStackTrace();
-//      }
-//    } catch (SQLException e1) {
-//      // TODO Auto-generated catch block
-//      e1.printStackTrace();
-//    }
+    // EVALUATOR
+    Evaluate e = new Evaluate();
+    DataTable tbl = TableManager.getTable("R");
+    Addition add = new Addition(tbl.getSchema().getColumns().get(0), tbl.getSchema().getColumns().get(1));
+    try {
+      try {
+        for (LeafValue lon = e.eval(add); lon != null; lon = e.eval(add))
+          System.out.println(lon.toLong());
+      } catch (InvalidLeaf e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
+    } catch (SQLException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
     
-    
-    // MORE TESTING
-//    for(Object o : TableManager.getTable("R")) {
+    // MORE TESTING GENERAL TABLE ITERATOR
+//    for(Object o : TableManager.getTable("PLAYERS")) {
 //      Row row = (Row) o;
 //      System.out.println(row);
 //    }

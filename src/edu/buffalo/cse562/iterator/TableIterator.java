@@ -15,11 +15,23 @@ import net.sf.jsqlparser.schema.Column;
 import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.Schema;
 
+/**
+ * Iterates over a data file one row at a time.
+ * 
+ * @author Alexander Simeonov
+ * @author Sunny Mistry
+ */
 public class TableIterator implements SQLIterator {
   private File           data;
   private Schema         schema;
   private BufferedReader reader;
 
+  /**
+   * Initializes the iterator.
+   * 
+   * @param dataFile - valid data file to iterate over
+   * @param tableSchema - table schema for the data file
+   */
   public TableIterator(File dataFile, Schema tableSchema) {
     data = dataFile;
     schema = tableSchema;
@@ -28,6 +40,8 @@ public class TableIterator implements SQLIterator {
   
   @Override
   public boolean hasNext() {
+    if (reader == null) return false;
+    
     try {
       return reader.ready();
     } catch (IOException e) {
@@ -38,28 +52,29 @@ public class TableIterator implements SQLIterator {
 
   @Override
   public Row next() {
+    if (!this.hasNext()) return null;
+    
     try {
       Row row = new Row(schema);
       String[] data = reader.readLine().split("\\|");      
       Iterator<Column> columnIterator = schema.getColumns().iterator();
       
-      for (int i = 0; i < schema.numColumns(); i++) {
+      for (int i = 0; i < schema.size(); i++) {
         Column column = columnIterator.next();
         String type = schema.getColumnType(column).toLowerCase();
-        String name = column.getWholeColumnName();
-        
+             
         switch (type) {
           case "int":
-            row.addColumnValue(name, new LongValue(Long.parseLong(data[i])));
+            row.setValue(column, new LongValue(Long.parseLong(data[i])));
             break;
           case "float":
-            row.addColumnValue(name, new DoubleValue(Double.parseDouble(data[i])));
+            row.setValue(column, new DoubleValue(Double.parseDouble(data[i])));
             break;
           case "date":
-            row.addColumnValue(name, new DateValue("\"" + data[i] + "\""));
+            row.setValue(column, new DateValue("'" + data[i] + "'"));
             break;
           default:
-            row.addColumnValue(name, new StringValue("\"" + data[i] + "\""));
+            row.setValue(column, new StringValue("'" + data[i] + "'"));
         }
       }
       

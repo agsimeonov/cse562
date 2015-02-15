@@ -9,31 +9,62 @@ import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.schema.Column;
 
+/**
+ * Represents a row tuple of LeafValue data elements.
+ * 
+ * @author Alexander Simeonov
+ * @author Sunny Mistry
+ */
 public class Row {
   private HashMap<String, LeafValue> values = new HashMap<String, LeafValue>();
   private Schema                     schema;
 
+  /**
+   * Creates an empty row tuple of LeafValue data elements.
+   * 
+   * @param rowSchema - the expected schema for the row
+   */
   public Row(Schema rowSchema) {
     schema = rowSchema;
   }
 
-  public void addColumnValue(String wholeColumnName, LeafValue value) {
-    values.put(wholeColumnName.toLowerCase(), value);
+  
+  /**
+   * Sets a value for a given column, only if said column exists in the row schema.
+   * 
+   * @param column - column the value belongs to
+   * @param value - given value to add
+   * @return true if the column exists in the row schema and the value was added successfully.
+   */
+  public boolean setValue(Column column, LeafValue value) {
+    String name = column.getWholeColumnName().toLowerCase();
+    if (!schema.hasColumn(column)) return false;
+    values.put(name, value);
+    return true;
   }
   
+  /**
+   * Acquires row value for a given column.
+   * 
+   * @param column - given column for row value
+   * @return desired row value for given column
+   */
   public LeafValue getValue(Column column) {
     return values.get(column.getWholeColumnName().toLowerCase());
   }
 
+  @Override
   public String toString() {
     String rowString = "";
 
-    for (int i = 0; i < schema.numColumns(); i++) {
+    for (int i = 0; i < schema.size(); i++) {
       try {
         Column column = schema.getColumns().get(i);
         LeafValue value = values.get(column.getWholeColumnName().toLowerCase());
         
-        if (value instanceof LongValue) {
+        if (value == null) {
+          // Do nothing
+        } else if (value instanceof LongValue) {
           rowString += Long.toString(value.toLong());
         } else if (value instanceof DoubleValue) {
           rowString += Double.toString(value.toDouble());
@@ -47,7 +78,7 @@ public class Row {
         e.printStackTrace();
       }
 
-      if (i != schema.numColumns() - 1) rowString += "|";
+      if (i != schema.size() - 1) rowString += "|";
     }
 
     return rowString;

@@ -9,7 +9,7 @@ import java.util.HashMap;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 
 /**
- * An abstraction used to manage tables in the database.
+ * An abstraction used to manage tables and their respective data files.
  * 
  * @author Alexander Simeonov
  * @author Sunny Mistry

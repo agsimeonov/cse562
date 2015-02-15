@@ -12,29 +12,37 @@ import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.Schema;
 import edu.buffalo.cse562.table.TableManager;
 
+/**
+ * Evaluates any expression in the context of a tuple.
+ * 
+ * @author Alexander Simeonov
+ * @author Sunny Mistry
+ */
 public class Evaluate extends Eval {
-  HashMap<String, Iterator<Row>> iterators = new HashMap<String, Iterator<Row>>();
-
+  private HashMap<String, Iterator<Row>> tableIterators = new HashMap<String, Iterator<Row>>();
+  
+  /**
+   * Generator Function.  Takes a given column and produces the next value for that column.
+   * 
+   * @param column - a given column
+   * @return the next value for a given column, null if there are no more values
+   */
   @Override
   public LeafValue eval(Column column) throws SQLException {
     DataTable table = TableManager.getTable(column.getTable().getName());
     Schema schema = table.getSchema();
+    String columnName = column.getWholeColumnName().toLowerCase();
     
-    if (iterators.get(column.getWholeColumnName()) == null) iterators.put(column.getWholeColumnName(), table.iterator());
-    Iterator<Row> rows = iterators.get(column.getWholeColumnName());
-    int index;
-    for (index = 0; index < schema.numColumns(); index++) {
-      if (schema.getColumns().get(index).getColumnName().equals(column.getColumnName())) {
-        break;
-      }
+    if (tableIterators.get(columnName) == null) tableIterators.put(columnName, table.iterator());
+    Iterator<Row> rows = tableIterators.get(columnName);
+    
+    for (int i = 0; i < schema.size(); i++) {
+      String schemaColumnName = schema.getColumns().get(i).getWholeColumnName().toLowerCase();
+      if (schemaColumnName.equals(columnName)) break;
     }
     
+    if (!rows.hasNext()) return null;
     LeafValue next = rows.next().getValue(column);
     return next;
-//    set = true;
-//    return table.iterator().next()[index];
-//    col.getTable().getName();
-    // TODO Auto-generated method stub
-//    return null;
   }
 }
