@@ -79,6 +79,10 @@ public class SelectManager implements
   private ParseTree             root;
   private List<SelectItem>      selectItems;
   private int                   selectItemsIndex;
+  
+  public ParseTree getRoot() {
+    return root;
+  }
 
   /* SelectVisitor */
   
@@ -360,9 +364,5 @@ public class SelectManager implements
   private void handleBinaryExpression(BinaryExpression binaryExpression) {
     binaryExpression.getLeftExpression().accept(this);
     binaryExpression.getRightExpression().accept(this);
-  }
-  
-  private ParseTree getRoot() {
-    return root;
   }
 }

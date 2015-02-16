@@ -10,6 +10,7 @@ import java.util.Iterator;
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.NullValue;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.schema.Column;
 import edu.buffalo.cse562.table.Row;
@@ -52,8 +53,6 @@ public class TableIterator implements RowIterator {
 
   @Override
   public Row next() {
-    if (!this.hasNext()) return null;
-    
     try {
       Row row = new Row(schema);
       String[] data = reader.readLine().split("\\|");      
@@ -73,8 +72,10 @@ public class TableIterator implements RowIterator {
           case "date":
             row.setValue(column, new DateValue("'" + data[i] + "'"));
             break;
-          default:
+          case "string":
             row.setValue(column, new StringValue("'" + data[i] + "'"));
+          default:
+            row.setValue(column, new NullValue());
         }
       }
       

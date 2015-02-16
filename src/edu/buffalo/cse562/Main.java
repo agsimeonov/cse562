@@ -10,6 +10,7 @@ import java.util.LinkedHashSet;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.statement.Statement;
+import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.TableManager;
 import edu.buffalo.cse562.visitor.StatementVisitorImpl;
 
@@ -93,9 +94,9 @@ public class Main {
 //    }
     
     // MORE TESTING GENERAL TABLE ITERATOR
-//    for(Object o : TableManager.getTable("PLAYERS")) {
-//      Row row = (Row) o;
-//      System.out.println(row);
-//    }
+    for(Object o : TableManager.getTable("R")) {
+      Row row = (Row) o;
+      System.out.println(row);
+    }
   }
 }

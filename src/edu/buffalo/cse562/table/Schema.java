@@ -29,6 +29,17 @@ public class Schema {
       types.add(columnDefinition.getColDataType().getDataType());
     }
   }
+  
+  /**
+   * Creates the schema for a given table.
+   * 
+   * @param columns - given columns list
+   * @param types - given types list
+   */
+  public Schema(ArrayList<Column> columns, ArrayList<String> types) {
+    this.columns = columns;
+    this.types = types;
+  }
 
   /**
    * Acquires an ordered list of columns for the schema.
@@ -72,6 +83,29 @@ public class Schema {
       }
     }
     return null;
+  }
+  
+  /**
+   * Creates a new schema that is the concatenation of this schema and a given schema to append.
+   * 
+   * @param append - schema to append in concatenation
+   * @return a new schema that is the concatenation of this and the given schema to append
+   */
+  public Schema concat(Schema append) {
+    ArrayList<Column> concatColumns = new ArrayList<Column>();
+    ArrayList<String> concatTypes = new ArrayList<String>();
+    
+    for (int i = 0; i < this.size(); i++) {
+      concatColumns.add(this.columns.get(i));
+      concatTypes.add(this.types.get(i));
+    }
+    
+    for (int i = 0; i < append.size(); i++) {
+      concatColumns.add(append.columns.get(i));
+      concatTypes.add(append.types.get(i));
+    }
+    
+    return new Schema(concatColumns, concatTypes);
   }
 
   /**

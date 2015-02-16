@@ -52,6 +52,18 @@ public class Row {
   public LeafValue getValue(Column column) {
     return values.get(column.getWholeColumnName().toLowerCase());
   }
+  
+  public Row concat(Row append) {
+    Row concatRow = new Row(this.schema.concat(append.schema));
+    
+    for (Column column : this.schema.getColumns())
+      concatRow.setValue(column, this.getValue(column));
+    
+    for (Column column : append.schema.getColumns())
+      concatRow.setValue(column, append.getValue(column));
+    
+    return concatRow;
+  }
 
   @Override
   public String toString() {
