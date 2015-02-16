@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.sf.jsqlparser.expression.AllComparisonExpression;
 import net.sf.jsqlparser.expression.AnyComparisonExpression;
+import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.CaseExpression;
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
@@ -59,6 +60,12 @@ import net.sf.jsqlparser.statement.select.Union;
 import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.TableManager;
 
+/**
+ * Parses and manages select statements.
+ * 
+ * @author Alexander Simeonov
+ * @author Sunny Mistry
+ */
 public class SelectManager implements
                           SelectVisitor,
                           FromItemVisitor,
@@ -73,7 +80,6 @@ public class SelectManager implements
   @SuppressWarnings("unchecked")
   @Override
   public void visit(PlainSelect plainSelect) {
-    System.out.println(plainSelect);
     // Handle FROM relation-list
     plainSelect.getFromItem().accept(this);
     for (Object o : plainSelect.getJoins()) {
@@ -83,11 +89,9 @@ public class SelectManager implements
     
     // Handle SELECT target-list
     selectItems = plainSelect.getSelectItems();
-    
     for (selectItemsIndex = 0; selectItemsIndex < selectItems.size(); selectItemsIndex++)
       selectItems.get(selectItemsIndex).accept(this);
     plainSelect.setSelectItems(selectItems);
-    System.out.println(plainSelect);
   }
 
   @Override
@@ -161,9 +165,7 @@ public class SelectManager implements
   /* ExpressionVisitor */
 
   @Override
-  public void visit(NullValue nullValue) {
-    // TODO Auto-generated method stub
-  }
+  public void visit(NullValue nullValue) {}
 
   @Override
   public void visit(Function function) {
@@ -204,97 +206,78 @@ public class SelectManager implements
 
   @Override
   public void visit(Addition addition) {
-    addition.getLeftExpression().accept(this);
-    addition.getRightExpression().accept(this);
+    handleBinaryExpression(addition);
   }
 
   @Override
   public void visit(Division division) {
-    division.getLeftExpression().accept(this);
+    handleBinaryExpression(division);
   }
 
   @Override
-  public void visit(Multiplication arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(Multiplication multiplication) {
+    handleBinaryExpression(multiplication);
   }
 
   @Override
-  public void visit(Subtraction arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(Subtraction subtraction) {
+    handleBinaryExpression(subtraction);
   }
 
   @Override
-  public void visit(AndExpression arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(AndExpression andExpression) {
+    handleBinaryExpression(andExpression);
   }
 
   @Override
-  public void visit(OrExpression arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(OrExpression orExpression) {
+    handleBinaryExpression(orExpression);
   }
 
   @Override
-  public void visit(Between arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(Between between) {}
+
+  @Override
+  public void visit(EqualsTo equalsTo) {
+    handleBinaryExpression(equalsTo);
   }
 
   @Override
-  public void visit(EqualsTo arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(GreaterThan greaterThan) {
+    handleBinaryExpression(greaterThan);
   }
 
   @Override
-  public void visit(GreaterThan arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(GreaterThanEquals greaterThanEquals) {
+    handleBinaryExpression(greaterThanEquals);
   }
 
   @Override
-  public void visit(GreaterThanEquals arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(InExpression inExpression) {
   }
 
   @Override
-  public void visit(InExpression arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(IsNullExpression isNullExpression) {
   }
 
   @Override
-  public void visit(IsNullExpression arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(LikeExpression likeExpression) {
+    handleBinaryExpression(likeExpression);
   }
 
   @Override
-  public void visit(LikeExpression arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(MinorThan minorThan) {
+    handleBinaryExpression(minorThan);
   }
 
   @Override
-  public void visit(MinorThan arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(MinorThanEquals minorThanEquals) {
+    handleBinaryExpression(minorThanEquals);
   }
 
   @Override
-  public void visit(MinorThanEquals arg0) {
-    // TODO Auto-generated method =stub
-    
-  }
-
-  @Override
-  public void visit(NotEqualsTo arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(NotEqualsTo notEqualsTo) {
+    handleBinaryExpression(notEqualsTo);
   }
 
   /**
@@ -314,62 +297,52 @@ public class SelectManager implements
   }
 
   @Override
-  public void visit(CaseExpression arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(CaseExpression caseExpression) {}
+
+  @Override
+  public void visit(WhenClause whenClause) {}
+
+  @Override
+  public void visit(ExistsExpression existsExpression) {}
+
+  @Override
+  public void visit(AllComparisonExpression allComparisonExpression) {}
+
+  @Override
+  public void visit(AnyComparisonExpression anyComparisonExpression) {}
+
+  @Override
+  public void visit(Concat concat) {
+    handleBinaryExpression(concat);
   }
 
   @Override
-  public void visit(WhenClause arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(Matches matches) {
+    handleBinaryExpression(matches);
   }
 
   @Override
-  public void visit(ExistsExpression arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(BitwiseAnd bitwiseAnd) {
+    handleBinaryExpression(bitwiseAnd);
   }
 
   @Override
-  public void visit(AllComparisonExpression arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(BitwiseOr bitwiseOr) {
+    handleBinaryExpression(bitwiseOr);
   }
 
   @Override
-  public void visit(AnyComparisonExpression arg0) {
-    // TODO Auto-generated method stub
-    
+  public void visit(BitwiseXor bitwiseXor) {
+    handleBinaryExpression(bitwiseXor);
   }
-
-  @Override
-  public void visit(Concat arg0) {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void visit(Matches arg0) {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void visit(BitwiseAnd arg0) {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void visit(BitwiseOr arg0) {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void visit(BitwiseXor arg0) {
-    // TODO Auto-generated method stub
-    
+  
+  /**
+   * Handles common operations on a BinaryExpression.
+   * 
+   * @param binaryExpression - BinaryExpression to handle
+   */
+  private void handleBinaryExpression(BinaryExpression binaryExpression) {
+    binaryExpression.getLeftExpression().accept(this);
+    binaryExpression.getRightExpression().accept(this);
   }
 }
