@@ -27,7 +27,6 @@ public class Row {
   public Row(Schema rowSchema) {
     schema = rowSchema;
   }
-
   
   /**
    * Sets a value for a given column, only if said column exists in the row schema.

@@ -105,9 +105,14 @@ public class SelectManager implements
     plainSelect.setSelectItems(selectItems);
     
     // Build the parse tree
+    
+    // Set root
     root = new ProjectNode(null, expressions);
-    for (DataTable fromtTable : fromTables) {
-      root.setLeft(new TableNode(root, fromtTable));
+    
+    // Transform multiple from to union
+    for (int i = 0; i < fromTables.size(); i++) {
+//      if (fromTables.get(index))
+//      root.setLeft(new TableNode(root, fromtTable));
     }
     System.out.println(expressions);
   }

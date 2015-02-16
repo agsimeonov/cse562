@@ -36,7 +36,7 @@ public class Schema {
    * @param columns - given columns list
    * @param types - given types list
    */
-  public Schema(ArrayList<Column> columns, ArrayList<String> types) {
+  private Schema(ArrayList<Column> columns, ArrayList<String> types) {
     this.columns = columns;
     this.types = types;
   }
