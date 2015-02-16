@@ -57,6 +57,9 @@ import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.Union;
+import edu.buffalo.cse562.parsetree.ParseTree;
+import edu.buffalo.cse562.parsetree.ProjectNode;
+import edu.buffalo.cse562.parsetree.TableNode;
 import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.TableManager;
 
@@ -71,27 +74,38 @@ public class SelectManager implements
                           FromItemVisitor,
                           SelectItemVisitor,
                           ExpressionVisitor {
-  private ArrayList<DataTable> fromTables = new ArrayList<DataTable>();
-  private List<SelectItem>     selectItems;
-  private int                  selectItemsIndex;
+  private ArrayList<DataTable>  fromTables  = new ArrayList<DataTable>();
+  private ArrayList<Expression> expressions = new ArrayList<Expression>();
+  private ParseTree             root;
+  private List<SelectItem>      selectItems;
+  private int                   selectItemsIndex;
 
   /* SelectVisitor */
   
   @SuppressWarnings("unchecked")
   @Override
   public void visit(PlainSelect plainSelect) {
+    System.out.println(plainSelect);
     // Handle FROM relation-list
     plainSelect.getFromItem().accept(this);
-    for (Object o : plainSelect.getJoins()) {
-      Join join = (Join) o;
-      join.getRightItem().accept(this);
+    if (plainSelect.getJoins() != null) {
+      for (Object o : plainSelect.getJoins()) {
+        Join join = (Join) o;
+        join.getRightItem().accept(this);
+      }
     }
-    
     // Handle SELECT target-list
     selectItems = plainSelect.getSelectItems();
     for (selectItemsIndex = 0; selectItemsIndex < selectItems.size(); selectItemsIndex++)
       selectItems.get(selectItemsIndex).accept(this);
     plainSelect.setSelectItems(selectItems);
+    
+    // Build the parse tree
+    root = new ProjectNode(null, expressions);
+    for (DataTable fromtTable : fromTables) {
+      root.setLeft(new TableNode(root, fromtTable));
+    }
+    System.out.println(expressions);
   }
 
   @Override
@@ -149,6 +163,7 @@ public class SelectManager implements
   private void tableWildcardToColumns(DataTable fromTable) {
     for (Column column : fromTable.getSchema().getColumns()) {
       column.accept(this);
+      expressions.add(column);
       SelectExpressionItem selectExpressionItem = new SelectExpressionItem();
       selectExpressionItem.setExpression(column);
       selectItems.add(selectItemsIndex, selectExpressionItem);
@@ -160,6 +175,7 @@ public class SelectManager implements
   public void visit(SelectExpressionItem selectExpressionItem) {
     Expression expression = selectExpressionItem.getExpression();
     expression.accept(this);
+    expressions.add(expression);
   }
   
   /* ExpressionVisitor */
@@ -170,8 +186,8 @@ public class SelectManager implements
   @Override
   public void visit(Function function) {
     for (Object o : function.getParameters().getExpressions()) {
-      Expression e = (Expression) o;
-      e.accept(this);
+      Expression expression = (Expression) o;
+      expression.accept(this);
     }
   }
 
@@ -344,5 +360,9 @@ public class SelectManager implements
   private void handleBinaryExpression(BinaryExpression binaryExpression) {
     binaryExpression.getLeftExpression().accept(this);
     binaryExpression.getRightExpression().accept(this);
+  }
+  
+  private ParseTree getRoot() {
+    return root;
   }
 }
