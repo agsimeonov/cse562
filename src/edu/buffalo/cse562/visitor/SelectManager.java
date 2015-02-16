@@ -83,9 +83,9 @@ public class SelectManager implements
     
     // Handle SELECT target-list
     selectItems = plainSelect.getSelectItems();
-    for (selectItemsIndex = 0; selectItemsIndex <= selectItems.size(); selectItemsIndex++) {
+    
+    for (selectItemsIndex = 0; selectItemsIndex < selectItems.size(); selectItemsIndex++)
       selectItems.get(selectItemsIndex).accept(this);
-    }
     plainSelect.setSelectItems(selectItems);
     System.out.println(plainSelect);
   }
@@ -118,16 +118,9 @@ public class SelectManager implements
   @Override
   public void visit(AllColumns allColumns) {
     selectItems.remove(selectItemsIndex);
-    
-    for (DataTable fromTable : fromTables) {
-      for (Column column : fromTable.getSchema().getColumns()) {
-        column.accept(this);
-        SelectExpressionItem selectExpressionItem = new SelectExpressionItem();
-        selectExpressionItem.setExpression(column);
-        selectItems.add(selectItemsIndex, selectExpressionItem);
-        selectItemsIndex += 1;
-      }
-    }
+    for (DataTable fromTable : fromTables)
+      tableWildcardToColumns(fromTable);
+    selectItemsIndex--;
   }
 
   /**
@@ -140,13 +133,22 @@ public class SelectManager implements
   public void visit(AllTableColumns allTableColumns) {
     selectItems.remove(selectItemsIndex);
     DataTable fromTable = TableManager.getTable(allTableColumns.getTable().getName());
-    
+    tableWildcardToColumns(fromTable);
+    selectItemsIndex--;
+  }
+  
+  /**
+   * Transforms selectItems table wildcards to whole columns.
+   * 
+   * @param fromTable - the table for which to transform
+   */
+  private void tableWildcardToColumns(DataTable fromTable) {
     for (Column column : fromTable.getSchema().getColumns()) {
       column.accept(this);
       SelectExpressionItem selectExpressionItem = new SelectExpressionItem();
       selectExpressionItem.setExpression(column);
       selectItems.add(selectItemsIndex, selectExpressionItem);
-      selectItemsIndex += 1;
+      selectItemsIndex++;
     }
   }
 
