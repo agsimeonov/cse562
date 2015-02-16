@@ -60,6 +60,7 @@ import net.sf.jsqlparser.statement.select.Union;
 import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.parsetree.ProjectNode;
 import edu.buffalo.cse562.parsetree.TableNode;
+import edu.buffalo.cse562.parsetree.UnionNode;
 import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.TableManager;
 
@@ -109,10 +110,22 @@ public class SelectManager implements
     // Set root
     root = new ProjectNode(null, expressions);
     
-    // Transform multiple from to union
+    // Transform multiple from to union tree
+    ParseTree base = null;
+    ParseTree curr = null;
     for (int i = 0; i < fromTables.size(); i++) {
-//      if (fromTables.get(index))
-//      root.setLeft(new TableNode(root, fromtTable));
+      if (base == null) {
+        if (i + 1 == fromTables.size()) {
+          base = new TableNode(root, fromTables.get(i));
+        }
+        else {
+          TableNode node = new TableNode(curr, fromTables.get(i));
+          curr.setLeft(node);
+//          UnionNode union = new UnionNode
+        }
+      } else {
+        
+      }
     }
     System.out.println(expressions);
   }
