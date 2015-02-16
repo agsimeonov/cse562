@@ -1,6 +1,7 @@
 package edu.buffalo.cse562.visitor;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.jsqlparser.expression.AllComparisonExpression;
 import net.sf.jsqlparser.expression.AnyComparisonExpression;
@@ -46,6 +47,7 @@ import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.AllTableColumns;
 import net.sf.jsqlparser.statement.select.FromItemVisitor;
+import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
@@ -62,73 +64,96 @@ public class SelectManager implements
                           FromItemVisitor,
                           SelectItemVisitor,
                           ExpressionVisitor {
-  private ArrayList<Expression> expressions = new ArrayList<Expression>();
-  private Expression            expression;
-  private DataTable             fromTable;
+  private ArrayList<DataTable> fromTables = new ArrayList<DataTable>();
+  private List<SelectItem>     selectItems;
+  private int                  selectItemsIndex;
 
   /* SelectVisitor */
   
+  @SuppressWarnings("unchecked")
   @Override
   public void visit(PlainSelect plainSelect) {
+    System.out.println(plainSelect);
+    // Handle FROM relation-list
     plainSelect.getFromItem().accept(this);
-    for (Object o : plainSelect.getSelectItems()) {
-      SelectItem selectItem = (SelectItem) o;
-      selectItem.accept(this);
+    for (Object o : plainSelect.getJoins()) {
+      Join join = (Join) o;
+      join.getRightItem().accept(this);
     }
+    
+    // Handle SELECT target-list
+    selectItems = plainSelect.getSelectItems();
+    for (selectItemsIndex = 0; selectItemsIndex <= selectItems.size(); selectItemsIndex++) {
+      selectItems.get(selectItemsIndex).accept(this);
+    }
+    plainSelect.setSelectItems(selectItems);
+    System.out.println(plainSelect);
   }
 
   @Override
-  public void visit(Union union) {
-    // TODO Auto-generated method stub
-  }
+  public void visit(Union union) {}
 
   /* FromItemVisitor */
   
   @Override
   public void visit(Table table) {
-    fromTable = TableManager.getTable(table.getName());
+    fromTables.add(TableManager.getTable(table.getName()));
   }
 
   @Override
-  public void visit(SubSelect subSelect) {
-    // TODO Auto-generated method stub
-    
-  }
+  public void visit(SubSelect subSelect) {}
 
   @Override
-  public void visit(SubJoin subjoin) {
-    // TODO Auto-generated method stub
-    
-  }
+  public void visit(SubJoin subJoin) {}
 
   /* SelectItemVisitor */
   
+  /**
+   * Global wildcards are resolved as table wildcards with the tables in the same order they appear
+   * in the from close.  This function converts global wildcards to whole columns in the specified
+   * order.
+   * 
+   * @param allColumns - global wildcard
+   */
   @Override
   public void visit(AllColumns allColumns) {
-    AllTableColumns allTableColumns = new AllTableColumns(fromTable.getTable());
-    visit(allTableColumns);
+    selectItems.remove(selectItemsIndex);
+    
+    for (DataTable fromTable : fromTables) {
+      for (Column column : fromTable.getSchema().getColumns()) {
+        column.accept(this);
+        SelectExpressionItem selectExpressionItem = new SelectExpressionItem();
+        selectExpressionItem.setExpression(column);
+        selectItems.add(selectItemsIndex, selectExpressionItem);
+        selectItemsIndex += 1;
+      }
+    }
   }
 
+  /**
+   * Table wildcards are resolved in the same order the columns appear in the create table 
+   * statement.  This functions converts table wildcards to whole columns in the specified order.
+   * 
+   * @param allTableColumns - table wildcard
+   */
   @Override
   public void visit(AllTableColumns allTableColumns) {
-    for (Column column : fromTable.getSchema().getColumns()) 
-      expressions.add(column);
+    selectItems.remove(selectItemsIndex);
+    DataTable fromTable = TableManager.getTable(allTableColumns.getTable().getName());
+    
+    for (Column column : fromTable.getSchema().getColumns()) {
+      column.accept(this);
+      SelectExpressionItem selectExpressionItem = new SelectExpressionItem();
+      selectExpressionItem.setExpression(column);
+      selectItems.add(selectItemsIndex, selectExpressionItem);
+      selectItemsIndex += 1;
+    }
   }
 
   @Override
   public void visit(SelectExpressionItem selectExpressionItem) {
-    Expression expr = selectExpressionItem.getExpression();
-    expr.accept(this);
-    System.out.println(expression);
-  }
-  
-  private Expression getWholeColumnExpression(Expression expression) {
-    Column column;
-    if (expression instanceof Column) {
-      column = (Column) expression;
-      return getWholeColumn(column);
-    }
-    return expression;
+    Expression expression = selectExpressionItem.getExpression();
+    expression.accept(this);
   }
   
   /* ExpressionVisitor */
@@ -260,7 +285,7 @@ public class SelectManager implements
 
   @Override
   public void visit(MinorThanEquals arg0) {
-    // TODO Auto-generated method stub
+    // TODO Auto-generated method =stub
     
   }
 
@@ -270,9 +295,20 @@ public class SelectManager implements
     
   }
 
+  /**
+   * Makes sure a table is set for the given column.
+   * 
+   * @param column - given column
+   */
   @Override
   public void visit(Column column) {
-    getWholeColumn(column);
+    if (column.getTable().toString().equals("null")) {
+      for (DataTable fromTable : fromTables) {
+        if (fromTable.getSchema().hasColumn(column)) {
+          column.setTable(fromTable.getTable());
+        }
+      }
+    }
   }
 
   @Override
@@ -333,10 +369,5 @@ public class SelectManager implements
   public void visit(BitwiseXor arg0) {
     // TODO Auto-generated method stub
     
-  }
-  
-  private Column getWholeColumn(Column column) {
-    if (column.getTable().toString().equals("null")) column.setTable(fromTable.getTable());
-    return column;
   }
 }

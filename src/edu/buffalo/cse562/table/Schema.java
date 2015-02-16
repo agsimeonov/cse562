@@ -3,7 +3,6 @@ package edu.buffalo.cse562.table;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
@@ -15,9 +14,8 @@ import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
  * @author Sunny Mistry
  */
 public class Schema {
-  private ArrayList<Column>     columns     = new ArrayList<Column>();
-  private ArrayList<String>     types       = new ArrayList<String>();
-  private ArrayList<Expression> expressions = new ArrayList<Expression>();
+  private ArrayList<Column> columns = new ArrayList<Column>();
+  private ArrayList<String> types   = new ArrayList<String>();
 
   /**
    * Creates the schema for a given table.
@@ -48,13 +46,16 @@ public class Schema {
    * @return true if the given column exists in the schema, otherwise false
    */
   public boolean hasColumn(Column inputColumn) {
-    String inputColumnName = inputColumn.getWholeColumnName().toLowerCase();
-    
+    boolean tableIsSet = !inputColumn.getTable().toString().equals("null");
+    String inputColumnName = tableIsSet ? inputColumn.getWholeColumnName().toLowerCase()
+                                       : inputColumn.getColumnName().toLowerCase();
+
     for (Column column : columns) {
-      String columnName = column.getWholeColumnName().toLowerCase();
+      String columnName = tableIsSet ? column.getWholeColumnName().toLowerCase()
+                                    : column.getColumnName().toLowerCase();
       if (inputColumnName.equals(columnName)) return true;
     }
-    
+
     return false;
   }
   

@@ -11,8 +11,7 @@ import net.sf.jsqlparser.statement.create.table.CreateTable;
 import edu.buffalo.cse562.iterator.TableIterator;
 
 /**
- * Manages the schema, and data file relationship for a given table, and provides an iterator over
- * its rows.
+ * Manages the schema, data file relationship for a table, and provides an iterator over its rows.
  * 
  * @author Alexander Simeonov
  * @author Sunny Mistry
