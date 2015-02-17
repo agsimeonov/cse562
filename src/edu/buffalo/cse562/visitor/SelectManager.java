@@ -91,7 +91,7 @@ public class SelectManager implements
   @SuppressWarnings("unchecked")
   @Override
   public void visit(PlainSelect plainSelect) {
-//    System.out.println(plainSelect);
+    System.out.println(plainSelect);
     // Handle FROM relation-list
     plainSelect.getFromItem().accept(this);
     if (plainSelect.getJoins() != null) {
@@ -111,9 +111,9 @@ public class SelectManager implements
     ParseTree fromUnionTree = toUnionTree(fromTables);
     fromUnionTree.setBase(root);
     root.setLeft(fromUnionTree);
-//    for (Row row : fromUnionTree)
-//      System.out.println(row);
-//    System.out.println(plainSelect);
+    for (Row row : fromUnionTree)
+      System.out.println(row);
+    System.out.println(plainSelect);
   }
   
   /**

@@ -10,7 +10,6 @@ import java.util.LinkedHashSet;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.statement.Statement;
-import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.TableManager;
 import edu.buffalo.cse562.visitor.StatementVisitorImpl;
 
