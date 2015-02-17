@@ -72,30 +72,5 @@ public class Main {
     } catch (ParseException e) {
       e.printStackTrace();
     }
-    
-    // TESTING PORTION REMOVE LATER
-
-    // EVALUATOR
-//    Evaluate e = new Evaluate();
-//    DataTable tbl = TableManager.getTable("R");
-//    Addition add = new Addition(tbl.getSchema().getColumns().get(0), tbl.getSchema().getColumns().get(1));
-//    for (Row row : tbl) {
-//      e.setRow(row);
-//      try {
-//        System.out.println(e.eval(add).toLong());
-//      } catch (InvalidLeaf e1) {
-//        // TODO Auto-generated catch block
-//        e1.printStackTrace();
-//      } catch (SQLException e1) {
-//        // TODO Auto-generated catch block
-//        e1.printStackTrace();
-//      }
-//    }
-    
-    // MORE TESTING GENERAL TABLE ITERATOR
-//    for(Object o : TableManager.getTable("R")) {
-//      Row row = (Row) o;
-//      System.out.println(row);
-//    }
   }
 }
