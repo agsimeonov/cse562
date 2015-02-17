@@ -7,7 +7,7 @@ import edu.buffalo.cse562.iterator.ConcatIterator;
 import edu.buffalo.cse562.table.Row;
 
 /**
- * A union node denoting that its children must undergo concatenation.
+ * A concatenation node denoting that its children must undergo concatenation.
  * 
  * @author Alexander Simeonov
  * @author Sunny Mistry
