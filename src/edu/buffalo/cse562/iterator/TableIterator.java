@@ -66,14 +66,17 @@ public class TableIterator implements RowIterator {
           case "int":
             row.setValue(column, new LongValue(Long.parseLong(data[i])));
             break;
-          case "float":
+          case "decimal":
             row.setValue(column, new DoubleValue(Double.parseDouble(data[i])));
             break;
           case "date":
             row.setValue(column, new DateValue("'" + data[i] + "'"));
             break;
+          case "varchar":
+          case "char":
           case "string":
             row.setValue(column, new StringValue("'" + data[i] + "'"));
+            break;
           default:
             row.setValue(column, new NullValue());
         }
