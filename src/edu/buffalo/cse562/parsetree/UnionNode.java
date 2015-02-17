@@ -7,10 +7,8 @@ import edu.buffalo.cse562.iterator.UnionIterator;
 import edu.buffalo.cse562.table.Row;
 
 public class UnionNode extends ParseTree {
-  public UnionNode(ParseTree base, ParseTree left, ParseTree right) {
+  public UnionNode(ParseTree base) {
     super(base);
-    super.left = left;
-    super.right = right;
   }
 
   @Override

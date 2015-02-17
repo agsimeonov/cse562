@@ -94,9 +94,9 @@ public class Main {
 //    }
     
     // MORE TESTING GENERAL TABLE ITERATOR
-    for(Object o : TableManager.getTable("R")) {
-      Row row = (Row) o;
-      System.out.println(row);
-    }
+//    for(Object o : TableManager.getTable("R")) {
+//      Row row = (Row) o;
+//      System.out.println(row);
+//    }
   }
 }

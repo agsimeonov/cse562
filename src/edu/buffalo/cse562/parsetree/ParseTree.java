@@ -11,6 +11,10 @@ public abstract class ParseTree implements Iterable<Row> {
     this.base = base;
   }
   
+  public void setBase(ParseTree base) {
+    this.base = base;
+  }
+  
   public void setLeft(ParseTree left) {
     this.left = left;
   }

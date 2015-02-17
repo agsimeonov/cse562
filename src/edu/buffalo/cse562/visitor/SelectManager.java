@@ -62,6 +62,7 @@ import edu.buffalo.cse562.parsetree.ProjectNode;
 import edu.buffalo.cse562.parsetree.TableNode;
 import edu.buffalo.cse562.parsetree.UnionNode;
 import edu.buffalo.cse562.table.DataTable;
+import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.TableManager;
 
 /**
@@ -90,7 +91,7 @@ public class SelectManager implements
   @SuppressWarnings("unchecked")
   @Override
   public void visit(PlainSelect plainSelect) {
-    System.out.println(plainSelect);
+//    System.out.println(plainSelect);
     // Handle FROM relation-list
     plainSelect.getFromItem().accept(this);
     if (plainSelect.getJoins() != null) {
@@ -106,28 +107,47 @@ public class SelectManager implements
     plainSelect.setSelectItems(selectItems);
     
     // Build the parse tree
-    
-    // Set root
     root = new ProjectNode(null, expressions);
+    ParseTree fromUnionTree = toUnionTree(fromTables);
+    fromUnionTree.setBase(root);
+//    root.setLeft(fromUnionTree);
+//    for (Row row : fromUnionTree)
+//      System.out.println(row);
+//    System.out.println(expressions);
+  }
+  
+  /**
+   * Converts a list of data tables to a union tree.
+   * 
+   * @param dataTables - list of data tables to convert
+   * @return root of resulting union tree
+   */
+  private ParseTree toUnionTree(ArrayList<DataTable> dataTables) {
+    ParseTree root = null;
+    ParseTree current = null;
     
-    // Transform multiple from to union tree
-    ParseTree base = null;
-    ParseTree curr = null;
-    for (int i = 0; i < fromTables.size(); i++) {
-      if (base == null) {
-        if (i + 1 == fromTables.size()) {
-          base = new TableNode(root, fromTables.get(i));
+    for (int i = 0; i < dataTables.size(); i++) {
+      if (current == null) {
+        if (i + 1 == dataTables.size()) {
+          current = new TableNode(null, dataTables.get(i));
+        } else {
+          current = new UnionNode(null);
+          current.setLeft(new TableNode(current, dataTables.get(i)));
         }
-        else {
-          TableNode node = new TableNode(curr, fromTables.get(i));
-          curr.setLeft(node);
-//          UnionNode union = new UnionNode
-        }
+        root = current;
       } else {
-        
+        if (i + 1 == dataTables.size()) {
+          current.setRight(new TableNode(current, dataTables.get(i)));
+        } else {
+          ParseTree next = new UnionNode(current);
+          current.setRight(next);
+          current = next;
+          current.setLeft(new TableNode(current, dataTables.get(i)));
+        }
       }
     }
-    System.out.println(expressions);
+    
+    return root;
   }
 
   @Override
