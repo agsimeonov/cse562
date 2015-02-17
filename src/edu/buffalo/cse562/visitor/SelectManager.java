@@ -110,7 +110,7 @@ public class SelectManager implements
     root = new ProjectNode(null, expressions);
     ParseTree fromUnionTree = toUnionTree(fromTables);
     fromUnionTree.setBase(root);
-//    root.setLeft(fromUnionTree);
+    root.setLeft(fromUnionTree);
 //    for (Row row : fromUnionTree)
 //      System.out.println(row);
 //    System.out.println(expressions);
