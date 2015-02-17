@@ -110,10 +110,10 @@ public class SelectManager implements
     
     // Build the parse tree
     root = new ProjectNode(null, null);
-    ParseTree fromUnionTree = toConcatTree(fromTables);
-    fromUnionTree.setBase(root);
-    root.setLeft(fromUnionTree);
-    for (Row row : fromUnionTree)
+    ParseTree fromConcatTree = toConcatTree(fromTables);
+    fromConcatTree.setBase(root);
+    root.setLeft(fromConcatTree);
+    for (Row row : fromConcatTree)
       System.out.println(row);
     System.out.println(plainSelect);
   }

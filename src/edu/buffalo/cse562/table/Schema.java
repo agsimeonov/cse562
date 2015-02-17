@@ -21,6 +21,17 @@ public class Schema {
   public Schema(ArrayList<Column> columns) {
     this.columns = columns;
   }
+  
+  /**
+   * Creates a new schema that is the concatenation of two given schemas.
+   * 
+   * @param left - left schema for append
+   * @param right - right schema for append
+   */
+  public Schema(Schema left, Schema right) {
+    columns.addAll(left.getColumns());
+    columns.addAll(right.getColumns());
+  }
 
   /**
    * Acquires an ordered list of columns for the schema.
@@ -49,24 +60,6 @@ public class Schema {
     }
 
     return false;
-  }
-  
-  /**
-   * Creates a new schema that is the concatenation of this schema and a given schema to append.
-   * 
-   * @param append - schema to append in concatenation
-   * @return a new schema that is the concatenation of this and the given schema to append
-   */
-  public Schema concat(Schema append) {
-    ArrayList<Column> concatColumns = new ArrayList<Column>();
-    
-    for (int i = 0; i < this.size(); i++)
-      concatColumns.add(this.columns.get(i));
-    
-    for (int i = 0; i < append.size(); i++)
-      concatColumns.add(append.columns.get(i));
-    
-    return new Schema(concatColumns);
   }
 
   /**

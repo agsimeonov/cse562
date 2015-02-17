@@ -53,21 +53,25 @@ public class Row {
   }
   
   /**
-   * Creates a new row that is the concatenation of this row and a given row to append.
+   * Concatenates this row and a given row to append.
    * 
    * @param append - row to append in concatenation
-   * @return a new row that is the concatenation of this and the given row to append
+   * @param schema - concatenated schema for the concatenated row
+   * @return Concatenation of this row and the given row to append
    */
-  public Row concat(Row append) {
-    Row concatRow = new Row(this.schema.concat(append.schema));
-    
-    for (Column column : this.schema.getColumns())
-      concatRow.setValue(column, this.getValue(column));
-    
-    for (Column column : append.schema.getColumns())
-      concatRow.setValue(column, append.getValue(column));
-    
-    return concatRow;
+  public Row concat(Row append, Schema schema) {
+    this.schema = schema;
+    values.putAll(append.values);
+    return this;
+  }
+  
+  /**
+   * Acquires the row schema.
+   * 
+   * @return the row schema
+   */
+  public Schema getSchema() {
+    return schema;
   }
 
   @Override

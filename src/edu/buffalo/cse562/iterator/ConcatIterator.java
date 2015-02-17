@@ -1,6 +1,7 @@
 package edu.buffalo.cse562.iterator;
 
 import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.table.Schema;
 
 /**
  * Iterates over rows in a left and right children iterators and produces concatenated rows.
@@ -11,6 +12,7 @@ import edu.buffalo.cse562.table.Row;
 public class ConcatIterator implements RowIterator {
   private RowIterator left;
   private RowIterator right;
+  private Schema schema;
 
   /**
    * Initializes the iterator.
@@ -31,13 +33,17 @@ public class ConcatIterator implements RowIterator {
 
   @Override
   public Row next() {
-    return left.next().concat(right.next());
+    Row leftRow = left.next();
+    Row rightRow = right.next();
+    if (schema == null) schema = new Schema(leftRow.getSchema(), rightRow.getSchema());
+    return leftRow.concat(rightRow, schema);
   }
 
   @Override
   public void close() {
     left.close();
     right.close();
+    schema = null;
   }
 
   @Override
