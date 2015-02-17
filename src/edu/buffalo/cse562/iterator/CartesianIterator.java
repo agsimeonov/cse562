@@ -48,7 +48,7 @@ public class CartesianIterator implements RowIterator {
     
     Row rightRow = rightIterator.next();
     if (schema == null) schema = new Schema(leftRow.getSchema(), rightRow.getSchema());
-    return leftRow.concat(rightRow, schema);
+    return new Row(schema, leftRow, rightRow);
   }
 
   @Override

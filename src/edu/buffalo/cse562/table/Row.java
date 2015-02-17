@@ -22,10 +22,23 @@ public class Row {
   /**
    * Creates an empty row tuple of LeafValue data elements.
    * 
-   * @param rowSchema - the expected schema for the row
+   * @param schema - the expected schema for the row
    */
-  public Row(Schema rowSchema) {
-    schema = rowSchema;
+  public Row(Schema schema) {
+    this.schema = schema;
+  }
+  
+  /**
+   * Creates a new row that is the concatenation of two given row.
+   * 
+   * @param schema - the expected schema for the row
+   * @param left - left row for concatenation
+   * @param right - right row for concatenation
+   */
+  public Row(Schema schema, Row left, Row right) {
+    this.schema = schema;
+    values.putAll(left.values);
+    values.putAll(right.values);
   }
   
   /**
@@ -50,19 +63,6 @@ public class Row {
    */
   public LeafValue getValue(Column column) {
     return values.get(column.getWholeColumnName().toLowerCase());
-  }
-  
-  /**
-   * Concatenates this row and a given row to append.
-   * 
-   * @param append - row to append in concatenation
-   * @param schema - concatenated schema for the concatenated row
-   * @return Concatenation of this row and the given row to append
-   */
-  public Row concat(Row append, Schema schema) {
-    this.schema = schema;
-    values.putAll(append.values);
-    return this;
   }
   
   /**

@@ -25,8 +25,8 @@ public class Schema {
   /**
    * Creates a new schema that is the concatenation of two given schemas.
    * 
-   * @param left - left schema for append
-   * @param right - right schema for append
+   * @param left - left schema for concatenation
+   * @param right - right schema for concatenation
    */
   public Schema(Schema left, Schema right) {
     columns.addAll(left.getColumns());

@@ -113,8 +113,7 @@ public class TableIterator implements RowIterator {
   @Override
   public void open() {
     try {
-      if (reader != null) close();
-      reader = new BufferedReader(new FileReader(data));
+      if (reader == null) reader = new BufferedReader(new FileReader(data));
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     }
