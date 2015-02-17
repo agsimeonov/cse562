@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
@@ -48,7 +47,12 @@ public class TableIterator implements RowIterator {
     if (reader == null) return false;
     
     try {
-      return reader.ready();
+      if (reader.ready()) {
+        return true;
+      } else {
+        close();
+        return false;
+      }
     } catch (IOException e) {
       e.printStackTrace();
       return false;
@@ -58,12 +62,13 @@ public class TableIterator implements RowIterator {
   @Override
   public Row next() {
     try {
+      if (!this.hasNext()) return null;
+      
       Row row = new Row(schema);
-      String[] data = reader.readLine().split("\\|");      
-      Iterator<Column> columnIterator = schema.getColumns().iterator();
+      String[] data = this.hasNext() ? reader.readLine().split("\\|") : null;
       
       for (int i = 0; i < schema.size(); i++) {
-        Column column = columnIterator.next();
+        Column column = schema.getColumns().get(i);
         String type = types.get(i).toLowerCase();
              
         switch (type) {
@@ -95,18 +100,21 @@ public class TableIterator implements RowIterator {
 
   @Override
   public void close() {
-    try {
-      reader.close();
-      reader = null;
-    } catch (IOException e) {
-      e.printStackTrace();
+    if (reader != null) {
+      try {
+        reader.close();
+        reader = null;
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
   }
 
   @Override
   public void open() {
     try {
-      if (reader == null) reader = new BufferedReader(new FileReader(data));
+      if (reader != null) close();
+      reader = new BufferedReader(new FileReader(data));
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     }

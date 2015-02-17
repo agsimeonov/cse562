@@ -60,7 +60,7 @@ import net.sf.jsqlparser.statement.select.Union;
 import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.parsetree.ProjectNode;
 import edu.buffalo.cse562.parsetree.TableNode;
-import edu.buffalo.cse562.parsetree.ConcatNode;
+import edu.buffalo.cse562.parsetree.CartesianNode;
 import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.TableManager;
@@ -110,21 +110,21 @@ public class SelectManager implements
     
     // Build the parse tree
     root = new ProjectNode(null, null);
-    ParseTree fromConcatTree = toConcatTree(fromTables);
-    fromConcatTree.setBase(root);
-    root.setLeft(fromConcatTree);
-    for (Row row : fromConcatTree)
+    ParseTree fromCartesianTree = toCartesianTree(fromTables);
+    fromCartesianTree.setBase(root);
+    root.setLeft(fromCartesianTree);
+    for (Row row : fromCartesianTree)
       System.out.println(row);
     System.out.println(plainSelect);
   }
   
   /**
-   * Converts a list of data tables to a concatenation tree.
+   * Converts a list of data tables to a Cartesian product tree.
    * 
    * @param dataTables - list of data tables to convert
-   * @return root of resulting concatenation tree
+   * @return root of resulting Cartesian product tree
    */
-  private ParseTree toConcatTree(ArrayList<DataTable> dataTables) {
+  private ParseTree toCartesianTree(ArrayList<DataTable> dataTables) {
     // TODO: May need to change this function somewhat when adding other from types
     ParseTree root = null;
     ParseTree current = null;
@@ -134,7 +134,7 @@ public class SelectManager implements
         if (i + 1 == dataTables.size()) {
           current = new TableNode(null, dataTables.get(i));
         } else {
-          current = new ConcatNode(null);
+          current = new CartesianNode(null);
           current.setLeft(new TableNode(current, dataTables.get(i)));
         }
         root = current;
@@ -142,7 +142,7 @@ public class SelectManager implements
         if (i + 1 == dataTables.size()) {
           current.setRight(new TableNode(current, dataTables.get(i)));
         } else {
-          ParseTree next = new ConcatNode(current);
+          ParseTree next = new CartesianNode(current);
           current.setRight(next);
           current = next;
           current.setLeft(new TableNode(current, dataTables.get(i)));

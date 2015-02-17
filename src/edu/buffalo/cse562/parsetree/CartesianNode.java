@@ -3,27 +3,27 @@ package edu.buffalo.cse562.parsetree;
 import java.util.Iterator;
 
 import edu.buffalo.cse562.iterator.RowIterator;
-import edu.buffalo.cse562.iterator.ConcatIterator;
+import edu.buffalo.cse562.iterator.CartesianIterator;
 import edu.buffalo.cse562.table.Row;
 
 /**
- * A concatenation node denoting that its children must undergo concatenation.
+ * A Cartesian product node.
  * 
  * @author Alexander Simeonov
  * @author Sunny Mistry
  */
-public class ConcatNode extends ParseTree {
+public class CartesianNode extends ParseTree {
   /**
-   * Initializes the union node.
+   * Initializes the Cartesian product node.
    * 
    * @param base - the parent node
    */
-  public ConcatNode(ParseTree base) {
+  public CartesianNode(ParseTree base) {
     super(base);
   }
 
   @Override
   public Iterator<Row> iterator() {
-    return new ConcatIterator((RowIterator) left.iterator(), (RowIterator) right.iterator());
+    return new CartesianIterator((RowIterator) left.iterator(), (RowIterator) right.iterator());
   }
 }
