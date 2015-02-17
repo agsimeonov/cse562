@@ -110,7 +110,7 @@ public class SelectManager implements
     
     // Build the parse tree
     root = new ProjectNode(null, null);
-    ParseTree fromUnionTree = toUnionTree(fromTables);
+    ParseTree fromUnionTree = toConcatTree(fromTables);
     fromUnionTree.setBase(root);
     root.setLeft(fromUnionTree);
     for (Row row : fromUnionTree)
@@ -119,12 +119,12 @@ public class SelectManager implements
   }
   
   /**
-   * Converts a list of data tables to a union tree.
+   * Converts a list of data tables to a concatenation tree.
    * 
    * @param dataTables - list of data tables to convert
-   * @return root of resulting union tree
+   * @return root of resulting concatenation tree
    */
-  private ParseTree toUnionTree(ArrayList<DataTable> dataTables) {
+  private ParseTree toConcatTree(ArrayList<DataTable> dataTables) {
     // TODO: May need to change this function somewhat when adding other from types
     ParseTree root = null;
     ParseTree current = null;
