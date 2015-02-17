@@ -11,7 +11,7 @@ import net.sf.jsqlparser.schema.Column;
  * @author Sunny Mistry
  */
 public class Schema {
-  private ArrayList<Column> columns = new ArrayList<Column>();
+  private ArrayList<Column> columns;
 
   /**
    * Creates the schema for a given table.
@@ -29,6 +29,7 @@ public class Schema {
    * @param right - right schema for concatenation
    */
   public Schema(Schema left, Schema right) {
+    columns = new ArrayList<Column>();
     columns.addAll(left.getColumns());
     columns.addAll(right.getColumns());
   }
