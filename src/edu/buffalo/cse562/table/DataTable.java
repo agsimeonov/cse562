@@ -20,8 +20,7 @@ import edu.buffalo.cse562.iterator.TableIterator;
  * @author Sunny Mistry
  */
 public class DataTable implements Iterable<Row> {
-  private ArrayList<Column> columns = new ArrayList<Column>();
-  private ArrayList<String> types   = new ArrayList<String>();
+  private ArrayList<String> types = new ArrayList<String>();
   private Schema            schema;
   private Table             table;
   private String            name;
@@ -34,6 +33,7 @@ public class DataTable implements Iterable<Row> {
    * @throws IOException
    */
   protected DataTable(CreateTable createTable) throws IOException {
+    ArrayList<Column> columns = new ArrayList<Column>();
     table = createTable.getTable();
     
     for (Object o : createTable.getColumnDefinitions()) {

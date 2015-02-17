@@ -51,7 +51,6 @@ public class Schema {
     return false;
   }
   
-  
   /**
    * Creates a new schema that is the concatenation of this schema and a given schema to append.
    * 

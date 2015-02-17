@@ -64,7 +64,7 @@ public class TableIterator implements RowIterator {
       
       for (int i = 0; i < schema.size(); i++) {
         Column column = columnIterator.next();
-        String type = types.get(i);
+        String type = types.get(i).toLowerCase();
              
         switch (type) {
           case "int":

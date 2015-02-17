@@ -3,12 +3,12 @@ package edu.buffalo.cse562.iterator;
 import edu.buffalo.cse562.table.Row;
 
 /**
- * Iterates over rows in a left and right children iterators and produces union rows.
+ * Iterates over rows in a left and right children iterators and produces concatenated rows.
  * 
  * @author Alexander Simeonov
  * @author Sunny Mistry
  */
-public class UnionIterator implements RowIterator {
+public class ConcatIterator implements RowIterator {
   private RowIterator left;
   private RowIterator right;
 
@@ -18,7 +18,7 @@ public class UnionIterator implements RowIterator {
    * @param left - left child iterator
    * @param right - right child iterator
    */
-  public UnionIterator(RowIterator left, RowIterator right) {
+  public ConcatIterator(RowIterator left, RowIterator right) {
     this.left = left;
     this.right = right;
     open();

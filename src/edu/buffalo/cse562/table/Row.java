@@ -52,6 +52,12 @@ public class Row {
     return values.get(column.getWholeColumnName().toLowerCase());
   }
   
+  /**
+   * Creates a new row that is the concatenation of this row and a given row to append.
+   * 
+   * @param append - row to append in concatenation
+   * @return a new row that is the concatenation of this and the given row to append
+   */
   public Row concat(Row append) {
     Row concatRow = new Row(this.schema.concat(append.schema));
     

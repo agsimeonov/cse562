@@ -60,7 +60,7 @@ import net.sf.jsqlparser.statement.select.Union;
 import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.parsetree.ProjectNode;
 import edu.buffalo.cse562.parsetree.TableNode;
-import edu.buffalo.cse562.parsetree.UnionNode;
+import edu.buffalo.cse562.parsetree.ConcatNode;
 import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.TableManager;
@@ -134,7 +134,7 @@ public class SelectManager implements
         if (i + 1 == dataTables.size()) {
           current = new TableNode(null, dataTables.get(i));
         } else {
-          current = new UnionNode(null);
+          current = new ConcatNode(null);
           current.setLeft(new TableNode(current, dataTables.get(i)));
         }
         root = current;
@@ -142,7 +142,7 @@ public class SelectManager implements
         if (i + 1 == dataTables.size()) {
           current.setRight(new TableNode(current, dataTables.get(i)));
         } else {
-          ParseTree next = new UnionNode(current);
+          ParseTree next = new ConcatNode(current);
           current.setRight(next);
           current = next;
           current.setLeft(new TableNode(current, dataTables.get(i)));
