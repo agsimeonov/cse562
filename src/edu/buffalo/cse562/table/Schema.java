@@ -1,11 +1,8 @@
 package edu.buffalo.cse562.table;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 
 /**
  * Represents the schema for a table and its rows.
@@ -15,30 +12,14 @@ import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
  */
 public class Schema {
   private ArrayList<Column> columns = new ArrayList<Column>();
-  private ArrayList<String> types   = new ArrayList<String>();
 
   /**
    * Creates the schema for a given table.
    * 
-   * @param table - the table associated with the schema
-   * @param columnDefinitions - an ordered list of column definitions for each column in the schema
+   * @param column - columns in this schema
    */
-  public Schema(Table table, List<ColumnDefinition> columnDefinitions) {
-    for (ColumnDefinition columnDefinition : columnDefinitions) {
-      columns.add(new Column(table, columnDefinition.getColumnName()));
-      types.add(columnDefinition.getColDataType().getDataType());
-    }
-  }
-  
-  /**
-   * Creates the schema for a given table.
-   * 
-   * @param columns - given columns list
-   * @param types - given types list
-   */
-  private Schema(ArrayList<Column> columns, ArrayList<String> types) {
+  public Schema(ArrayList<Column> columns) {
     this.columns = columns;
-    this.types = types;
   }
 
   /**
@@ -70,20 +51,6 @@ public class Schema {
     return false;
   }
   
-  /**
-   * Acquires the column type string for a given column.
-   * 
-   * @param column - given column
-   * @return the type string for a column, null if that column does not exist in the schema.
-   */
-  public String getColumnType(Column column) {
-    for (int i = 0; i < columns.size(); i++) {
-      if (column.getWholeColumnName().equals(columns.get(i).getWholeColumnName())) {
-        return types.get(i);
-      }
-    }
-    return null;
-  }
   
   /**
    * Creates a new schema that is the concatenation of this schema and a given schema to append.
@@ -93,19 +60,14 @@ public class Schema {
    */
   public Schema concat(Schema append) {
     ArrayList<Column> concatColumns = new ArrayList<Column>();
-    ArrayList<String> concatTypes = new ArrayList<String>();
     
-    for (int i = 0; i < this.size(); i++) {
+    for (int i = 0; i < this.size(); i++)
       concatColumns.add(this.columns.get(i));
-      concatTypes.add(this.types.get(i));
-    }
     
-    for (int i = 0; i < append.size(); i++) {
+    for (int i = 0; i < append.size(); i++)
       concatColumns.add(append.columns.get(i));
-      concatTypes.add(append.types.get(i));
-    }
     
-    return new Schema(concatColumns, concatTypes);
+    return new Schema(concatColumns);
   }
 
   /**

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import net.sf.jsqlparser.expression.DateValue;
@@ -23,19 +24,22 @@ import edu.buffalo.cse562.table.Schema;
  * @author Sunny Mistry
  */
 public class TableIterator implements RowIterator {
-  private File           data;
-  private Schema         schema;
-  private BufferedReader reader;
+  private File              data;
+  private Schema            schema;
+  private ArrayList<String> types;
+  private BufferedReader    reader;
 
   /**
    * Initializes the iterator.
    * 
    * @param dataFile - valid data file to iterate over
    * @param tableSchema - table schema for the data file
+   * @param types - list of types for each column in the table
    */
-  public TableIterator(File dataFile, Schema tableSchema) {
-    data = dataFile;
-    schema = tableSchema;
+  public TableIterator(File data, Schema schema, ArrayList<String> types) {
+    this.data = data;
+    this.schema = schema;
+    this.types = types;
     open();
   }
   
@@ -60,7 +64,7 @@ public class TableIterator implements RowIterator {
       
       for (int i = 0; i < schema.size(); i++) {
         Column column = columnIterator.next();
-        String type = schema.getColumnType(column).toLowerCase();
+        String type = types.get(i);
              
         switch (type) {
           case "int":

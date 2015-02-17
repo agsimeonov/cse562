@@ -4,9 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Iterator;
 
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import edu.buffalo.cse562.iterator.TableIterator;
 
@@ -17,10 +20,12 @@ import edu.buffalo.cse562.iterator.TableIterator;
  * @author Sunny Mistry
  */
 public class DataTable implements Iterable<Row> {
-  private Schema schema;
-  private Table  table;
-  private String name;
-  private File   data;
+  private ArrayList<Column> columns = new ArrayList<Column>();
+  private ArrayList<String> types   = new ArrayList<String>();
+  private Schema            schema;
+  private Table             table;
+  private String            name;
+  private File              data;
 
   /**
    * Creates the table by storing its schema and associating it with a file.
@@ -28,10 +33,16 @@ public class DataTable implements Iterable<Row> {
    * @param createTable
    * @throws IOException
    */
-  @SuppressWarnings("unchecked")
   protected DataTable(CreateTable createTable) throws IOException {
     table = createTable.getTable();
-    schema = new Schema(table, createTable.getColumnDefinitions());
+    
+    for (Object o : createTable.getColumnDefinitions()) {
+      ColumnDefinition columnDefinition = (ColumnDefinition) o;
+      columns.add(new Column(table, columnDefinition.getColumnName()));
+      types.add(columnDefinition.getColDataType().getDataType());
+    }
+    
+    schema = new Schema(columns);
     name = createTable.getTable().getName();
     
     // Make sure the data file exists
@@ -81,6 +92,6 @@ public class DataTable implements Iterable<Row> {
 
   @Override
   public Iterator<Row> iterator() {
-    return new TableIterator(data, schema);
+    return new TableIterator(data, schema, types);
   }
 }

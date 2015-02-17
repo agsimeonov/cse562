@@ -93,6 +93,7 @@ public class SelectManager implements
   public void visit(PlainSelect plainSelect) {
     System.out.println(plainSelect);
     // Handle FROM relation-list
+    // TODO: Should change to handle SubSelect and SubJoin
     plainSelect.getFromItem().accept(this);
     if (plainSelect.getJoins() != null) {
       for (Object o : plainSelect.getJoins()) {
@@ -100,14 +101,15 @@ public class SelectManager implements
         join.getRightItem().accept(this);
       }
     }
-    // Handle SELECT target-list
+    
+    // Convert SELECT wildcards to columns
     selectItems = plainSelect.getSelectItems();
     for (selectItemsIndex = 0; selectItemsIndex < selectItems.size(); selectItemsIndex++)
       selectItems.get(selectItemsIndex).accept(this);
     plainSelect.setSelectItems(selectItems);
     
     // Build the parse tree
-    root = new ProjectNode(null, expressions);
+    root = new ProjectNode(null, null);
     ParseTree fromUnionTree = toUnionTree(fromTables);
     fromUnionTree.setBase(root);
     root.setLeft(fromUnionTree);
