@@ -78,6 +78,7 @@ public class SelectManager implements
                           ExpressionVisitor {
   private ArrayList<DataTable>  fromTables  = new ArrayList<DataTable>();
   private ArrayList<Expression> expressions = new ArrayList<Expression>();
+  private ArrayList<SelectExpressionItem> items = new ArrayList<SelectExpressionItem>();
   private ParseTree             root;
   private List<SelectItem>      selectItems;
   private int                   selectItemsIndex;
@@ -109,11 +110,11 @@ public class SelectManager implements
     plainSelect.setSelectItems(selectItems);
     
     // Build the parse tree
-    root = new ProjectNode(null, null);
+    root = new ProjectNode(null, items);
     ParseTree fromCartesianTree = toCartesianTree(fromTables);
     fromCartesianTree.setBase(root);
     root.setLeft(fromCartesianTree);
-    for (Row row : fromCartesianTree)
+    for (Row row : root)
       System.out.println(row);
     System.out.println(plainSelect);
   }
@@ -212,6 +213,7 @@ public class SelectManager implements
       SelectExpressionItem selectExpressionItem = new SelectExpressionItem();
       selectExpressionItem.setExpression(column);
       selectItems.add(selectItemsIndex, selectExpressionItem);
+      items.add(selectExpressionItem);
       selectItemsIndex++;
     }
   }
@@ -221,6 +223,8 @@ public class SelectManager implements
     Expression expression = selectExpressionItem.getExpression();
     expression.accept(this);
     expressions.add(expression);
+    selectExpressionItem.setExpression(expression);
+    items.add(selectExpressionItem);
   }
   
   /* ExpressionVisitor */

@@ -1,13 +1,27 @@
 package edu.buffalo.cse562.iterator;
 
-import java.util.ArrayList;
+import java.sql.SQLException;
+import java.util.List;
 
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import edu.buffalo.cse562.table.Row;
 
-public class NonAggregateIterator extends ProjectIterator implements RowIterator {
-  public NonAggregateIterator(RowIterator iterator, ArrayList<SelectExpressionItem> expressions) {
-    super(iterator, expressions);
+/**
+ * Iterates over rows in a given iterator and handles non-aggregate queries. 
+ * 
+ * @author Alexander Simeonov
+ * @author Sunny Mistry
+ */
+public class NonAggregateIterator extends ProjectIterator {
+  /**
+   * Initializes the iterator.
+   * 
+   * @param iterator - child iterator
+   * @param items - contains columns that can be handled
+   */
+  public NonAggregateIterator(RowIterator iterator, List<SelectExpressionItem> items) {
+    super(iterator, items);
   }
 
   @Override
@@ -17,17 +31,17 @@ public class NonAggregateIterator extends ProjectIterator implements RowIterator
 
   @Override
   public Row next() {
+    if (!this.hasNext()) return null;
     evaluate.setRow(iterator.next());
-//    if (!this.hasNext()) return null;
-//    Row inRow = iterator.next();
-//    Row outRow = new Row(schema);
-//    
-//    evaluate.setRow(inRow);
-//    for (Column column : schema.getColumns()) {
-////      outRow.setValue(column, )
-//    }
-//    
-//    return outRow;
-    return null;
+    Row row = new Row(schema);
+    for (int i = 0; i < expressions.size(); i++) {
+      Column column = (Column) expressions.get(i);
+      try {
+        row.setValue(column, evaluate.eval(expressions.get(i)));
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
+    }
+    return row;
   }
 }

@@ -1,23 +1,25 @@
 package edu.buffalo.cse562.parsetree;
 
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import edu.buffalo.cse562.iterator.NonAggregateIterator;
+import edu.buffalo.cse562.iterator.RowIterator;
 import edu.buffalo.cse562.table.Row;
 
 public class ProjectNode extends ParseTree {
-  protected ArrayList<SelectExpressionItem> expressions = new ArrayList<SelectExpressionItem>();
+  protected List<SelectExpressionItem> items;
 
-  public ProjectNode(ParseTree base, ArrayList<SelectExpressionItem> expressions) {
+  public ProjectNode(ParseTree base, List<SelectExpressionItem> items) {
     super(base);
-    this.expressions = expressions;
+    this.items = items;
   }
 
   @Override
   public Iterator<Row> iterator() {
     // Determine here whether we have an aggregate, non aggregate, or distinct and choose correctly
 //    return new NonAggregateIterator((RowIterator) left.getLeft().iterator(), null, expressions);
-    return null;
+    return new NonAggregateIterator((RowIterator) left.iterator(), items);
   }
 }
