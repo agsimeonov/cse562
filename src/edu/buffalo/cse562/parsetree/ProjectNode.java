@@ -3,7 +3,10 @@ package edu.buffalo.cse562.parsetree;
 import java.util.Iterator;
 import java.util.List;
 
+import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import edu.buffalo.cse562.iterator.AggregateIterator;
 import edu.buffalo.cse562.iterator.NonAggregateIterator;
 import edu.buffalo.cse562.iterator.RowIterator;
 import edu.buffalo.cse562.table.Row;
@@ -18,8 +21,20 @@ public class ProjectNode extends ParseTree {
 
   @Override
   public Iterator<Row> iterator() {
-    // Determine here whether we have an aggregate, non aggregate, or distinct and choose correctly
-//    return new NonAggregateIterator((RowIterator) left.getLeft().iterator(), null, expressions);
-    return new NonAggregateIterator((RowIterator) left.iterator(), items);
+    boolean hasColumns = false;
+    boolean hasFunctions = false;
+    
+    for (SelectExpressionItem item : items) {
+      if (item.getExpression() instanceof Column) hasColumns = true;
+      if (item.getExpression() instanceof Function) hasFunctions = true;
+    }
+    
+    if (hasColumns && hasFunctions) {
+      return null;
+    } else if (!hasColumns && hasFunctions) {
+      return new AggregateIterator((RowIterator) left.iterator(), items);
+    } else {
+      return new NonAggregateIterator((RowIterator) left.iterator(), items);
+    }
   }
 }
