@@ -234,7 +234,7 @@ public class SelectManager implements
 
   @Override
   public void visit(Function function) {
-    System.out.println(function.getParameters());
+    if (function.isAllColumns()) return;
     for (Object o : function.getParameters().getExpressions()) {
       Expression expression = (Expression) o;
       expression.accept(this);
