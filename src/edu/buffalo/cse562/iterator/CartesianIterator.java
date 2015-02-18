@@ -32,7 +32,12 @@ public class CartesianIterator implements RowIterator {
     if (leftIterator.hasNext()) {
       return true;
     } else {
-      return rightIterator.hasNext();
+      if (rightIterator.hasNext()) {
+        return true;
+      } else {
+        close();
+        return false;
+      }
     }
   }
 

@@ -234,6 +234,7 @@ public class SelectManager implements
 
   @Override
   public void visit(Function function) {
+    System.out.println(function.getParameters());
     for (Object o : function.getParameters().getExpressions()) {
       Expression expression = (Expression) o;
       expression.accept(this);
