@@ -9,15 +9,28 @@ import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
 import net.sf.jsqlparser.expression.LongValue;
 import edu.buffalo.cse562.table.Row;
 
-public class Sum extends Generate {
-  Boolean isLong = null;
-  LongValue longSum = new LongValue(0);
-  DoubleValue doubleSum = new DoubleValue(0.0);
+/**
+ * Aggregate sum solver that produces the current sum as new rows are encountered.
+ * 
+ * @author Alexander Simeonov
+ * @author Sunny Mistry
+ */
+public class Sum extends Aggregate {
+  protected Boolean isLong = null;
+  protected LongValue longSum = new LongValue(0);
+  protected DoubleValue doubleSum = new DoubleValue(0.0);
   
-  public Sum(Expression expression, Evaluate evaluate) {
+  /**
+   * Initializes the aggregate by setting the expression to be evaluated.
+   * 
+   * @param expression - expression to be evaluated
+   * @param evaluate - evaluator used to evaluate the given expression
+   */
+  protected Sum(Expression expression, Evaluate evaluate) {
     super(expression, evaluate);
   }
   
+  @Override
   public LeafValue yield(Row row) {
     LeafValue result = null;
     evaluate.setRow(row); 
@@ -40,6 +53,6 @@ public class Sum extends Generate {
       e.printStackTrace();
     }
     
-    return null;
+    return longSum;
   }
 }

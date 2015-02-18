@@ -1,15 +1,31 @@
 package edu.buffalo.cse562.iterator;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
-import edu.buffalo.cse562.table.Row;
-import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.expression.LeafValue;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import edu.buffalo.cse562.evaluate.Aggregate;
+import edu.buffalo.cse562.table.Row;
 
+/**
+ * Iterates over rows in a given iterator and handles aggregate queries. 
+ * 
+ * @author Alexander Simeonov
+ * @author Sunny Mistry
+ */
 public class AggregateIterator extends ProjectIterator {
+  private ArrayList<Aggregate> aggregators = new ArrayList<Aggregate>();
   private boolean ready = true;
   
+  /**
+   * Initializes the iterator.
+   * 
+   * @param iterator - child iterator
+   * @param items - contains columns and their aliases
+   */
   public AggregateIterator(RowIterator iterator, List<SelectExpressionItem> items) {
     super(iterator, items);
     open();
@@ -27,19 +43,25 @@ public class AggregateIterator extends ProjectIterator {
   @Override
   public Row next() {
     if (!this.hasNext()) return null;
-    evaluate.setRow(iterator.next());
-    Row row = new Row(schema);
+    LeafValue[] results = new LeafValue[inExpressions.size()];
     
-    for (int i = 0; i < expressions.size(); i++) {
-      Column column = schema.getColumns().get(i);
-      try {
-        row.setValue(column, evaluate.eval(expressions.get(i)));
-      } catch (SQLException e) {
-        e.printStackTrace();
-      }
+    for(Expression e : inExpressions) {
+      Function function = (Function) e;
+      aggregators.add(Aggregate.getAggregate(function, evaluate));
     }
+    
+    while (iterator.hasNext()) {
+      for (int i = 0; i < inExpressions.size(); i++)
+        results[i] = aggregators.get(i).yield(iterator.next());
+    }
+    
+    Row out = new Row(outSchema);
+    
+    for (int i = 0; i < results.length; i++)
+      out.setValue(outSchema.getColumns().get(i), results[i]);
+    
     ready = false;
-    return  null;
+    return out;
   }
   
   @Override

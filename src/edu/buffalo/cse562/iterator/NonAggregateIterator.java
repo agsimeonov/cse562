@@ -38,12 +38,12 @@ public class NonAggregateIterator extends ProjectIterator {
   public Row next() {
     if (!this.hasNext()) return null;
     evaluate.setRow(iterator.next());
-    Row row = new Row(schema);
+    Row row = new Row(outSchema);
     
-    for (int i = 0; i < expressions.size(); i++) {
-      Column column = schema.getColumns().get(i);
+    for (int i = 0; i < inExpressions.size(); i++) {
+      Column column = outSchema.getColumns().get(i);
       try {
-        row.setValue(column, evaluate.eval(expressions.get(i)));
+        row.setValue(column, evaluate.eval(inExpressions.get(i)));
       } catch (SQLException e) {
         e.printStackTrace();
       }

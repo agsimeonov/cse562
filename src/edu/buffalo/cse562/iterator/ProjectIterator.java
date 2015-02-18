@@ -17,10 +17,10 @@ import edu.buffalo.cse562.table.Schema;
  * @author Sunny Mistry
  */
 public abstract class ProjectIterator implements RowIterator {
-  protected ArrayList<Expression>      expressions = new ArrayList<Expression>();
+  protected ArrayList<Expression>      inExpressions = new ArrayList<Expression>();
   protected RowIterator                iterator;
   protected List<SelectExpressionItem> items;
-  protected Schema                     schema;
+  protected Schema                     outSchema;
   protected Evaluate                   evaluate;
 
   /**
@@ -38,7 +38,7 @@ public abstract class ProjectIterator implements RowIterator {
     
     for (int i = 0; i < items.size(); i++) {
       Expression expression = items.get(i).getExpression();
-      expressions.add(items.get(i).getExpression());
+      inExpressions.add(items.get(i).getExpression());
       
       String alias = items.get(i).getAlias();
       if (expression instanceof Column && alias == null) {
@@ -49,7 +49,7 @@ public abstract class ProjectIterator implements RowIterator {
       }
     }
 
-    schema = new Schema(columns);
+    outSchema = new Schema(columns);
     open();
   }
 
