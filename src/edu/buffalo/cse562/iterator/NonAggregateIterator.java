@@ -39,6 +39,7 @@ public class NonAggregateIterator extends ProjectIterator {
     if (!this.hasNext()) return null;
     evaluate.setRow(iterator.next());
     Row row = new Row(schema);
+    
     for (int i = 0; i < expressions.size(); i++) {
       Column column = schema.getColumns().get(i);
       try {

@@ -7,7 +7,7 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import edu.buffalo.cse562.parsetree.Evaluate;
+import edu.buffalo.cse562.evaluate.Evaluate;
 import edu.buffalo.cse562.table.Schema;
 
 /**
