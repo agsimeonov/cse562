@@ -18,7 +18,6 @@ import edu.buffalo.cse562.table.Schema;
  */
 public abstract class ProjectIterator implements RowIterator {
   protected ArrayList<Expression>      expressions = new ArrayList<Expression>();
-  protected ArrayList<String>          aliases     = new ArrayList<String>();
   protected RowIterator                iterator;
   protected List<SelectExpressionItem> items;
   protected Schema                     schema;
@@ -28,7 +27,7 @@ public abstract class ProjectIterator implements RowIterator {
    * Initializes the iterator.
    * 
    * @param iterator - child iterator
-   * @param items - contains expressions that should be handled
+   * @param items - contains expressions and their aliases
    */
   public ProjectIterator(RowIterator iterator, List<SelectExpressionItem> items) {
     ArrayList<Column> columns = new ArrayList<Column>();
@@ -39,11 +38,15 @@ public abstract class ProjectIterator implements RowIterator {
     
     for (int i = 0; i < items.size(); i++) {
       Expression expression = items.get(i).getExpression();
-      String alias = items.get(i).getAlias();
-      if (alias == null) alias = expression.toString();
-      aliases.add(alias);
       expressions.add(items.get(i).getExpression());
-      columns.add(new Column(table, alias));
+      
+      String alias = items.get(i).getAlias();
+      if (expression instanceof Column && alias == null) {
+        columns.add((Column) expression);
+      } else {
+        if (alias == null) alias = expression.toString();
+        columns.add(new Column(table, alias));
+      }
     }
 
     schema = new Schema(columns);

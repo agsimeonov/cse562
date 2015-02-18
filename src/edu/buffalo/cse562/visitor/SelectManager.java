@@ -76,13 +76,13 @@ public class SelectManager implements
                           FromItemVisitor,
                           SelectItemVisitor,
                           ExpressionVisitor {
-  private ArrayList<DataTable>  fromTables  = new ArrayList<DataTable>();
-  private ArrayList<Expression> expressions = new ArrayList<Expression>();
-  private ArrayList<SelectExpressionItem> items = new ArrayList<SelectExpressionItem>();
-  private ParseTree             root;
-  private List<SelectItem>      selectItems;
-  private int                   selectItemsIndex;
-  
+  private ArrayList<DataTable>       fromTables  = new ArrayList<DataTable>();
+  private ArrayList<Expression>      expressions = new ArrayList<Expression>();
+  private List<SelectExpressionItem> items       = new ArrayList<SelectExpressionItem>();
+  private ParseTree                  root;
+  private List<SelectItem>           selectItems;
+  private int                        selectItemsIndex;
+
   public ParseTree getRoot() {
     return root;
   }

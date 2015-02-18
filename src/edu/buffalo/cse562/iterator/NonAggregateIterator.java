@@ -18,7 +18,7 @@ public class NonAggregateIterator extends ProjectIterator {
    * Initializes the iterator.
    * 
    * @param iterator - child iterator
-   * @param items - contains columns that can be handled
+   * @param items - contains columns and their aliases
    */
   public NonAggregateIterator(RowIterator iterator, List<SelectExpressionItem> items) {
     super(iterator, items);
@@ -35,7 +35,7 @@ public class NonAggregateIterator extends ProjectIterator {
     evaluate.setRow(iterator.next());
     Row row = new Row(schema);
     for (int i = 0; i < expressions.size(); i++) {
-      Column column = (Column) expressions.get(i);
+      Column column = schema.getColumns().get(i);
       try {
         row.setValue(column, evaluate.eval(expressions.get(i)));
       } catch (SQLException e) {
