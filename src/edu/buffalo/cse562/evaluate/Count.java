@@ -12,7 +12,7 @@ import edu.buffalo.cse562.table.Row;
  * @author Sunny Mistry
  */
 public class Count extends Aggregate {
-  private long count = 0;
+  private LongValue count = new LongValue(0);
 
   /**
    * Initializes the aggregate by setting the expression to be evaluated.
@@ -26,7 +26,7 @@ public class Count extends Aggregate {
 
   @Override
   public LeafValue yield(Row row) {
-    count = count + 1;
-    return new LongValue(count);
+    count.setValue(count.getValue() + 1);
+    return count;
   }
 }
