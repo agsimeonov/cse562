@@ -13,6 +13,7 @@ import edu.buffalo.cse562.table.Row;
 public class DistinctIterator implements RowIterator {
   private final RowIterator iterator;
   private HashSet<Row>      buffer;
+  private Row               next;
 
   /**
    * Initializes the iterator.
@@ -27,20 +28,27 @@ public class DistinctIterator implements RowIterator {
   @Override
   public boolean hasNext() {
     if (buffer == null) return false;
+    if (next != null) return true;
     
-    if (buffer.isEmpty()) {
-      close();
-      return false;
-    } else {
-      return true;
+    while (iterator.hasNext()) {
+      Row nextRow = iterator.next();
+      
+      if (!buffer.contains(nextRow)) {
+        buffer.add(nextRow);
+        next = nextRow;
+        return true;
+      }
     }
+    
+    close();
+    return false;
   }
 
   @Override
   public Row next() {
     if (!this.hasNext()) return null;
-    Row row = buffer.iterator().next();
-    buffer.remove(row);
+    Row row = next;
+    next = null;
     return row;
   }
 
@@ -50,18 +58,10 @@ public class DistinctIterator implements RowIterator {
     buffer = null;
   }
 
-  /**
-   * Builds a buffer of distinct rows to be used for the iteration.
-   */
   @Override
   public void open() {
     if (buffer != null) return;
     iterator.open();
     buffer = new HashSet<Row>();
-    while (iterator.hasNext()) {
-      Row next = iterator.next();
-      System.out.println(next.hashCode());
-      buffer.add(next);
-    }
   }
 }
