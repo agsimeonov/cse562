@@ -78,21 +78,23 @@ public class Row {
   
   @Override
   public int hashCode() {
-    int hash = 0;
+    Integer hash = 0;
     
-    for (String key : values.keySet()) {
+    for (int i = 0; i < schema.size(); i++) {
+      Column column = schema.getColumns().get(i);
+      String key = column.getWholeColumnName().toLowerCase();
       LeafValue value = values.get(key);
       
       try {
         if (value instanceof LongValue) {
-          hash += Objects.hash(key, Long.valueOf(value.toLong()));
+          hash = Objects.hash(hash, key, Long.valueOf(value.toLong()));
         } else if (value instanceof DoubleValue) {
-          hash += Objects.hash(key, Double.valueOf(value.toDouble()));
+          hash = Objects.hash(hash, key, Double.valueOf(value.toDouble()));
         } else if (value instanceof StringValue) {
-          hash += Objects.hash(key, value.toString());
+          hash = Objects.hash(hash, key, value.toString());
         } else {
           long time = ((DateValue) value).getValue().getTime();
-          hash += Objects.hash(key, Long.valueOf(time));
+          hash = Objects.hash(hash, key, Long.valueOf(time));
         }
       } catch (InvalidLeaf e) {
         e.printStackTrace();

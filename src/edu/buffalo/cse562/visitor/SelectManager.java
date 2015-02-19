@@ -57,10 +57,10 @@ import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.Union;
+import edu.buffalo.cse562.parsetree.CartesianNode;
 import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.parsetree.ProjectNode;
 import edu.buffalo.cse562.parsetree.TableNode;
-import edu.buffalo.cse562.parsetree.CartesianNode;
 import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.TableManager;
@@ -114,6 +114,13 @@ public class SelectManager implements
     ParseTree fromCartesianTree = toCartesianTree(fromTables);
     fromCartesianTree.setBase(root);
     root.setLeft(fromCartesianTree);
+    
+    // Test distinct
+//    ParseTree distinct = new DistinctNode(null);
+//    distinct.setLeft(root);
+//    root.setBase(distinct);
+//    root = distinct;
+    
     for (Row row : root)
       System.out.println(row);
     System.out.println(plainSelect);
