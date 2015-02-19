@@ -26,12 +26,9 @@ public class NonAggregateIterator extends ProjectIterator {
 
   @Override
   public boolean hasNext() {
-    if (iterator.hasNext()) {
-      return true;
-    } else {
-      close();
-      return false;
-    }
+    if (iterator.hasNext()) return true;
+    close();
+    return false;
   }
 
   @Override

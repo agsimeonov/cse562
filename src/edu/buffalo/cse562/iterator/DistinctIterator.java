@@ -5,17 +5,18 @@ import java.util.HashSet;
 import edu.buffalo.cse562.table.Row;
 
 public class DistinctIterator implements RowIterator {
-  private RowIterator  iterator;
-  private HashSet<Row> buffer = new HashSet<Row>();
+  private final RowIterator iterator;
+  private HashSet<Row>      buffer;
 
   public DistinctIterator(RowIterator iterator) {
     this.iterator = iterator;
-    while (iterator.hasNext())
-      buffer.add(iterator.next());
+    open();
   }
-  
+
   @Override
   public boolean hasNext() {
+    if (buffer == null) return false;
+    
     if (buffer.isEmpty()) {
       close();
       return false;
@@ -35,10 +36,16 @@ public class DistinctIterator implements RowIterator {
   @Override
   public void close() {
     iterator.close();
+    buffer = null;
   }
 
   @Override
   public void open() {
-    iterator.open();
+    if (buffer == null) {
+      iterator.open();
+      buffer = new HashSet<Row>(); 
+      while (iterator.hasNext())
+        buffer.add(iterator.next());
+    }
   }
 }

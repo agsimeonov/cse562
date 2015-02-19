@@ -17,8 +17,8 @@ import edu.buffalo.cse562.table.Row;
  * @author Sunny Mistry
  */
 public class AggregateIterator extends ProjectIterator {
-  private ArrayList<Aggregate> aggregators = new ArrayList<Aggregate>();
-  private boolean              ready       = true;
+  private ArrayList<Aggregate> aggregators;
+  private boolean              ready;
 
   /**
    * Initializes the iterator.
@@ -33,9 +33,7 @@ public class AggregateIterator extends ProjectIterator {
 
   @Override
   public boolean hasNext() {
-    if (iterator.hasNext() && ready) {
-      return true;
-    }
+    if (iterator.hasNext() && ready) return true;
     close();
     return false;
   }
@@ -51,8 +49,10 @@ public class AggregateIterator extends ProjectIterator {
     }
     
     while (iterator.hasNext()) {
-      for (int i = 0; i < inExpressions.size(); i++)
-        results[i] = aggregators.get(i).yield(iterator.next());
+      Row next = iterator.next();
+      for (int i = 0; i < inExpressions.size(); i++) {
+        results[i] = aggregators.get(i).yield(next);
+      }
     }
     
     Row out = new Row(outSchema);
@@ -67,12 +67,16 @@ public class AggregateIterator extends ProjectIterator {
   @Override
   public void close() {
     super.close();
+    aggregators = null;
     ready = false;
   }
 
   @Override
   public void open() {
-    super.open();
-    ready = true;
+    if (!ready) {
+      super.open();
+      aggregators = new ArrayList<Aggregate>();
+      ready = true;
+    }
   }
 }

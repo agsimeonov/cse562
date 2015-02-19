@@ -17,11 +17,11 @@ import edu.buffalo.cse562.table.Schema;
  * @author Sunny Mistry
  */
 public abstract class ProjectIterator implements RowIterator {
-  protected ArrayList<Expression>      inExpressions = new ArrayList<Expression>();
-  protected RowIterator                iterator;
-  protected List<SelectExpressionItem> items;
-  protected Schema                     outSchema;
-  protected Evaluate                   evaluate;
+  protected final RowIterator                iterator;
+  protected final List<SelectExpressionItem> items;
+  protected ArrayList<Expression>            inExpressions;
+  protected Schema                           outSchema;
+  protected Evaluate                         evaluate;
 
   /**
    * Initializes the iterator.
@@ -30,16 +30,32 @@ public abstract class ProjectIterator implements RowIterator {
    * @param items - contains expressions and their aliases
    */
   public ProjectIterator(RowIterator iterator, List<SelectExpressionItem> items) {
-    ArrayList<Column> columns = new ArrayList<Column>();
-    Table table = new Table();
     this.iterator = iterator;
     this.items = items;
+    open();
+  }
+
+  @Override
+  public void close() {
+    iterator.close();
+    inExpressions = null;
+    outSchema = null;
+    evaluate = null;
+  }
+  
+  @Override
+  public void open() {
+    if (inExpressions != null) return;
+    iterator.open();
+    inExpressions = new ArrayList<Expression>();
+    ArrayList<Column> columns = new ArrayList<Column>();
+    Table table = new Table();
     evaluate = new Evaluate();
-    
+
     for (int i = 0; i < items.size(); i++) {
       Expression expression = items.get(i).getExpression();
       inExpressions.add(items.get(i).getExpression());
-      
+
       String alias = items.get(i).getAlias();
       if (expression instanceof Column && alias == null) {
         columns.add((Column) expression);
@@ -50,16 +66,5 @@ public abstract class ProjectIterator implements RowIterator {
     }
 
     outSchema = new Schema(columns);
-    open();
-  }
-
-  @Override
-  public void close() {
-    iterator.close();
-  }
-  
-  @Override
-  public void open() {
-    iterator.open();
   }
 }

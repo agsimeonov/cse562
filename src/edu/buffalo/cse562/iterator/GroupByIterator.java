@@ -22,14 +22,55 @@ public class GroupByIterator extends ProjectIterator {
   private HashMap<Row, ArrayList<ColumnAggregatePair>> buffer;
 
   /**
-   * Builds the group by iterator, by computing the desired rows and placing them in a buffer for
-   * future calls to {@link #next()} or {@link #hasNext()}.
+   * Initializes the iterator.
    * 
    * @param iterator - child iterator
    * @param items - contains columns and their aliases
    */
   public GroupByIterator(RowIterator iterator, List<SelectExpressionItem> items) {
     super(iterator, items);
+    open();
+  }
+
+  @Override
+  public boolean hasNext() {
+    if (buffer == null) return false;
+    if (buffer.isEmpty()) {
+      close();
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  @Override
+  public Row next() {
+    if (!this.hasNext()) return null;
+    
+    Row row = buffer.keySet().iterator().next();
+    ArrayList<ColumnAggregatePair> pairs = buffer.get(row);
+    buffer.remove(row);
+    
+    for (ColumnAggregatePair pair : pairs)
+      row.setValue(pair.column, pair.aggregate.currentResult());
+    
+    return row;
+  }
+  
+  @Override
+  public void close() {
+    super.close();
+    buffer = null;
+  }
+  
+  /**
+   * Initializes the group by iterator, by computing the desired rows and placing them in a buffer 
+   * for future calls to {@link #next()} or {@link #hasNext()}.
+   */
+  @Override
+  public void open() {
+    if (buffer != null) return;
+    super.open();
     buffer = new HashMap<Row, ArrayList<ColumnAggregatePair>>();
     
     while (this.iterator.hasNext()) {
@@ -63,30 +104,6 @@ public class GroupByIterator extends ProjectIterator {
         buffer.put(outRow, pairs);
       }
     }
-  }
-
-  @Override
-  public boolean hasNext() {
-    if (buffer.isEmpty()) {
-      close();
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  @Override
-  public Row next() {
-    if (!this.hasNext()) return null;
-    
-    Row row = buffer.keySet().iterator().next();
-    ArrayList<ColumnAggregatePair> pairs = buffer.get(row);
-    buffer.remove(row);
-    
-    for (ColumnAggregatePair pair : pairs)
-      row.setValue(pair.column, pair.aggregate.currentResult());
-    
-    return row;
   }
 
   /**

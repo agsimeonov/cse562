@@ -23,10 +23,10 @@ import edu.buffalo.cse562.table.Schema;
  * @author Sunny Mistry
  */
 public class TableIterator implements RowIterator {
-  private File              data;
-  private Schema            schema;
-  private ArrayList<String> types;
-  private BufferedReader    reader;
+  private final File              data;
+  private final Schema            schema;
+  private final ArrayList<String> types;
+  private BufferedReader          reader;
 
   /**
    * Initializes the iterator.
