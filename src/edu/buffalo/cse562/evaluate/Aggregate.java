@@ -12,10 +12,10 @@ import edu.buffalo.cse562.table.Row;
  * @author Sunny Mistry
  */
 public abstract class Aggregate {
-  protected LeafValue result = null;
-  protected Expression expression; 
-  protected Evaluate evaluate;
-  
+  protected LeafValue  result = null;
+  protected Expression expression;
+  protected Evaluate   evaluate;
+
   /**
    * Initializes the aggregate by setting the expression to be evaluated.
    * 

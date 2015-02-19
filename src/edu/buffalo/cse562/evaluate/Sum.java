@@ -16,10 +16,10 @@ import edu.buffalo.cse562.table.Row;
  * @author Sunny Mistry
  */
 public class Sum extends Aggregate {
-  protected Boolean isLong = null;
-  protected LongValue longSum = new LongValue(0);
+  protected Boolean     isLong    = null;
+  protected LongValue   longSum   = new LongValue(0);
   protected DoubleValue doubleSum = new DoubleValue(0.0);
-  
+
   /**
    * Initializes the aggregate by setting the expression to be evaluated.
    * 

@@ -18,7 +18,7 @@ import edu.buffalo.cse562.table.Row;
  * @author Sunny Mistry
  */
 public class MinMax extends Aggregate {
-  private LeafValue minMax = null;
+  private LeafValue     minMax = null;
   private final boolean doMin;
 
   /**

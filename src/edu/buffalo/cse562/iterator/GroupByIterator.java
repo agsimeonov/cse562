@@ -96,9 +96,9 @@ public class GroupByIterator extends ProjectIterator {
    * @author Sunny Mistry
    */
   private class ColumnAggregatePair {
-    private final Column column;
+    private final Column    column;
     private final Aggregate aggregate;
-    
+
     /**
      * Initializes the pair.
      * 

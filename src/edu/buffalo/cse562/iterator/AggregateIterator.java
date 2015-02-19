@@ -11,15 +11,15 @@ import edu.buffalo.cse562.evaluate.Aggregate;
 import edu.buffalo.cse562.table.Row;
 
 /**
- * Iterates over rows in a given iterator and handles aggregate queries. 
+ * Iterates over rows in a given iterator and handles aggregate queries.
  * 
  * @author Alexander Simeonov
  * @author Sunny Mistry
  */
 public class AggregateIterator extends ProjectIterator {
   private ArrayList<Aggregate> aggregators = new ArrayList<Aggregate>();
-  private boolean ready = true;
-  
+  private boolean              ready       = true;
+
   /**
    * Initializes the iterator.
    * 

@@ -12,8 +12,8 @@ import edu.buffalo.cse562.table.Schema;
 public class CartesianIterator implements RowIterator {
   private RowIterator leftIterator;
   private RowIterator rightIterator;
-  private Row leftRow;
-  private Schema schema;
+  private Row         leftRow;
+  private Schema      schema;
 
   /**
    * Initializes the iterator.
