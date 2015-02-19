@@ -1,6 +1,5 @@
 package edu.buffalo.cse562.visitor;
 
-import edu.buffalo.cse562.table.TableManager;
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
@@ -10,6 +9,8 @@ import net.sf.jsqlparser.statement.replace.Replace;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
+import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.table.TableManager;
 
 /**
  * Manages evaluation of top level statements.
@@ -21,7 +22,10 @@ public class StatementVisitorImpl implements StatementVisitor {
 
   @Override
   public void visit(Select select) {
-    select.getSelectBody().accept(new SelectManager());
+    SelectManager selectManager = new SelectManager();
+    select.getSelectBody().accept(selectManager);
+    for (Row row : selectManager.getRoot())
+      System.out.println(row);
   }
 
   @Override

@@ -61,8 +61,8 @@ import edu.buffalo.cse562.parsetree.CartesianNode;
 import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.parsetree.ProjectNode;
 import edu.buffalo.cse562.parsetree.TableNode;
+import edu.buffalo.cse562.parsetree.UnionNode;
 import edu.buffalo.cse562.table.DataTable;
-import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.TableManager;
 
 /**
@@ -121,8 +121,6 @@ public class SelectManager implements
 //    root.setBase(distinct);
 //    root = distinct;
     
-    for (Row row : root)
-      System.out.println(row);
     System.out.println(plainSelect);
   }
   
@@ -162,7 +160,32 @@ public class SelectManager implements
   }
 
   @Override
-  public void visit(Union union) {}
+  public void visit(Union union) {
+    ArrayList<ParseTree> roots = new ArrayList<ParseTree>();
+    
+    for (Object o : union.getPlainSelects()) {
+      PlainSelect select = (PlainSelect) o;
+      SelectManager selectManager = new SelectManager();
+      select.accept(selectManager);
+      roots.add(selectManager.getRoot());
+    }
+    
+    root = new UnionNode(null);
+    ParseTree current = root;
+    
+    for (int i = 0; i < roots.size(); i++) {
+      if (i + 2 == roots.size()) {
+        current.setLeft(roots.get(i));
+        current.setRight(roots.get(i + 1));
+        break;
+      } else {
+        current.setLeft(roots.get(i));
+        ParseTree right = new UnionNode(current);
+        current.setRight(right);
+        current = right;
+      }
+    }
+  }
 
   /* FromItemVisitor */
   
