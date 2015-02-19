@@ -7,13 +7,26 @@ import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import edu.buffalo.cse562.iterator.AggregateIterator;
+import edu.buffalo.cse562.iterator.GroupByIterator;
 import edu.buffalo.cse562.iterator.NonAggregateIterator;
 import edu.buffalo.cse562.iterator.RowIterator;
 import edu.buffalo.cse562.table.Row;
 
+/**
+ * A node that handles projection, be it non-aggregate, aggregate, or group by aggregate.
+ * 
+ * @author Alexander Simeonov
+ * @author Sunny Mistry
+ */
 public class ProjectNode extends ParseTree {
   protected List<SelectExpressionItem> items;
 
+  /**
+   * Initializes the projection node.
+   * 
+   * @param base - the parent node
+   * @param items - contains projection expressions and their aliases
+   */
   public ProjectNode(ParseTree base, List<SelectExpressionItem> items) {
     super(base);
     this.items = items;
@@ -30,7 +43,7 @@ public class ProjectNode extends ParseTree {
     }
     
     if (hasColumns && hasFunctions) {
-      return null;
+      return new GroupByIterator((RowIterator) left.iterator(), items);
     } else if (!hasColumns && hasFunctions) {
       return new AggregateIterator((RowIterator) left.iterator(), items);
     } else {

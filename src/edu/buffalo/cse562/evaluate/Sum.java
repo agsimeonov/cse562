@@ -42,9 +42,11 @@ public class Sum extends Aggregate {
       
       if (isLong) {
         longSum.setValue(longSum.getValue() + result.toLong());
+        this.result = longSum;
         return longSum;
       } else {
         doubleSum.setValue(doubleSum.getValue() + result.toDouble());
+        this.result = doubleSum;
         return doubleSum;
       }
     } catch (SQLException e) {
@@ -53,6 +55,7 @@ public class Sum extends Aggregate {
       e.printStackTrace();
     }
     
+    this.result = longSum;
     return longSum;
   }
 }

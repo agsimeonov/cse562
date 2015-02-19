@@ -41,10 +41,12 @@ public class Average extends Sum {
     if (isLong) {
       LongValue result = new LongValue(longSum.getValue());
       result.setValue(result.getValue() / count);
+      this.result = result;
       return result;
     } else {
       DoubleValue result = new DoubleValue(doubleSum.getValue());
       result.setValue(result.getValue() / (double) count);
+      this.result = result;
       return result;
     }
   }

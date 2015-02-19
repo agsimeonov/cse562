@@ -1,7 +1,9 @@
 package edu.buffalo.cse562.table;
 
 import java.util.HashMap;
+import java.util.Objects;
 
+import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.LeafValue;
 import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
@@ -72,6 +74,37 @@ public class Row {
    */
   public Schema getSchema() {
     return schema;
+  }
+  
+  @Override
+  public int hashCode() {
+    int hash = 0;
+    
+    for (String key : values.keySet()) {
+      LeafValue value = values.get(key);
+      
+      try {
+        if (value instanceof LongValue) {
+          hash += Objects.hash(key, Long.valueOf(value.toLong()));
+        } else if (value instanceof DoubleValue) {
+          hash += Objects.hash(key, Double.valueOf(value.toDouble()));
+        } else if (value instanceof StringValue) {
+          hash += Objects.hash(key, value.toString());
+        } else {
+          long time = ((DateValue) value).getValue().getTime();
+          hash += Objects.hash(key, Long.valueOf(time));
+        }
+      } catch (InvalidLeaf e) {
+        e.printStackTrace();
+      }
+    }
+    
+    return hash;
+  }
+  
+  @Override
+  public boolean equals(Object object) {
+    return this.hashCode() == object.hashCode();
   }
 
   @Override

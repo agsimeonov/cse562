@@ -27,6 +27,7 @@ public class Count extends Aggregate {
   @Override
   public LeafValue yield(Row row) {
     count.setValue(count.getValue() + 1);
+    this.result = count;
     return count;
   }
 }

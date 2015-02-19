@@ -76,6 +76,7 @@ public class MinMax extends Aggregate {
       e.printStackTrace();
     }
     
+    this.result = minMax;
     return minMax;
   }
 }

@@ -12,6 +12,7 @@ import edu.buffalo.cse562.table.Row;
  * @author Sunny Mistry
  */
 public abstract class Aggregate {
+  protected LeafValue result = null;
   protected Expression expression; 
   protected Evaluate evaluate;
   
@@ -27,12 +28,22 @@ public abstract class Aggregate {
   }
   
   /**
-   * Generator function producing the current aggregate result for each encountered row.
+   * Generator function producing the current aggregate result for each encountered row.  The value
+   * is saved in the state and can later be acquired using the {@link #currentResult()} method.
    * 
    * @param row - the newly encountered row
    * @return computed aggregate result
    */
   public abstract LeafValue yield(Row row);
+  
+  /**
+   * Acquires the current result aggregate value.
+   * 
+   * @return the current result aggregate value.
+   */
+  public LeafValue currentResult() {
+    return result;
+  }
   
   /**
    * Gets a new aggregate solver for a given function.
