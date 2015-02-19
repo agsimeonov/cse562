@@ -60,6 +60,7 @@ import net.sf.jsqlparser.statement.select.Union;
 import edu.buffalo.cse562.parsetree.CartesianNode;
 import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.parsetree.ProjectNode;
+import edu.buffalo.cse562.parsetree.SelectionNode;
 import edu.buffalo.cse562.parsetree.TableNode;
 import edu.buffalo.cse562.parsetree.UnionNode;
 import edu.buffalo.cse562.table.DataTable;
@@ -109,11 +110,33 @@ public class SelectManager implements
       selectItems.get(selectItemsIndex).accept(this);
     plainSelect.setSelectItems(selectItems);
     
-    // Build the parse tree
+    Expression whereExpression = null;
+    if (plainSelect.getWhere() != null)
+      whereExpression = plainSelect.getWhere();
+    
+    /* Alex Build Tree
     root = new ProjectNode(null, items);
     ParseTree fromCartesianTree = toCartesianTree(fromTables);
     fromCartesianTree.setBase(root);
     root.setLeft(fromCartesianTree);
+    */
+    
+    
+    // Build the parse tree
+    root = new ProjectNode(null, items);
+    ParseTree current = root; 
+    if (plainSelect.getWhere() != null) {
+      SelectionNode selectNode = new SelectionNode(root,whereExpression);
+      selectNode.setLeft(root.getLeft());
+      root.setLeft(selectNode);
+      current = selectNode;
+    }
+    ParseTree fromCartesianTree = toCartesianTree(fromTables);
+    fromCartesianTree.setBase(current);
+    current.setLeft(fromCartesianTree);
+   
+   
+    
     
     // Test distinct
 //    ParseTree distinct = new DistinctNode(null);
