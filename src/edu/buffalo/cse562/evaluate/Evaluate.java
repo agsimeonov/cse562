@@ -2,8 +2,10 @@ package edu.buffalo.cse562.evaluate;
 
 import java.sql.SQLException;
 
+import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.LeafValue;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
 import edu.buffalo.cse562.Eval;
 import edu.buffalo.cse562.table.Row;
 
@@ -34,5 +36,15 @@ public class Evaluate extends Eval {
   @Override
   public LeafValue eval(Column column) throws SQLException {
     return row == null ? null : row.getValue(column);
+  }
+  
+  /**
+   * Converts a given function to a column and passes it to {{@link #eval(Column)} for processing.
+   * 
+   * @param function - function to be converted to a column
+   */
+  @Override
+  public LeafValue eval(Function function) throws SQLException {
+    return eval(new Column(new Table(), function.toString()));
   }
 }
