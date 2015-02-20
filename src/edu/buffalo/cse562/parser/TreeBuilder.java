@@ -3,6 +3,7 @@ package edu.buffalo.cse562.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
@@ -69,11 +70,19 @@ public class TreeBuilder implements SelectVisitor {
     current.setBase(projectTree);
     current = projectTree;
     
-    // Build and insert a select tree for the where clause
+    // Build and insert a select tree for the where clause if necessary
     if (plainSelect.getWhere() != null) {
       ParseTree selectTree = new SelectionNode(projectTree, plainSelect.getWhere());
       selectTree.setLeft(projectTree.getLeft());
       projectTree.setLeft(selectTree);
+    }
+    
+    // Build a selection tree for the having clause if necessary
+    if (plainSelect.getHaving() != null) {
+      ParseTree selectTree = new SelectionNode(null, plainSelect.getHaving());
+      selectTree.setLeft(current);
+      current.setBase(selectTree);
+      current = selectTree;
     }
     
     // Handle distinct select option
