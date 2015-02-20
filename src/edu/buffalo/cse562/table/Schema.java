@@ -3,6 +3,7 @@ package edu.buffalo.cse562.table;
 import java.util.ArrayList;
 
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
 
 /**
  * Represents the schema for a table and its rows.
@@ -41,6 +42,24 @@ public class Schema {
    */
   public ArrayList<Column> getColumns() {
     return columns;
+  }
+  
+  /**
+   * Acquires an ordered list of columns for the schema, that are part of a given table.
+   * 
+   * @param table - table to compare against
+   * @return an ordered list of columns for the schema, that are part of a given table
+   */
+  public ArrayList<Column> getTableColumns(Table table) {
+    ArrayList<Column> tableColumns = new ArrayList<Column>();
+    
+    for (Column column : columns) {
+      if (column.getTable().getName().toLowerCase().equals(table.getName().toLowerCase())) {
+        tableColumns.add(column);
+      }
+    }
+    
+    return tableColumns;
   }
 
   /**

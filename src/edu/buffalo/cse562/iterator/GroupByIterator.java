@@ -83,6 +83,21 @@ public class GroupByIterator extends ProjectIterator {
         Expression expression = inExpressions.get(i);
         Column column = outSchema.getColumns().get(i);
         
+        // Handle wildcards
+        if (column.getColumnName() == null) {
+          ArrayList<Column> tableColumns = inRow.getSchema().getTableColumns(column.getTable());
+
+          for (Column tableColumn : tableColumns) {
+            inExpressions.add(i, tableColumn);
+            outSchema.getColumns().add(i, tableColumn);
+          }
+          
+          inExpressions.remove(i + tableColumns.size());
+          outSchema.getColumns().remove(i + tableColumns.size());
+          
+          column = outSchema.getColumns().get(i);
+        }
+        
         if (inExpressions.get(i) instanceof Column) {
           try {
             outRow.setValue(column, evaluate.eval(inExpressions.get(i)));
