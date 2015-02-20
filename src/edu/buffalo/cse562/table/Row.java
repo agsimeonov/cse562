@@ -88,14 +88,14 @@ public class Row {
       
       try {
         if (value instanceof LongValue) {
-          hash = Objects.hash(hash, key, Long.valueOf(value.toLong()));
+          hash = Objects.hash(hash, Long.valueOf(value.toLong()));
         } else if (value instanceof DoubleValue) {
-          hash = Objects.hash(hash, key, Double.valueOf(value.toDouble()));
+          hash = Objects.hash(hash, Double.valueOf(value.toDouble()));
         } else if (value instanceof StringValue) {
-          hash = Objects.hash(hash, key, value.toString());
+          hash = Objects.hash(hash, value.toString());
         } else {
           long time = ((DateValue) value).getValue().getTime();
-          hash = Objects.hash(hash, key, Long.valueOf(time));
+          hash = Objects.hash(hash, Long.valueOf(time));
         }
       } catch (InvalidLeaf e) {
         e.printStackTrace();
