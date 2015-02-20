@@ -3,7 +3,6 @@ package edu.buffalo.cse562.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
