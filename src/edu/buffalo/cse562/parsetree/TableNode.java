@@ -4,9 +4,7 @@ import java.util.Iterator;
 
 import net.sf.jsqlparser.schema.Table;
 import edu.buffalo.cse562.iterator.TableIterator;
-import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.Row;
-import edu.buffalo.cse562.table.TableManager;
 
 /**
  * A table node representing a data table that needs to be read from.
