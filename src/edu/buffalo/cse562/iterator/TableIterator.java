@@ -13,8 +13,11 @@ import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.NullValue;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
+import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.Schema;
+import edu.buffalo.cse562.table.TableManager;
 
 /**
  * Iterates over a data file one row at a time.
@@ -35,10 +38,11 @@ public class TableIterator implements RowIterator {
    * @param tableSchema - table schema for the data file
    * @param types - list of types for each column in the table
    */
-  public TableIterator(File data, Schema schema, ArrayList<String> types) {
-    this.data = data;
-    this.schema = schema;
-    this.types = types;
+  public TableIterator(Table table) {
+    DataTable dataTable = TableManager.getTable(table.getName());
+    this.data = dataTable.getDataFile();
+    this.schema = dataTable.getSchema();
+    this.types = dataTable.getTypes();
     open();
   }
   

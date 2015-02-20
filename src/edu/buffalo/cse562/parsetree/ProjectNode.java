@@ -49,7 +49,7 @@ public class ProjectNode extends ParseTree {
         AllTableColumns allTableColumns = (AllTableColumns) item;
         Table table = new Table();
         table.setName(allTableColumns.getTable().getName());
-        Column column = new Column(table, "*");
+        Column column = new Column(table, null);
         SelectExpressionItem selectExpressionItem = new SelectExpressionItem();
         selectExpressionItem.setExpression(column);
         expressionItems.add(selectExpressionItem);

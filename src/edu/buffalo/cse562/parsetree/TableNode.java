@@ -2,8 +2,11 @@ package edu.buffalo.cse562.parsetree;
 
 import java.util.Iterator;
 
+import net.sf.jsqlparser.schema.Table;
+import edu.buffalo.cse562.iterator.TableIterator;
 import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.table.TableManager;
 
 /**
  * A table node representing a data table that needs to be read from.
@@ -12,21 +15,21 @@ import edu.buffalo.cse562.table.Row;
  * @author Sunny Mistry
  */
 public class TableNode extends ParseTree {
-  private DataTable dataTable;
+  private final Table table;
 
   /**
    * Initializes the table node.
    * 
    * @param base - the parent node
-   * @param dataTable - data table to read from
+   * @param table - table to read from
    */
-  public TableNode(ParseTree base, DataTable dataTable) {
+  public TableNode(ParseTree base, Table table) {
     super(base);
-    this.dataTable = dataTable;
+    this.table = table;
   }
 
   @Override
   public Iterator<Row> iterator() {
-    return dataTable.iterator();
+    return new TableIterator(table);
   }
 }

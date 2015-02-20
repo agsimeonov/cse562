@@ -17,7 +17,6 @@ import edu.buffalo.cse562.parsetree.ProjectNode;
 import edu.buffalo.cse562.parsetree.SelectionNode;
 import edu.buffalo.cse562.parsetree.TableNode;
 import edu.buffalo.cse562.parsetree.UnionNode;
-import edu.buffalo.cse562.table.TableManager;
 
 /**
  * Parses select queries and build a parse tree.
@@ -164,7 +163,7 @@ public class TreeBuilder implements SelectVisitor {
   public ParseTree getFromItemTree(FromItem fromItem) {
     if (fromItem instanceof Table) {
       Table table = (Table) fromItem;
-      return new TableNode(null, TableManager.getTable(table.getName()));
+      return new TableNode(null, table);
     } else if (fromItem instanceof SubSelect) {
       SubSelect subSelect = (SubSelect) fromItem;
       TreeBuilder treeBuilder = new TreeBuilder(subSelect.getSelectBody());
@@ -173,9 +172,5 @@ public class TreeBuilder implements SelectVisitor {
       SubJoin subJoin = (SubJoin) fromItem;
       return getFromItemTree(subJoin.getJoin().getRightItem());
     }
-  }
-  
-  public ParseTree getProjectTree() {
-    return null;
   }
 }

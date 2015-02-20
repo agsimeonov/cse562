@@ -5,21 +5,19 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
-import edu.buffalo.cse562.iterator.TableIterator;
 
 /**
- * Manages the schema, data file relationship for a table, and provides an iterator over its rows.
+ * Manages the schema, type, and data file relationship for a table.
  * 
  * @author Alexander Simeonov
  * @author Sunny Mistry
  */
-public class DataTable implements Iterable<Row> {
+public class DataTable {
   private ArrayList<String> types = new ArrayList<String>();
   private Schema            schema;
   private Table             table;
@@ -89,9 +87,22 @@ public class DataTable implements Iterable<Row> {
   public Table getTable() {
     return table;
   }
-
-  @Override
-  public Iterator<Row> iterator() {
-    return new TableIterator(data, schema, types);
+  
+  /**
+   * Acquires the data file for this table.
+   * 
+   * @return the data file for this table
+   */
+  public File getDataFile() {
+    return data;
+  }
+  
+  /**
+   * Acquires the types list for this table.
+   * 
+   * @return types list for this table
+   */
+  public ArrayList<String> getTypes() {
+    return types;
   }
 }
