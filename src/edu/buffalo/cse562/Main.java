@@ -10,8 +10,8 @@ import java.util.LinkedHashSet;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.statement.Statement;
+import edu.buffalo.cse562.parser.StatementParser;
 import edu.buffalo.cse562.table.TableManager;
-import edu.buffalo.cse562.visitor.StatementVisitorImpl;
 
 /**
  * OperationEndgame
@@ -60,7 +60,7 @@ public class Main {
         FileReader stream = new FileReader(file);
         CCJSqlParser parser = new CCJSqlParser(stream);
         for (Statement stmt = parser.Statement(); stmt != null; stmt = parser.Statement()) {
-          stmt.accept(new StatementVisitorImpl());
+          stmt.accept(new StatementParser());
         }
       }
     } catch (FileNotFoundException e) {

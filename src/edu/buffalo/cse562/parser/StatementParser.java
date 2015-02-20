@@ -1,4 +1,4 @@
-package edu.buffalo.cse562.visitor;
+package edu.buffalo.cse562.parser;
 
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
@@ -18,13 +18,12 @@ import edu.buffalo.cse562.table.TableManager;
  * @author Alexander Simeonov
  * @author Sunny Mistry
  */
-public class StatementVisitorImpl implements StatementVisitor {
+public class StatementParser implements StatementVisitor {
 
   @Override
-  public void visit(Select select) {
-    SelectManager selectManager = new SelectManager();
-    select.getSelectBody().accept(selectManager);
-    for (Row row : selectManager.getRoot())
+  public void visit(Select select) {  
+    TreeBuilder treeBuilder = new TreeBuilder(select.getSelectBody());
+    for (Row row : treeBuilder.getRoot())
       System.out.println(row);
   }
 

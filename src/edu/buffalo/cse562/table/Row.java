@@ -19,6 +19,7 @@ import net.sf.jsqlparser.schema.Column;
  */
 public class Row {
   private HashMap<String, LeafValue> values = new HashMap<String, LeafValue>();
+  private HashMap<String, LeafValue> altKey = new HashMap<String, LeafValue>();
   private Schema                     schema;
 
   /**
@@ -41,20 +42,20 @@ public class Row {
     this.schema = schema;
     values.putAll(left.values);
     values.putAll(right.values);
+    altKey.putAll(left.altKey);
+    altKey.putAll(right.altKey);
   }
   
   /**
-   * Sets a value for a given column, only if said column exists in the row schema.
+   * Sets a value for a given column.
    * 
    * @param column - column the value belongs to
    * @param value - given value to add
-   * @return true if the column exists in the row schema and the value was added successfully.
    */
-  public boolean setValue(Column column, LeafValue value) {
-    String name = column.getWholeColumnName().toLowerCase();
-    if (!schema.hasColumn(column)) return false;
-    values.put(name, value);
-    return true;
+  public void setValue(Column column, LeafValue value) {
+    boolean tableIsSet = !column.getTable().toString().equals("null");
+    values.put(column.getWholeColumnName().toLowerCase(), value);
+    if (tableIsSet) altKey.put(column.getColumnName().toLowerCase(), value);
   }
   
   /**
@@ -64,7 +65,9 @@ public class Row {
    * @return desired row value for the given column, null if the column does not exist
    */
   public LeafValue getValue(Column column) {
-    return values.get(column.getWholeColumnName().toLowerCase());
+    String name = column.getWholeColumnName().toLowerCase();
+    LeafValue value = values.get(name);
+    return value != null ? value : altKey.get(name);
   }
   
   /**

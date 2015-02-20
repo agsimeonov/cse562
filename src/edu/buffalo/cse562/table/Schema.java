@@ -42,26 +42,6 @@ public class Schema {
   public ArrayList<Column> getColumns() {
     return columns;
   }
-  
-  /**
-   * Checks if a given column exists in the schema.
-   * 
-   * @param inputColumn - the given column to check for
-   * @return true if the given column exists in the schema, otherwise false
-   */
-  public boolean hasColumn(Column inputColumn) {
-    boolean tableIsSet = !inputColumn.getTable().toString().equals("null");
-    String inputColumnName = tableIsSet ? inputColumn.getWholeColumnName().toLowerCase()
-                                       : inputColumn.getColumnName().toLowerCase();
-
-    for (Column column : columns) {
-      String columnName = tableIsSet ? column.getWholeColumnName().toLowerCase()
-                                    : column.getColumnName().toLowerCase();
-      if (inputColumnName.equals(columnName)) return true;
-    }
-
-    return false;
-  }
 
   /**
    * Acquires the number of columns in the schema.

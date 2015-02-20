@@ -38,7 +38,7 @@ public class SelectionIterator implements RowIterator{
       try {
         if (whereExpression != null) {
           BooleanValue evaluatedExpr = (BooleanValue) evaluate.eval(whereExpression);
-          System.out.println("Evaluated: " + whereExpression + " for " + nextRow + " val was " + evaluatedExpr);
+//          System.out.println("Evaluated: " + whereExpression + " for " + nextRow + " val was " + evaluatedExpr);
           if (evaluatedExpr == null) return false;
           
           if (evaluatedExpr.getValue() == false) {
