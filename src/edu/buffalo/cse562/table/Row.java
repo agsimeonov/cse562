@@ -83,6 +83,7 @@ public class Row {
     for (int i = 0; i < schema.size(); i++) {
       Column column = schema.getColumns().get(i);
       String key = column.getWholeColumnName().toLowerCase();
+      if (!values.keySet().contains(key)) continue;
       LeafValue value = values.get(key);
       
       try {
