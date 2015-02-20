@@ -12,6 +12,7 @@ import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.Union;
 import edu.buffalo.cse562.parsetree.CartesianNode;
+import edu.buffalo.cse562.parsetree.DistinctNode;
 import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.parsetree.ProjectNode;
 import edu.buffalo.cse562.parsetree.SelectionNode;
@@ -54,7 +55,15 @@ public class TreeBuilder implements SelectVisitor {
       projectTree.setLeft(selectTree);
     }
     
-    root = projectTree;
+    // Handle distinct select option
+    if (plainSelect.getDistinct() != null) {
+      ParseTree distinctTree = new DistinctNode(null);
+      distinctTree.setLeft(projectTree);
+      projectTree.setBase(distinctTree);
+      root = distinctTree;
+    } else {
+      root = projectTree;
+    }
   }
 
   /**
