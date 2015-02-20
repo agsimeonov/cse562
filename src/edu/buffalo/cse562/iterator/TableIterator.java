@@ -29,6 +29,7 @@ public class TableIterator implements RowIterator {
   private final File              data;
   private final Schema            schema;
   private final ArrayList<String> types;
+  private final String            alias;
   private BufferedReader          reader;
 
   /**
@@ -43,6 +44,7 @@ public class TableIterator implements RowIterator {
     this.data = dataTable.getDataFile();
     this.schema = dataTable.getSchema();
     this.types = dataTable.getTypes();
+    this.alias = table.getAlias();
     open();
   }
   
@@ -73,6 +75,7 @@ public class TableIterator implements RowIterator {
       
       for (int i = 0; i < schema.size(); i++) {
         Column column = schema.getColumns().get(i);
+        if (alias != null) column.getTable().setName(alias);
         String type = types.get(i).toLowerCase();
              
         switch (type) {
