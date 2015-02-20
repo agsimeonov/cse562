@@ -2,7 +2,6 @@ package edu.buffalo.cse562.parsetree;
 
 import java.util.Iterator;
 
-import edu.buffalo.cse562.iterator.DistinctIterator;
 import edu.buffalo.cse562.iterator.RowIterator;
 import edu.buffalo.cse562.iterator.UnionIterator;
 import edu.buffalo.cse562.table.Row;
@@ -25,9 +24,6 @@ public class UnionNode extends ParseTree {
 
   @Override
   public Iterator<Row> iterator() {
-    RowIterator leftIterator = (RowIterator) left.iterator();
-    RowIterator rightIterator = (RowIterator) right.iterator();
-    RowIterator union = new UnionIterator(leftIterator, rightIterator);    
-    return new DistinctIterator(union);
+    return new UnionIterator((RowIterator) left.iterator(), (RowIterator) right.iterator());
   }
 }
