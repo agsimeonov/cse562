@@ -1,7 +1,9 @@
 package edu.buffalo.cse562.parser;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
@@ -13,6 +15,7 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.Union;
 import edu.buffalo.cse562.parsetree.CartesianNode;
 import edu.buffalo.cse562.parsetree.DistinctNode;
+import edu.buffalo.cse562.parsetree.JoinNode;
 import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.parsetree.ProjectNode;
 import edu.buffalo.cse562.parsetree.SelectionNode;
@@ -37,16 +40,34 @@ public class TreeBuilder implements SelectVisitor {
     selectBody.accept(this);
   }
   
+  /**
+   * Builds a select statement parse tree and sets it as the current root.
+   * 
+   * @param plainSelect - select statement to process
+   */
   @Override
   public void visit(PlainSelect plainSelect) {
+    ParseTree current;
+    
     // Build a from items tree
     ArrayList<FromItem> fromItems = getFromItems(plainSelect);
-    ParseTree fromItemsTree = getFromItemsTree(fromItems);
+    current = getFromItemsTree(fromItems);
+    
+    // Build inner join tree if necessary
+    @SuppressWarnings("unchecked")
+    Expression onExpression = getOnExpression(plainSelect.getJoins());
+    if (onExpression != null) {
+      ParseTree joinTree = new JoinNode(current, onExpression);
+      current.setBase(joinTree);
+      current = joinTree;
+    }
     
     // Build project tree
     @SuppressWarnings("unchecked")
     ParseTree projectTree = new ProjectNode(null, plainSelect.getSelectItems());
-    projectTree.setLeft(fromItemsTree);
+    projectTree.setLeft(current);
+    current.setBase(projectTree);
+    current = projectTree;
     
     // Build and insert a select tree for the where clause
     if (plainSelect.getWhere() != null) {
@@ -58,12 +79,12 @@ public class TreeBuilder implements SelectVisitor {
     // Handle distinct select option
     if (plainSelect.getDistinct() != null) {
       ParseTree distinctTree = new DistinctNode(null);
-      distinctTree.setLeft(projectTree);
-      projectTree.setBase(distinctTree);
-      root = distinctTree;
-    } else {
-      root = projectTree;
+      distinctTree.setLeft(current);
+      current.setBase(distinctTree);
+      current = distinctTree;
     }
+    
+    root = current;
   }
 
   /**
@@ -107,6 +128,19 @@ public class TreeBuilder implements SelectVisitor {
    */
   public ParseTree getRoot() {
     return root;
+  }
+  
+  /**
+   * Acquires the join on expression statement.
+   * 
+   * @param joins - list of joins
+   * @return join on expression statement, null if none found
+   */
+  public Expression getOnExpression(List<Join> joins) {
+    if (joins == null) return null;
+    for (Join join : joins)
+      if (join.getOnExpression() != null) return join.getOnExpression();
+    return null;
   }
   
   /**
