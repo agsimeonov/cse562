@@ -93,8 +93,9 @@ public class TreeBuilder implements SelectVisitor {
       current = distinctTree;
     }
     
+    // Handle limit select option
     if (plainSelect.getLimit() != null) {
-      ParseTree limitTree = new LimitNode(null,plainSelect.getLimit());
+      ParseTree limitTree = new LimitNode(null, plainSelect.getLimit());
       limitTree.setLeft(current);
       current.setBase(limitTree);
       current = limitTree; 

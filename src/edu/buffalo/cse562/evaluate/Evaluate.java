@@ -45,6 +45,9 @@ public class Evaluate extends Eval {
    */
   @Override
   public LeafValue eval(Function function) throws SQLException {
+    if (function.getName().toLowerCase().equals("date"))
+      return new DateValueProper(function.getParameters().getExpressions().get(0).toString());
+    
     return eval(new Column(new Table(), function.toString()));
   }
 }

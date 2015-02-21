@@ -7,13 +7,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.NullValue;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
+import edu.buffalo.cse562.evaluate.DateValueProper;
 import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.Schema;
@@ -86,7 +86,7 @@ public class TableIterator implements RowIterator {
             row.setValue(column, new DoubleValue(Double.parseDouble(data[i])));
             break;
           case "date":
-            row.setValue(column, new DateValue("'" + data[i] + "'"));
+            row.setValue(column, new DateValueProper("'" + data[i] + "'"));
             break;
           case "varchar":
           case "char":
