@@ -16,6 +16,7 @@ import net.sf.jsqlparser.statement.select.Union;
 import edu.buffalo.cse562.parsetree.CartesianNode;
 import edu.buffalo.cse562.parsetree.DistinctNode;
 import edu.buffalo.cse562.parsetree.JoinNode;
+import edu.buffalo.cse562.parsetree.LimitNode;
 import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.parsetree.ProjectNode;
 import edu.buffalo.cse562.parsetree.SelectionNode;
@@ -90,6 +91,13 @@ public class TreeBuilder implements SelectVisitor {
       distinctTree.setLeft(current);
       current.setBase(distinctTree);
       current = distinctTree;
+    }
+    
+    if (plainSelect.getLimit() != null) {
+      ParseTree limitTree = new LimitNode(null,plainSelect.getLimit());
+      limitTree.setLeft(current);
+      current.setBase(limitTree);
+      current = limitTree; 
     }
     
     root = current;

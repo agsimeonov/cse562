@@ -28,36 +28,26 @@ public class SelectionIterator implements RowIterator{
   @Override
   
   public boolean hasNext() {
-    boolean trueExpression = true; 
-    
-    if (row != null) return true; //If not null, recursing up the tree
-    while (leftIterator.hasNext()) { 
-      
-      Row nextRow = leftIterator.next(); //continue down the tree 
-      evaluate.setRow(nextRow);
-      try {
-        if (whereExpression != null) {
-          BooleanValue evaluatedExpr = (BooleanValue) evaluate.eval(whereExpression);
-//          System.out.println("Evaluated: " + whereExpression + " for " + nextRow + " val was " + evaluatedExpr);
-          if (evaluatedExpr == null) return false;
-          
-          if (evaluatedExpr.getValue() == false) {
-            trueExpression = false;
-          }
-          else { 
+      if (row != null) return true; 
+      while (leftIterator.hasNext()) { 
+        Row nextRow = leftIterator.next();  
+        evaluate.setRow(nextRow);
+        try {
+          if (whereExpression != null) {
+            BooleanValue evaluatedExpr = (BooleanValue) evaluate.eval(whereExpression);
+          //  System.out.println("Evaluated: " + whereExpression + " for " + nextRow + " val was " + evaluatedExpr);
+            if (evaluatedExpr == null) return false;
+            if (evaluatedExpr.getValue() == true) {
               row = nextRow;
-              trueExpression = true;
-              return true; 
-          } 
+              return true;             
+            }
+          }
+        } catch (SQLException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
         }
-      } catch (SQLException e1) {
-          // TODO Auto-generated catch block
-          e1.printStackTrace();
-      }
-    }
-
-    trueExpression = true; 
-    return false;
+     }
+     return false;
   }
 
   @Override
