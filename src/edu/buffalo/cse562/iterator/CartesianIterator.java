@@ -60,7 +60,10 @@ public class CartesianIterator implements RowIterator {
     
     rightIterator.close();
     
-    if (bufferIterator == null) bufferIterator = buffer.iterator();
+    if (bufferIterator == null) {
+      bufferIterator = buffer.iterator();
+      leftRow = leftIterator.next();
+    }
     
     if (!bufferIterator.hasNext()) {
       leftRow = leftIterator.next();
@@ -68,7 +71,6 @@ public class CartesianIterator implements RowIterator {
     }
     
     Row rightRow = bufferIterator.next();
-    if (schema == null) schema = new Schema(leftRow.getSchema(), rightRow.getSchema());
     return new Row(schema, leftRow, rightRow);
   }
 
