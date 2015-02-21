@@ -40,6 +40,7 @@ public class Evaluate extends Eval {
   
   /**
    * Converts a given function to a column and passes it to {{@link #eval(Column)} for processing.
+   * Takes care of the DATE('YYYY-MM-DD') function.
    * 
    * @param function - function to be converted to a column
    */
