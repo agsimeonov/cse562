@@ -7,6 +7,7 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectBody;
 import net.sf.jsqlparser.statement.select.SelectVisitor;
@@ -17,6 +18,7 @@ import edu.buffalo.cse562.parsetree.CartesianNode;
 import edu.buffalo.cse562.parsetree.DistinctNode;
 import edu.buffalo.cse562.parsetree.JoinNode;
 import edu.buffalo.cse562.parsetree.LimitNode;
+import edu.buffalo.cse562.parsetree.OrderByNode;
 import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.parsetree.ProjectNode;
 import edu.buffalo.cse562.parsetree.SelectionNode;
@@ -91,6 +93,16 @@ public class TreeBuilder implements SelectVisitor {
       distinctTree.setLeft(current);
       current.setBase(distinctTree);
       current = distinctTree;
+    }
+    
+    // Handle order by select option
+    if (plainSelect.getOrderByElements() != null) {
+      @SuppressWarnings("unchecked")
+      List<OrderByElement> orderByElements = plainSelect.getOrderByElements();
+      ParseTree orderByTree = new OrderByNode(null, orderByElements);
+      orderByTree.setLeft(current.getLeft());
+      current.setBase(orderByTree);
+      current = orderByTree;
     }
     
     // Handle limit select option
