@@ -100,7 +100,7 @@ public class TreeBuilder implements SelectVisitor {
       @SuppressWarnings("unchecked")
       List<OrderByElement> orderByElements = plainSelect.getOrderByElements();
       ParseTree orderByTree = new OrderByNode(null, orderByElements);
-      orderByTree.setLeft(current.getLeft());
+      orderByTree.setLeft(current);
       current.setBase(orderByTree);
       current = orderByTree;
     }
