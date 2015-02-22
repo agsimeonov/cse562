@@ -50,20 +50,9 @@ public class TreeBuilder implements SelectVisitor {
    */
   @Override
   public void visit(PlainSelect plainSelect) {
-    ParseTree current;
-    
-    // Build a from items tree
-    ArrayList<FromItem> fromItems = getFromItems(plainSelect);
-    current = getFromItemsTree(fromItems);
-    
-    // Build inner join tree if necessary
+    // Build a tree using the from item and joins list
     @SuppressWarnings("unchecked")
-    Expression onExpression = getOnExpression(plainSelect.getJoins());
-    if (onExpression != null) {
-      ParseTree joinTree = new JoinNode(current, onExpression);
-      current.setBase(joinTree);
-      current = joinTree;
-    }
+    ParseTree current = getFromJoinsTree(plainSelect.getFromItem(), plainSelect.getJoins());
     
     // Build project tree
     @SuppressWarnings("unchecked")
@@ -173,57 +162,34 @@ public class TreeBuilder implements SelectVisitor {
   }
   
   /**
-   * Acquires the From Items in a select statement.
+   * Builds a tree given the from item and list of joins.
    * 
-   * @param plainSelect - the select statement from which to acquire from items
-   * @return a list of from items
+   * @param fromItem - a given from item
+   * @param joins - a list of joins
+   * @return a tree based on the from item and list of joins
    */
-  public ArrayList<FromItem> getFromItems(PlainSelect plainSelect) {
-    ArrayList<FromItem> fromItems = new ArrayList<FromItem>();
-    fromItems.add(plainSelect.getFromItem());
-
-    if (plainSelect.getJoins() != null) {
-      for (Object o : plainSelect.getJoins()) {
-        Join join = (Join) o;
-        fromItems.add(join.getRightItem());
-      }
-    }
-    
-    return fromItems;
-  }
-  
-  /**
-   * Builds the from items tree, given an ordered list of from items.
-   * 
-   * @param fromItems - an ordered list of from items
-   * @return parse tree for the given list of from items
-   */
-  public ParseTree getFromItemsTree(ArrayList<FromItem> fromItems) {
-    ParseTree fromItemsRoot = null;
+  public ParseTree getFromJoinsTree(FromItem fromItem, List<Join> joins) {
     ParseTree current = null;
+    
+    if (joins == null) return getFromItemTree(fromItem);
 
-    for (int i = 0; i < fromItems.size(); i++) {
+    for (int i = 0; i < joins.size(); i++) {
       if (current == null) {
-        if (i + 1 == fromItems.size()) {
-          current = getFromItemTree(fromItems.get(i));
-        } else {
-          current = new CartesianNode(null);
-          current.setLeft(getFromItemTree(fromItems.get(i)));
-        }
-        fromItemsRoot = current;
+        Expression expr = joins.get(i).getOnExpression();
+        current = expr == null ? new CartesianNode(null) : new JoinNode(null, expr);
+        current.setLeft(getFromItemTree(fromItem));
+        current.setRight(getFromItemTree(joins.get(i).getRightItem()));
       } else {
-        if (i + 1 == fromItems.size()) {
-          current.setRight(getFromItemTree(fromItems.get(i)));
-        } else {
-          ParseTree next = new CartesianNode(current);
-          current.setRight(next);
-          current = next;
-          current.setLeft(getFromItemTree(fromItems.get(i)));
-        }
+        Expression expr = joins.get(i).getOnExpression();
+        ParseTree base = expr == null ? new CartesianNode(null) : new JoinNode(null, expr);
+        current.setBase(base);
+        base.setLeft(current);
+        base.setRight(getFromItemTree(joins.get(i).getRightItem()));
+        current = base;
       }
     }
     
-    return fromItemsRoot;
+    return current;
   }
   
   /**

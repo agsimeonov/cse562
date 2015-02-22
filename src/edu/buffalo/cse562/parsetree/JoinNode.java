@@ -3,6 +3,7 @@ package edu.buffalo.cse562.parsetree;
 import java.util.Iterator;
 
 import net.sf.jsqlparser.expression.Expression;
+import edu.buffalo.cse562.iterator.CartesianIterator;
 import edu.buffalo.cse562.iterator.RowIterator;
 import edu.buffalo.cse562.iterator.SelectionIterator;
 import edu.buffalo.cse562.table.Row;
@@ -19,17 +20,19 @@ public class JoinNode extends ParseTree {
   /**
    * Initializes the Join node.
    * 
-   * @param child - the child node formed by the from items list
+   * @param base - the parent node
    * @param expression - the join on expression statement
    */
-  public JoinNode(ParseTree child, Expression expression) {
-    super(null);
-    setLeft(child);
+  public JoinNode(ParseTree base, Expression expression) {
+    super(base);
     this.expression = expression;
   }
 
   @Override
   public Iterator<Row> iterator() {
-    return new SelectionIterator((RowIterator) this.getLeft().iterator(), expression);
+    RowIterator leftIterator = (RowIterator) left.iterator();
+    RowIterator rightIterator = (RowIterator) right.iterator();
+    CartesianIterator cartesianIterator = new CartesianIterator(leftIterator, rightIterator);
+    return new SelectionIterator(cartesianIterator, expression);
   }
 }
