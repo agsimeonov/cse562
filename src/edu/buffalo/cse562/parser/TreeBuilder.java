@@ -21,7 +21,7 @@ import edu.buffalo.cse562.parsetree.LimitNode;
 import edu.buffalo.cse562.parsetree.OrderByNode;
 import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.parsetree.ProjectNode;
-import edu.buffalo.cse562.parsetree.SelectionNode;
+import edu.buffalo.cse562.parsetree.SelectNode;
 import edu.buffalo.cse562.parsetree.TableNode;
 import edu.buffalo.cse562.parsetree.UnionNode;
 
@@ -63,14 +63,14 @@ public class TreeBuilder implements SelectVisitor {
     
     // Build and insert a select tree for the where clause if necessary
     if (plainSelect.getWhere() != null) {
-      ParseTree selectTree = new SelectionNode(projectTree, plainSelect.getWhere());
+      ParseTree selectTree = new SelectNode(projectTree, plainSelect.getWhere());
       selectTree.setLeft(projectTree.getLeft());
       projectTree.setLeft(selectTree);
     }
     
     // Build a selection tree for the having clause if necessary
     if (plainSelect.getHaving() != null) {
-      ParseTree selectTree = new SelectionNode(null, plainSelect.getHaving());
+      ParseTree selectTree = new SelectNode(null, plainSelect.getHaving());
       selectTree.setLeft(current);
       current.setBase(selectTree);
       current = selectTree;

@@ -3,49 +3,59 @@ package edu.buffalo.cse562.iterator;
 import net.sf.jsqlparser.statement.select.Limit;
 import edu.buffalo.cse562.table.Row;
 
+/**
+ * Iterates over rows and returns them up until a set limit.
+ * 
+ * @author Alexander Simeonov
+ * @author Sunny Mistry
+ */
 public class LimitIterator implements RowIterator {
+  private final RowIterator iterator;
+  private final Limit       limit;
+  private long              max   = 0;
+  private long              count = 0;
 
-  private RowIterator leftIterator; 
-  private long rowCount; 
-  private Row row; 
-  private Limit limit;
-  private int count; 
+  /**
+   * Initializes the iterator.
+   * 
+   * @param iterator - child iterator
+   * @param limit - the set limit
+   */
   public LimitIterator(RowIterator iterator, Limit limit) {
-    this.leftIterator = iterator; 
-    this.limit = limit; 
-    rowCount = limit.getRowCount(); 
-    count = 0;
+    this.iterator = iterator;
+    this.limit = limit;
+    open();
   }
 
   @Override
   public boolean hasNext() {
-    if (row != null) return true; 
-    while (leftIterator.hasNext()) { 
-      Row nextRow = leftIterator.next();
-      if (count < rowCount) {
-        count++;
-        row = nextRow; 
-        return true; 
-      }
+    if (!iterator.hasNext() || max == 0 || count >= max) {
+      close();
+      return false;
     }
-    return false;
+    return true;
   }
 
   @Override
   public Row next() {
-    if (!this.hasNext()) return null; 
-    Row outRow = row; 
-    row = null;
-    return outRow;
+    if (!this.hasNext()) return null;
+    count = count + 1;
+    return iterator.next();
   }
 
   @Override
   public void close() {
-    leftIterator.close();
+    iterator.close();
+    max = 0;
+    count = 0;
   }
 
   @Override
   public void open() {
-    leftIterator.open();
+    if (max == 0) {
+      iterator.open();
+      max = limit.getRowCount();
+      count = 0;
+    }
   }
 }

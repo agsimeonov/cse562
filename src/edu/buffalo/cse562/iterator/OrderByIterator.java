@@ -8,12 +8,24 @@ import net.sf.jsqlparser.statement.select.OrderByElement;
 import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.RowComparator;
 
+/**
+ * Handles ordering operations over rows in a child iterator.
+ * 
+ * @author Alexander Simeonov
+ * @author Sunny Mistry
+ */
 public class OrderByIterator implements RowIterator {
   private final RowIterator iterator;
   private final List<OrderByElement> orderByElements;
   private ArrayList<Row> buffer;
   private Iterator<Row> bufferIterator;
   
+  /**
+   * Initializes the iterator.
+   * 
+   * @param iterator - child iterator
+   * @param orderByElements - order conditions
+   */
   public OrderByIterator(RowIterator iterator, List<OrderByElement> orderByElements) {
     this.iterator = iterator;
     this.orderByElements = orderByElements;

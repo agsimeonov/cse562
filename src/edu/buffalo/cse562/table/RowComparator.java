@@ -12,6 +12,12 @@ import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
+/**
+ * Handles row comparison used for ordering operations.
+ * 
+ * @author Alexander Simeonov
+ * @author Sunny Mistry
+ */
 public class RowComparator implements Comparator<Row> {
   private final List<OrderByElement> orderByElements;
 

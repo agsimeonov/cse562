@@ -5,7 +5,7 @@ import java.util.Iterator;
 import net.sf.jsqlparser.expression.Expression;
 import edu.buffalo.cse562.iterator.CartesianIterator;
 import edu.buffalo.cse562.iterator.RowIterator;
-import edu.buffalo.cse562.iterator.SelectionIterator;
+import edu.buffalo.cse562.iterator.SelectIterator;
 import edu.buffalo.cse562.table.Row;
 
 /**
@@ -33,6 +33,6 @@ public class JoinNode extends ParseTree {
     RowIterator leftIterator = (RowIterator) left.iterator();
     RowIterator rightIterator = (RowIterator) right.iterator();
     CartesianIterator cartesianIterator = new CartesianIterator(leftIterator, rightIterator);
-    return new SelectionIterator(cartesianIterator, expression);
+    return new SelectIterator(cartesianIterator, expression);
   }
 }
