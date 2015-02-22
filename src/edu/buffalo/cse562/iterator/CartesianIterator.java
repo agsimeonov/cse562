@@ -31,7 +31,7 @@ public class CartesianIterator implements RowIterator {
     this.rightIterator = right;
     open();
   }
-  
+
   @Override
   public boolean hasNext() {
     if (leftIterator.hasNext()) {
@@ -40,8 +40,12 @@ public class CartesianIterator implements RowIterator {
       if (rightIterator.hasNext()) {
         return true;
       } else {
-        close();
-        return false;
+        if (bufferIterator != null && bufferIterator.hasNext()) {
+          return true;
+        } else {
+          close();
+          return false;
+        }
       }
     }
   }
