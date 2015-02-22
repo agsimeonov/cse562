@@ -3,6 +3,7 @@ package edu.buffalo.cse562.evaluate;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LeafValue;
+import net.sf.jsqlparser.expression.LongValue;
 import edu.buffalo.cse562.table.Row;
 
 /**
@@ -12,7 +13,7 @@ import edu.buffalo.cse562.table.Row;
  * @author Sunny Mistry
  */
 public class Average extends Sum {
-  private double count = 0.0;
+  private int count = 0;
 
   /**
    * Initializes the aggregate by setting the expression to be evaluated.
@@ -27,8 +28,8 @@ public class Average extends Sum {
   @Override
   public LeafValue yield(Row row) {
     super.yield(row);
-    count = count + 1.0;
-    if (isLong) return new DoubleValue(((double) longSum.getValue()) / count);
-    else return new DoubleValue(doubleSum.getValue() / count);
+    count = count + 1;
+    if (isLong) return new LongValue(longSum.getValue() / count);
+    else return new DoubleValue(doubleSum.getValue() / ((double) count));
   }
 }

@@ -48,5 +48,4 @@ public class LimitIterator implements RowIterator {
   public void open() {
     leftIterator.open();
   }
-
 }
