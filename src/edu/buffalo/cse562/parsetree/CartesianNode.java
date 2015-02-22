@@ -2,8 +2,8 @@ package edu.buffalo.cse562.parsetree;
 
 import java.util.Iterator;
 
-import edu.buffalo.cse562.iterator.ConcurrentCartesianIterator;
 import edu.buffalo.cse562.iterator.RowIterator;
+import edu.buffalo.cse562.iterator.CartesianIterator;
 import edu.buffalo.cse562.table.Row;
 
 /**
@@ -24,6 +24,6 @@ public class CartesianNode extends ParseTree {
 
   @Override
   public Iterator<Row> iterator() {
-    return new ConcurrentCartesianIterator((RowIterator) left.iterator(), (RowIterator) right.iterator());
+    return new CartesianIterator((RowIterator) left.iterator(), (RowIterator) right.iterator());
   }
 }
