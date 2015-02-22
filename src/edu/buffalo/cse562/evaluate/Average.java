@@ -3,8 +3,6 @@ package edu.buffalo.cse562.evaluate;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LeafValue;
-import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
-import net.sf.jsqlparser.expression.LongValue;
 import edu.buffalo.cse562.table.Row;
 
 /**
@@ -14,7 +12,7 @@ import edu.buffalo.cse562.table.Row;
  * @author Sunny Mistry
  */
 public class Average extends Sum {
-  private final Count counter;
+  private double count = 0.0;
 
   /**
    * Initializes the aggregate by setting the expression to be evaluated.
@@ -24,30 +22,13 @@ public class Average extends Sum {
    */
   protected Average(Expression expression, Evaluate evaluate) {
     super(expression, evaluate);
-    counter = new Count(expression, evaluate);
   }
 
   @Override
   public LeafValue yield(Row row) {
     super.yield(row);
-    long count = 1;
-    
-    try {
-      count = counter.yield(row).toLong();
-    } catch (InvalidLeaf e) {
-      e.printStackTrace();
-    }
-    
-    if (isLong) {
-      LongValue result = new LongValue(longSum.getValue());
-      result.setValue(result.getValue() / count);
-      this.result = result;
-      return result;
-    } else {
-      DoubleValue result = new DoubleValue(doubleSum.getValue());
-      result.setValue(result.getValue() / (double) count);
-      this.result = result;
-      return result;
-    }
+    count = count + 1.0;
+    if (isLong) return new DoubleValue(((double) longSum.getValue()) / count);
+    else return new DoubleValue(doubleSum.getValue() / count);
   }
 }
