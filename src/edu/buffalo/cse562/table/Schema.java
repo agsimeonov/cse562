@@ -22,7 +22,7 @@ public class Schema {
   public Schema(ArrayList<Column> columns) {
     this.columns = columns;
   }
-  
+
   /**
    * Creates a new schema that is the concatenation of two given schemas.
    * 
