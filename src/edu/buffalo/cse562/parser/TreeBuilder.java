@@ -75,7 +75,7 @@ public class TreeBuilder implements SelectVisitor {
       current.setBase(selectTree);
       current = selectTree;
     }
-    
+
     // Handle distinct select option
     if (plainSelect.getDistinct() != null) {
       ParseTree distinctTree = new DistinctNode(null);
