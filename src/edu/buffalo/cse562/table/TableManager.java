@@ -17,6 +17,7 @@ import net.sf.jsqlparser.statement.create.table.CreateTable;
 public final class TableManager {
   private static final AbstractMap<String, DataTable> DB_TABLES = new HashMap<String, DataTable>();
   private static String                               dataDir;
+  private static String                               swapDir;
 
   /**
    * Creates a new database table.
@@ -47,6 +48,15 @@ public final class TableManager {
   public static String getDataDir() {
     return dataDir;
   }
+
+  /**
+   * Acquires the swap directory path for the database.
+   * 
+   * @return the swap directory path for the database.
+   */
+  public static String getSwapDir() {
+    return swapDir;
+  }
   
   /**
    * Acquires a database table.
@@ -67,6 +77,29 @@ public final class TableManager {
    */
   public static void setDataDir(String path) throws IOException, NotDirectoryException {
     dataDir = path;
+    setDir(path);
+  }
+  
+  /**
+   * Sets (and creates if necessary) a valid swap directory path for the database.
+   * 
+   * @param path - path to the swap directory
+   * @throws IOException when the given directory could not be created
+   * @throws NotDirectoryException when the given path is not a valid directory
+   */
+  public static void setSwapDir(String path) throws IOException, NotDirectoryException {
+    swapDir = path;
+    setDir(path);
+  }
+  
+  /**
+   * Makes sure a given directory path exists.
+   * 
+   * @param path - a given directory path
+   * @throws IOException when the given directory could not be created
+   * @throws NotDirectoryException when the given path is not a valid directory
+   */
+  private static void setDir(String path) throws IOException, NotDirectoryException {
     File dir = new File(path);
 
     if (!dir.exists()) {

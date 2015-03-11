@@ -39,6 +39,9 @@ public class Main {
       if (args[i].equals("--data")) {
         TableManager.setDataDir(args[i + 1]);
         i++;
+      } else if (args[i].equals("--swap")) {
+        TableManager.setSwapDir(args[i + 1]);
+        i++;
       } else {
         File file = new File(args[i]);
         if (file.exists()) files.add(file);
