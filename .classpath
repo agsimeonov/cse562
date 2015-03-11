@@ -12,5 +12,6 @@
 			<attribute name="javadoc_location" value="http://mjolnir.cse.buffalo.edu/resources/expressionlib"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/checkpoint1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
