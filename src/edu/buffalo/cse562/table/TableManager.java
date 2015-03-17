@@ -57,7 +57,7 @@ public final class TableManager {
   public static String getSwapDir() {
     return swapDir;
   }
-  
+
   /**
    * Acquires a database table.
    * 
