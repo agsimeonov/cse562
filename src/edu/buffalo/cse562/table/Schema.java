@@ -1,5 +1,9 @@
 package edu.buffalo.cse562.table;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import net.sf.jsqlparser.schema.Column;
@@ -11,7 +15,8 @@ import net.sf.jsqlparser.schema.Table;
  * @author Alexander Simeonov
  * @author Sunny Mistry
  */
-public class Schema {
+public class Schema implements Serializable {
+  private static final long serialVersionUID = -1119625585280544652L;
   private ArrayList<Column> columns;
 
   /**
@@ -69,5 +74,60 @@ public class Schema {
    */
   public int size() {
     return columns.size();
+  }
+
+  /**
+   * Used during serialization.
+   * 
+   * @param stream - the object output stream used for serialization
+   * @throws IOException
+   */
+  private void writeObject(ObjectOutputStream stream) throws IOException {
+    stream.writeInt(columns.size());
+    
+    for (Column column : columns) {
+      // Handle table
+      Table table = column.getTable();
+      if (table == null) {
+        stream.writeBoolean(false);
+      } else {
+        stream.writeBoolean(true);
+        stream.writeObject(table.getSchemaName());
+        stream.writeObject(table.getName());
+        stream.writeObject(table.getAlias());
+      }
+      
+      // Handle column name
+      stream.writeObject(column.getColumnName());
+    }
+  }
+  
+  /**
+   * Used during deserialization.
+   * 
+   * @param stream - the object input stream used for deserialization
+   * @throws IOException
+   * @throws ClassNotFoundException
+   */
+  private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+    int size = stream.readInt();
+    columns = new ArrayList<Column>(size);
+    
+    for (int i = 0; i < size; i++) {
+      // Handle table
+      Table table = null;
+      boolean hasTable = stream.readBoolean();
+      if (hasTable) {
+        String schemaName = (String) stream.readObject();
+        String name = (String) stream.readObject();
+        String alias = (String) stream.readObject();
+        table = new Table(schemaName, name);
+        table.setAlias(alias);
+      }
+      
+      // Handle column name
+      String columnName = (String) stream.readObject();
+      columns.add(new Column(table, columnName));
+    }
   }
 }

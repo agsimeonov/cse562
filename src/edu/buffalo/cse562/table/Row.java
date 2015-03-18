@@ -1,5 +1,7 @@
 package edu.buffalo.cse562.table;
 
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -17,9 +19,8 @@ import net.sf.jsqlparser.schema.Column;
  * @author Alexander Simeonov
  * @author Sunny Mistry
  */
-public class Row {
+public class Row implements Serializable {
   private HashMap<String, LeafValue> values = new HashMap<String, LeafValue>();
-  private HashMap<String, LeafValue> altKey = new HashMap<String, LeafValue>();
   private Schema                     schema;
 
   /**
@@ -42,8 +43,6 @@ public class Row {
     this.schema = schema;
     values.putAll(left.values);
     values.putAll(right.values);
-    altKey.putAll(left.altKey);
-    altKey.putAll(right.altKey);
   }
   
   /**
@@ -55,7 +54,7 @@ public class Row {
   public void setValue(Column column, LeafValue value) {
     boolean tableIsSet = !column.getTable().toString().equals("null");
     values.put(column.getWholeColumnName().toLowerCase(), value);
-    if (tableIsSet) altKey.put(column.getColumnName().toLowerCase(), value);
+    if (tableIsSet) values.put(column.getColumnName().toLowerCase(), value);
   }
   
   /**
@@ -66,8 +65,7 @@ public class Row {
    */
   public LeafValue getValue(Column column) {
     String name = column.getWholeColumnName().toLowerCase();
-    LeafValue value = values.get(name);
-    return value != null ? value : altKey.get(name);
+    return values.get(name);
   }
   
   /**
@@ -142,5 +140,9 @@ public class Row {
     }
 
     return rowString;
+  }
+
+  private void writeObject(ObjectOutputStream stream) {
+    // TODO
   }
 }
