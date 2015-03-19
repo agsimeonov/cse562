@@ -1,7 +1,10 @@
 package edu.buffalo.cse562.table;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -20,6 +23,7 @@ import net.sf.jsqlparser.schema.Column;
  * @author Sunny Mistry
  */
 public class Row implements Serializable {
+  private static final long serialVersionUID = 3237297077216578415L;
   private HashMap<String, LeafValue> values = new HashMap<String, LeafValue>();
   private Schema                     schema;
 
@@ -142,7 +146,75 @@ public class Row implements Serializable {
     return rowString;
   }
 
-  private void writeObject(ObjectOutputStream stream) {
-    // TODO
+  /**
+   * Used during serialization.
+   * 
+   * @param stream - the object output stream used for serialization
+   * @throws IOException
+   */
+  private void writeObject(ObjectOutputStream stream) throws IOException {
+    // Handle schema
+    stream.writeObject(schema);
+    
+    // Handle values
+    stream.writeInt(values.size());
+    for (String key : values.keySet()) {
+      stream.writeObject(key);
+      LeafValue value = values.get(key);
+      
+      try {
+        if (value == null) {
+          stream.writeObject(null);
+        } else if (value instanceof LongValue) {
+          stream.writeObject(new Long(value.toLong()));
+        } else if (value instanceof DoubleValue) {
+          stream.writeObject(new Double(value.toDouble()));
+        } else if (value instanceof DateValue) {
+          DateValue date = (DateValue) value;
+          stream.writeObject(date.getValue());
+        } else {
+          stream.writeObject(value.toString());
+        }
+      } catch (InvalidLeaf e) {
+        e.printStackTrace();
+      }
+    }
+  }
+  
+  /**
+   * Used during deserialization.
+   * 
+   * @param stream - the object input stream used for deserialization
+   * @throws IOException
+   * @throws ClassNotFoundException
+   */
+  private void readObject(ObjectInputStream stream) throws ClassNotFoundException, IOException {
+    // Handle schema
+    schema = (Schema) stream.readObject();
+    
+    // Handle values
+    values = null;
+    int size = stream.readInt();
+    values = new HashMap<String, LeafValue>(size);
+    for (int i = 0; i < size; i++) {
+      String key = (String) stream.readObject();
+      Object object = stream.readObject();
+      
+      if (object == null) {
+        values.put(key, null);
+      } else if (object instanceof Long) {
+        Long value = (Long) object;
+        values.put(key, new LongValue(value));
+      } else if (object instanceof Double) {
+        Double value = (Double) object;
+        values.put(key, new DoubleValue(value));
+      } else if (object instanceof Date) {
+        Date value = (Date) object;
+        values.put(key, new DateValue(value.toString()));
+      } else {
+        String value = (String) object;
+        values.put(key, new StringValue(value));
+      }
+    }
   }
 }
