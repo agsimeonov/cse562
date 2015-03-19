@@ -1,8 +1,3 @@
-================================================================================
-Checkpoint 1
-================================================================================
-
-
 [Source](http://mjolnir.cse.buffalo.edu/teaching/cse-562/checkpoint-1/ "Permalink to Checkpoint 1 | The ODIn Lab")
 
 # Checkpoint 1 | The ODIn Lab
@@ -225,209 +220,68 @@ Additionally, there will be a per-query leader-board for all groups who manage t
 [5]: http://www.dbtoaster.org/index.php?page=samples
   </http:></http:></http:></http:>
 
-================================================================================
-Checkpoint 2
-================================================================================
 
-     * Overview: Optimize your implementation to support
-       specialized join algorithms and limited memory.
-     * Deadline: March 30
-     * Grade: 15% of Project Component
-          + 5% Correctness
-          + 5% Efficiency
-          + 5% Code Review
+[Source](http://mjolnir.cse.buffalo.edu/teaching/cse-562/checkpoint-2/ "Permalink to Checkpoint 2 | The ODIn Lab")
 
-   This project is, in effect, a more rigorous form of Project 1.
-   The requirements are identical: We give you a query and some
-   data, you evaluate the query on the data and give us a response
-   as quickly as possible.
+# Checkpoint 2 | The ODIn Lab
 
-   First, this means that we’ll be expecting a more
-   feature-complete submission. Your code will be evaluated on
-   more queries from TPC-H benchmark, which exercises a broader
-   range of SQL features than the Project 1 test cases did.
+* **Overview**: Optimize your implementation to support specialized join algorithms and limited memory.
+* **Deadline**: March 30
+* **Grade**: 15% of Project Component
+    * 5% Correctness
+    * 5% Efficiency
+    * 5% Code Review
 
-   Second, performance constraints will be tighter. The reference
-   implementation for this project has been improved over that of
-   Project 1, meaning that you’ll be expected to perform more
-   efficiently, and to handle data that does not fit into main
-   memory.
-     __________________________________________________________
+This project is, in effect, a more rigorous form of Project 1. The requirements are identical: We give you a query and some data, you evaluate the query on the data and give us a response as quickly as possible.
 
-Join Ordering
+First, this means that we'll be expecting a more feature-complete submission. Your code will be evaluated on more queries from TPC-H benchmark, which exercises a broader range of SQL features than the Project 1 test cases did.
 
-   The order in which you join tables together is
-   incredibly important, and can change the runtime of your query
-   by multiple orders of magnitude.  Picking between different
-   join orderings is incredibly important!  However, to do so, you
-   will need statistics about the data, something that won’t
-   really be feasible until the next project.  Instead, here’s a
-   present for those of you paying attention.  The tables in each
-   FROM clause are ordered so that you will get our recommended
-   join order by building a left-deep plan going in-order of the
-   relation list (something that many of you are doing already),
-   and (for hybrid hash joins) using the left-hand-side relation
-   to build your hash table.
+Second, performance constraints will be tighter. The reference implementation for this project has been improved over that of Project 1, meaning that you'll be expected to perform more efficiently, and to handle data that does not fit into main memory.
 
-Blocking Operators and Memory
+* * *
 
-   Blocking operators (e.g., joins other than Merge Join, the Sort
-   operator, etc…) are generally blocking because they need to
-   materialize instances of a relation. For half of this project,
-   you will not have enough memory available to materialize a full
-   relation, to say nothing of join results. To successfully
-   process these queries, you will need to implement out-of core
-   equivalents of these operators: At least one External Join
-   (e.g., Block-Nested-Loop, Hash, or Sort/Merge Join) and an
-   out-of-core Sort Algorithm (e.g., External Sort).
+## Join Ordering
 
-   For your reference, the evaluation machines have 2GB of memory.
-    In phase 2,  Java will be configured for 100 MB of heap space
-   (see the command line argument -Xmx).  To work with such a
-   small amount of heap space, you will need to manually invoke
-   Java’s garbage collector by calling System.gc().  How
-   frequently you do this is up to you.  The more you wait, the
-   greater the chance that you’ll run out of memory.  The
-   reference implementation calls it in the Two-Phase sort
-   operator, every time it finishes flushing a file out to disk.
+The order in which you join tables together is **incredibly&nbsp;important**, and can change the runtime of your query by **multiple orders of magnitude**. &nbsp;Picking between different join orderings is incredibly important! &nbsp;However, to do so, you will need statistics about the data, something that won't really be feasible until the next project. &nbsp;Instead, here's a present for those of you paying attention. &nbsp;The tables in each FROM clause are ordered so&nbsp;that you will get our&nbsp;recommended join order by building a&nbsp;_left-deep plan_&nbsp;going in-order of the relation list&nbsp;(something that many of you are doing already), and (for hybrid hash joins) using the left-hand-side relation to build your hash table.
 
-Query Rewriting
+## Blocking Operators and Memory
 
-   In Project 1, you were encouraged to parse SQL into a
-   relational algebra tree.  Project 2 is where that design choice
-   begins to pay off.  We’ve discussed expression equivalences in
-   relational algebra, and identified several that are always good
-   (e.g., pushing down selection operators). The reference
-   implementation uses some simple recursion to identify patterns
-   of expressions that can be optimized and rewrite them.  For
-   example, if I wanted to define a new HashJoin operator, I might
-   go through and replace every qualifying Selection operator
-   sitting on top of a CrossProduct operator with a HashJoin.
-   
-        if(o instanceof Selection){
-          Selection s = (Selection)o;
-          if(s.getChild() instanceof CrossProduct){
-            CrossProduct prod =
-               (CrossProduct)s.getChild();
-            Expression join_cond =
-               // find a good join condition in
-               // the predicate of s.
-            Expression rest =
-               // the remaining conditions
-            return new Selection(
-              rest,
-              new HashJoin(
-                join_cond,
-                prod.getLHS(),
-                prod.getRHS()
-              )
-            );
-          }
-        }
-        return o;
+Blocking operators (e.g., joins other than Merge Join, the Sort operator, etc…) are generally blocking because they need to materialize instances of a relation. For half of this project, you will not have enough memory available to materialize a full relation, to say nothing of join results. To successfully process these queries, you will need to implement out-of core equivalents of these operators: At least one External Join (e.g., Block-Nested-Loop, Hash, or Sort/Merge Join) and an out-of-core Sort Algorithm (e.g., External Sort).
 
-   The reference implementation has a function similar to this
-   snippet of code, and applies the function to every node in the
-   relational algebra tree.
+For your reference, the evaluation machines have 2GB of memory. &nbsp;In phase 2, &nbsp;Java will be configured for 1**00 MB of heap space **(see the command line argument -Xmx). &nbsp;To work with such a small amount of heap space, **you will need to manually invoke Java's garbage collector** by calling `System.gc()`. &nbsp;How frequently you do this is up to you. &nbsp;The more you wait, the greater the chance that you'll run out of memory. &nbsp;The reference implementation calls it in the Two-Phase sort operator, every time it finishes flushing a file out to disk.&nbsp;
 
-   Because selection can be decomposed, you may find it useful to
-   have a piece of code that can split AndExpressions into a list
-   of conjunctive terms:
-   
-        List<Expression> splitAndClauses(Expression e)
-        {
-          List<Expression> ret =
-             new ArrayList<Expression();
-          if(e instanceof AndExpression){
-            AndExpression a = (AndExpression)e;
-            ret.addAll(
-              splitAndClauses(a.getLeftExpression())
-            );
-            ret.addAll(
-              splitAndClauses(a.getRightExpression())
-            );
-          } else {
-            ret.add(e);
-          }
-        }
+## Query Rewriting
 
-Interface
+In Project 1, you were encouraged to parse SQL into a relational algebra tree. &nbsp;Project 2 is where that design choice begins to pay off. &nbsp;We've discussed expression equivalences in relational algebra, and identified several that are always good (e.g., pushing down selection operators). The reference implementation uses some simple recursion to identify patterns of expressions that can be optimized and rewrite them. &nbsp;For example, if I wanted to define a new HashJoin operator, I might go through and replace every qualifying Selection operator sitting on top of a CrossProduct operator with a HashJoin.
 
-   Your code will be evaluated in exactly the same way as Project
-   1.  Your code will be presented with a 1GB (SF 1) TPC-H
-   dataset.  Grading will proceed in two phases.  In the first
-   phase, you will have an unlimited amount of memory, but very
-   tight time constraints.  In the second phase, you will have
-   slightly looser time constraints, but will be limited to 100 MB
-   of memory, and presented with either a 1GB or a 200 MB (SF 0.2)
-   dataset.
+    if(o instanceof Selection){
+      Selection s = (Selection)o;
+      if(s.getChild() instanceof CrossProduct){
+        CrossProduct prod =
+           (CrossProduct)s.getChild();
+        Expression join_cond =
+           // find a good join condition in
+           // the predicate of s.
+        Expression rest =
+           // the remaining conditions
+        return new Selection(
+          rest,
+          new HashJoin(
+            join_cond,
+            prod.getLHS(),
+            prod.getRHS()
+          )
+        );
+      }
+    }
+    return o;
 
-   As before, your code will be invoked with the data directory
-   and the relevant SQL files. An additional parameter will be
-   used in Phase 2:
-     * --swap directory: A swap directory that you’re allowed to
-       write to. No other directories are guaranteed to be
-       available or writeable. If the –swap parameter is not
-       present, you should not swap (i.e., the data size is small
-       enough to be handled entirely in-memory)
+The reference implementation has a function similar to this snippet of code, and applies the function&nbsp;to every node in the relational algebra tree.
 
-        java -cp build:jsqlparser.jar
-             -Xmx100m      # Heap limit (Phase 2 only)
-             edu.buffalo.cse562.Main
-             --data [data]
-             --swap [swap]
-             [sqlfile1] [sqlfile2] ...
+Because selection can be decomposed, you may find it useful to have a piece of code that can split AndExpressions into a list of conjunctive terms:
 
-   This example uses the following directories and files:
-     * [data]: Table data stored in ‘|’ separated files. As
-       before, table names match the names provided in the
-       matching CREATE TABLE with the .dat suffix.
-     * [swap]: A temporary directory for an individual run. This
-       directory will be emptied after every trial.
-     * [sqlfileX]: A file containing CREATE TABLE and SELECT
-       statements, defining the schema of the dataset and the
-       query to process
-
-Grading
-
-   Your code will be subjected to a sequence of test cases and
-   evaluated on speed and correctness.  Note that unlike Project
-   1, you will neither receive a warning about, nor partial credit
-   for out-of-order query results if the outermost query includes
-   an ORDER BY clause.
-
-   Phase 1 (big queries) will be graded on a TPC-H SF 1 dataset (1
-   GB of raw text data).  Phase 2 (limited memory) will be graded
-   on either a TPC-H SF 1 or SF 0.2 (200 MB of raw text data)
-   dataset as listed in the chart below.  Grades are assigned
-   based on per-query thresholds:
-     * 0/10 (F): Your submission does not compile, does not
-       produce correct output, or fails in some other way.
-       Resubmission is highly encouraged.
-     * 5/10 (C): Your submission runs the test query faster than
-       the C threshold (listed below for each query), and produces
-       the correct output.
-     * 7.5/10 (B): Your submission runs the test query faster than
-       the B threshold (listed below for each query), and produces
-       the correct output.
-     * 10/10 (A): Your submission runs the test query faster than
-       the A threshold (listed below for each query), and produces
-       the correct output.
-
-   TPC-H Query Phase 1 Runtimes   Phase 2 Runtimes Phase 2 Scaling
-                                                   Factor
-        1      45 s             A 1 min            SF = 0.2
-               67.5 s           B 2 min
-               90 s             C 3 min
-        3      45 s             A 40 s             SF = 0.2
-               90 s             B 80 s
-               120 s            C 120 s
-        5      45 s             A 70 s             SF = 0.2
-               90 s             B 140 s
-               120 s            C 210 s
-       10      45 s             A 2 min            SF = 1
-               67.5 s           B 4 min
-               90 s             C 6 min
-       12      45 s             A 1.5 min          SF = 1
-               67.5 s           B 3 min
-               90 s             C 4.5 min
+    List<expression> splitAndClauses(Expression e)
+    {
+      List<expression> ret =
+         new ArrayList<expression(); if(e="" instanceof="" andexpression){="" andexpression="" a="(AndExpression)e;" ret.addall(="" splitandclauses(a.getleftexpression())="" );="" splitandclauses(a.getrightexpression())="" }="" else="" {="" ret.add(e);="" ##="" interface="" your="" code="" will="" be="" evaluated="" in="" exactly="" the="" same="" way="" as="" project="" 1.=""  your="" presented="" with="" 1gb="" (sf="" 1)="" tpc-h="" dataset.=""  grading="" proceed="" two="" phases.=""  in="" first="" phase,="" you="" have="" an="" unlimited="" amount="" of="" memory,="" but="" very="" tight="" time="" constraints.="" second="" slightly="" looser="" constraints,="" limited="" to="" 100="" mb="" and="" either="" or="" 200="" 0.2)="" before,="" invoked="" data="" directory="" relevant="" sql="" files.="" additional="" parameter="" used="" phase="" 2:="" *="" `\--swap="" directory`:="" swap="" that="" you're="" allowed="" write="" to.="" no="" other="" directories="" are="" guaranteed="" available="" writeable.="" if="" –swap="" is="" not="" present,="" should="" (i.e.,="" size="" small="" enough="" handled="" entirely="" in-memory)="" java="" -cp="" build:jsqlparser.jar="" -xmx100m="" #="" heap="" limit="" (phase="" 2="" only)="" edu.buffalo.cse562.main="" --data="" [data]="" --swap="" [swap]="" [sqlfile1]="" [sqlfile2]="" ...="" this="" example="" uses="" following="" files:="" [`data]`:="" table="" stored="" '|'="" separated="" names="" match="" provided="" matching="" create="" .dat="" suffix.="" [`swap]`:="" temporary="" for="" individual="" run.="" emptied="" after="" every="" trial.="" [`sqlfilex]`:="" file="" containing="" select="" statements,="" defining="" schema="" dataset="" query="" process="" grading="" subjected="" sequence="" test="" cases="" on="" speed="" correctness.=""  note="" unlike="" 1,="" neither="" receive="" warning="" about,="" nor="" partial="" credit="" out-of-order="" results="" outermost="" includes="" order="" by="" clause.="" 1="" (big="" queries)="" graded="" sf="" (1="" gb="" raw="" text="" data).=""  phase="" (limited="" memory)="" 0.2="" (200="" data)="" listed="" chart="" below.=""  grades="" assigned="" based="" per-query="" thresholds:="" **0="" 10="" (f)**:="" submission="" does="" compile,="" produce="" correct="" output,="" fails="" some="" way.="" resubmission="" highly="" encouraged.="" **5="" (c)**:="" runs="" faster="" than="" c="" threshold="" (listed="" below="" each="" query),="" produces="" output.="" **7.5="" (b)**: your="" b threshold="" **10="" (a)**: your="" a threshold="" |="" -----="" runtimes="" scaling="" factor="" 45="" s="" min="" 67.5="" b="" 90="" 3 min="" 3="" 40="" 90 s="" 80 s="" 120="" 120 s="" 5="" 70 s="" 140="" 210 s="" 4="" 6="" 12="" 1.5="" 4.5="" <="" div="">
+</expression();></expression></expression>
