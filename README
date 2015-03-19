@@ -25,22 +25,16 @@ Parsing SQL
 
    A parser converts a human-readable string into a structured
    representation of the program (or query) that the string
-   describes. A fork of the [22]JSQLParser open-source SQL parser
+   describes. A fork of the JSQLParser open-source SQL parser
    (JSQLParser) will be provided for your use.  The JAR may be
    downloaded from
 
-     [22] http://jsqlparser.sourceforge.net/
-
-   [23]http://mjolnir.cse.buffalo.edu/resources/jsqlparser/jsqlpar
-   ser.jar
-
-     [23] http://mjolnir.cse.buffalo.edu/resources/jsqlparser/jsqlparser.jar
+   http://jsqlparser.sourceforge.net/
+   http://mjolnir.cse.buffalo.edu/resources/jsqlparser/jsqlparser.jar
 
    And documentation for the fork is available at
 
-   [24]http://mjolnir.cse.buffalo.edu/resources/jsqlparser
-
-     [24] http://mjolnir.cse.buffalo.edu/resources/jsqlparser
+   http://mjolnir.cse.buffalo.edu/resources/jsqlparser
 
    You are not required to use this parser (i.e., you may write
    your own if you like). However, we will be testing your code on
@@ -50,13 +44,14 @@ Parsing SQL
    java.io.InputStream from which the file data to be parsed (For
    example, a java.io.FileReader). Let’s assume you’ve created one
    already (of either type) and called it inputFile.
-CCJSqlParser parser = new CCJSqlParser(inputFile);
-Statement statement;
-while((statement = parser.Statement()) != null){
-  // `statement` now has one of the several
-  // implementations of the Statement interface
-}
-// End-of-file.  Exit!
+   
+        CCJSqlParser parser = new CCJSqlParser(inputFile);
+        Statement statement;
+        while((statement = parser.Statement()) != null){
+          // `statement` now has one of the several
+          // implementations of the Statement interface
+        }
+        // End-of-file.  Exit!
 
    At this point, you’ll need to figure out what kind of statement
    you’re dealing with. For this project, we’ll be working with
@@ -64,18 +59,17 @@ while((statement = parser.Statement()) != null){
    JSqlParser defines a Visitor style interface that you can use
    if you’re familiar with the pattern. However, my preference is
    for the simpler and lighter-weight instanceof relation:
-if(statement instanceof Select) {
-  Select selectStatement = (Select)statement;
-  // handle the select
-} else if(statement instanceof CreateTable) {
-  // and so forth
-}
+   
+        if(statement instanceof Select) {
+          Select selectStatement = (Select)statement;
+          // handle the select
+        } else if(statement instanceof CreateTable) {
+          // and so forth
+        }
 
 Example
 
-   IFRAME: [25]https://www.youtube.com/embed/U4TyaHTJ3Zg
-
-     [25] https://www.youtube.com/embed/U4TyaHTJ3Zg
+   https://www.youtube.com/embed/U4TyaHTJ3Zg
 
 Expressions
 
@@ -85,26 +79,22 @@ Expressions
    manipulating and evaluating Expressions.  The JAR may be
    downloaded from
 
-   [26]http://mjolnir.cse.buffalo.edu/resources/expressionlib/expr
-   ession.jar
+   http://mjolnir.cse.buffalo.edu/resources/expressionlib/expression.jar
 
-     [26] http://mjolnir.cse.buffalo.edu/resources/expressionlib/expression.jar
+   Documentation for the library is available at
 
-    Documentation for the library is available at
-
-   [27]http://mjolnir.cse.buffalo.edu/resources/expressionlib
-
-     [27] http://mjolnir.cse.buffalo.edu/resources/expressionlib
+   http://mjolnir.cse.buffalo.edu/resources/expressionlib
 
    To use the Eval class, you will need to define a method for
    dereferencing Column objects.  For example, if I have a Map
    called tupleSchema that contains my tuple schema, and an
    ArrayList called tuple that contains the tuple I am currently
    evaluating, I might write:
-public void LeafValue eval(Column x){
-  int colID = tupleSchema.get(x.getName());
-  return tuple.get(colID);
-}
+   
+        public void LeafValue eval(Column x){
+          int colID = tupleSchema.get(x.getName());
+          return tuple.get(colID);
+        }
 
    After doing this, you can use Eval.eval() to evaluate any
    expression in the context of tuple.
@@ -122,26 +112,29 @@ Source Data
    schema that you are given for later use. Sql types (and their
    corresponding java types) that will be used in this project are
    as follows:
-   SQL Type Java Equivalent
-   string   StringValue
-   varchar  StringValue
-   char     StringValue
-   int      LongValue
-   decimal  DoubleValue
-   date     DateValue
+   
+        SQL Type Java Equivalent
+        string   StringValue
+        varchar  StringValue
+        char     StringValue
+        int      LongValue
+        decimal  DoubleValue
+        date     DateValue
 
    In addition to the schema, you will be given a data directory
    containing multiple data files who’s names correspond to the
    table names given in the CREATE TABLE statements. For example,
    let’s say that you see the following statement in your query
    file:
-CREATE TABLE R(A int, B int, C int);
+   
+        CREATE TABLE R(A int, B int, C int);
 
    That means that the data directory contains a data file called
    ‘R.dat’ that might look like this:
-1|1|5
-1|2|6
-2|3|7
+   
+        1|1|5
+        1|2|6
+        2|3|7
 
    Each line of text (see java.io.BufferedReader.readLine())
    corresponds to one row of data. Each record is delimited by a
@@ -234,23 +227,23 @@ Example Queries and Data
    These are only examples.  Your code will be expected to handle
    these queries, as well as others.
 
-   [28]Sanity Check Examples: A thorough suite of test cases
+   Sanity Check Examples: A thorough suite of test cases
    covering most simple query features.
 
-     [28] http://mjolnir.cse.buffalo.edu/resources/cse562/Sanity_Check_Examples.tgz
+   http://mjolnir.cse.buffalo.edu/resources/cse562/Sanity_Check_Examples.tgz
 
-   [29]Example NBA Benchmark Queries: Some very simple queries to
+   Example NBA Benchmark Queries: Some very simple queries to
    get you started.
 
-     [29] http://mjolnir.cse.buffalo.edu/resources/cse562/NBA_Query_Examples.tgz
+   http://mjolnir.cse.buffalo.edu/resources/cse562/NBA_Query_Examples.tgz
 
-   [30]The TPC-H Benchmark: This benchmark consists of two parts:
+   The TPC-H Benchmark: This benchmark consists of two parts:
    DBGen (generates the data) and a specification document
    (defines the queries).  A nice summary of the TPC-H queries can
-   be found [31]here.
+   be found here.
 
-     [30] http://www.tpc.org/information/current_specifications.asp
-     [31] http://www.dbtoaster.org/index.php?page=samples
+   http://www.tpc.org/information/current_specifications.asp
+   http://www.dbtoaster.org/index.php?page=samples
 
    The SQL implementation used by TPC-H differs in a few subtle
    ways from the implementation used by JSqlParser.  Minor
@@ -307,21 +300,22 @@ Code Submission
      * sql file: one or more sql files for you to parse evaluate.
 
    For example:
-$> ls data
-R.dat
-S.dat
-T.dat
-$> cat R.dat
-1|1|5
-1|2|6
-2|3|7
-$> cat query.sql
-CREATE TABLE R(A int, B int, C int)
-SELECT B, C FROM R WHERE A = 1
-$> java -cp build:jsqlparser.jar edu.buffalo.cse562.Main --data data que
-ry.sql
-1|5
-2|6
+   
+        $> ls data
+        R.dat
+        S.dat
+        T.dat
+        $> cat R.dat
+        1|1|5
+        1|2|6
+        2|3|7
+        $> cat query.sql
+        CREATE TABLE R(A int, B int, C int)
+        SELECT B, C FROM R WHERE A = 1
+        $> java -cp build:jsqlparser.jar edu.buffalo.cse562.Main --data data que
+        ry.sql
+        1|5
+        2|6
 
    Once again, the data directory contains files named table
    name.dat where table name is the name used in a CREATE TABLE
@@ -450,27 +444,28 @@ Query Rewriting
    example, if I wanted to define a new HashJoin operator, I might
    go through and replace every qualifying Selection operator
    sitting on top of a CrossProduct operator with a HashJoin.
-if(o instanceof Selection){
-  Selection s = (Selection)o;
-  if(s.getChild() instanceof CrossProduct){
-    CrossProduct prod =
-       (CrossProduct)s.getChild();
-    Expression join_cond =
-       // find a good join condition in
-       // the predicate of s.
-    Expression rest =
-       // the remaining conditions
-    return new Selection(
-      rest,
-      new HashJoin(
-        join_cond,
-        prod.getLHS(),
-        prod.getRHS()
-      )
-    );
-  }
-}
-return o;
+   
+        if(o instanceof Selection){
+          Selection s = (Selection)o;
+          if(s.getChild() instanceof CrossProduct){
+            CrossProduct prod =
+               (CrossProduct)s.getChild();
+            Expression join_cond =
+               // find a good join condition in
+               // the predicate of s.
+            Expression rest =
+               // the remaining conditions
+            return new Selection(
+              rest,
+              new HashJoin(
+                join_cond,
+                prod.getLHS(),
+                prod.getRHS()
+              )
+            );
+          }
+        }
+        return o;
 
    The reference implementation has a function similar to this
    snippet of code, and applies the function to every node in the
@@ -479,22 +474,23 @@ return o;
    Because selection can be decomposed, you may find it useful to
    have a piece of code that can split AndExpressions into a list
    of conjunctive terms:
-List<Expression> splitAndClauses(Expression e)
-{
-  List<Expression> ret =
-     new ArrayList<Expression();
-  if(e instanceof AndExpression){
-    AndExpression a = (AndExpression)e;
-    ret.addAll(
-      splitAndClauses(a.getLeftExpression())
-    );
-    ret.addAll(
-      splitAndClauses(a.getRightExpression())
-    );
-  } else {
-    ret.add(e);
-  }
-}
+   
+        List<Expression> splitAndClauses(Expression e)
+        {
+          List<Expression> ret =
+             new ArrayList<Expression();
+          if(e instanceof AndExpression){
+            AndExpression a = (AndExpression)e;
+            ret.addAll(
+              splitAndClauses(a.getLeftExpression())
+            );
+            ret.addAll(
+              splitAndClauses(a.getRightExpression())
+            );
+          } else {
+            ret.add(e);
+          }
+        }
 
 Interface
 
