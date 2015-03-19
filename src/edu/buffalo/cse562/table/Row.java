@@ -210,7 +210,7 @@ public class Row implements Serializable {
         values.put(key, new DoubleValue(value));
       } else if (object instanceof Date) {
         Date value = (Date) object;
-        values.put(key, new DateValue(value.toString()));
+        values.put(key, new DateValue("'" + value.toString() + "'"));
       } else {
         String value = (String) object;
         values.put(key, new StringValue(value));
