@@ -512,12 +512,12 @@ Interface
        present, you should not swap (i.e., the data size is small
        enough to be handled entirely in-memory)
 
-java -cp build:jsqlparser.jar
-     -Xmx100m      # Heap limit (Phase 2 only)
-     edu.buffalo.cse562.Main
-     --data [data]
-     --swap [swap]
-     [sqlfile1] [sqlfile2] ...
+        java -cp build:jsqlparser.jar
+             -Xmx100m      # Heap limit (Phase 2 only)
+             edu.buffalo.cse562.Main
+             --data [data]
+             --swap [swap]
+             [sqlfile1] [sqlfile2] ...
 
    This example uses the following directories and files:
      * [data]: Table data stored in ‘|’ separated files. As
