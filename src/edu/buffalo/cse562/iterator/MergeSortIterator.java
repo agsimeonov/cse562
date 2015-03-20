@@ -51,6 +51,16 @@ public class MergeSortIterator implements RowIterator {
     
     try {
       Row increment = (Row) ois.readObject();
+      if (increment != null) {
+        list = outputBuffer.get(increment);
+        if (list == null) {
+          list = new LinkedList<ObjectInputStream>();
+          outputBuffer.put(increment, list);
+        }
+        list.push(ois);
+      } else {
+        ois.close();
+      }
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
     } catch (IOException e) {
@@ -91,7 +101,6 @@ public class MergeSortIterator implements RowIterator {
           // Create file buffer
           File temporary = File.createTempFile("tmp", null, swapDirectory);
           temporary.deleteOnExit();
-          buffers.add(new ObjectInputStream(new FileInputStream(temporary)));
           
           // Flush all rows to disk
           ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(temporary));
@@ -104,6 +113,9 @@ public class MergeSortIterator implements RowIterator {
           if (iterator.hasNext()) buffer = new ArrayList<Row>();
           else buffer = null;
           System.gc();
+          
+          // Stash the file buffer
+          buffers.add(new ObjectInputStream(new FileInputStream(temporary)));
         } catch (IOException e) {
           e.printStackTrace();
         }
@@ -114,7 +126,10 @@ public class MergeSortIterator implements RowIterator {
     for (ObjectInputStream ois : buffers) {
       try {
         Object object = ois.readObject();
-        if (object == null) continue;
+        if (object == null) {
+          ois.close();
+          continue;
+        }
         Row row = (Row) object;
         LinkedList<ObjectInputStream> list = outputBuffer.get(row);
         if (list == null) {
