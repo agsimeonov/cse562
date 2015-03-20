@@ -15,11 +15,11 @@ import edu.buffalo.cse562.table.RowComparator;
  * @author Sunny Mistry
  */
 public class OrderByIterator implements RowIterator {
-  private final RowIterator iterator;
+  private final RowIterator          iterator;
   private final List<OrderByElement> orderByElements;
-  private ArrayList<Row> buffer;
-  private Iterator<Row> bufferIterator;
-  
+  private ArrayList<Row>             buffer;
+  private Iterator<Row>              bufferIterator;
+
   /**
    * Initializes the iterator.
    * 

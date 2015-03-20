@@ -23,8 +23,8 @@ import net.sf.jsqlparser.schema.Column;
  * @author Sunny Mistry
  */
 public class Row implements Serializable {
-  private static final long serialVersionUID = 3237297077216578415L;
-  private HashMap<String, LeafValue> values = new HashMap<String, LeafValue>();
+  private static final long          serialVersionUID = 3237297077216578415L;
+  private HashMap<String, LeafValue> values           = new HashMap<String, LeafValue>();
   private Schema                     schema;
 
   /**
