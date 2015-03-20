@@ -7,9 +7,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.TreeMap;
+import java.util.PriorityQueue;
 
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import edu.buffalo.cse562.table.Row;
@@ -23,10 +22,10 @@ import edu.buffalo.cse562.table.TableManager;
  * @author Sunny Mistry
  */
 public class MergeSortIterator implements RowIterator {
-  private static final long                           THRESHOLD = 20 << 20;
-  private final RowIterator                           iterator;
-  private final List<OrderByElement>                  orderByElements;
-  private TreeMap<Row, LinkedList<ObjectInputStream>> outputBuffer;
+  private static final long          THRESHOLD = 20 << 20;
+  private final RowIterator          iterator;
+  private final List<OrderByElement> orderByElements;
+  private PriorityQueue<Row>         outputBuffer;
 
   public MergeSortIterator(RowIterator iterator, List<OrderByElement> orderByElements) {
     this.iterator = iterator;
@@ -44,23 +43,18 @@ public class MergeSortIterator implements RowIterator {
   @Override
   public Row next() {
     if (!this.hasNext()) return null;
-    Row out = outputBuffer.firstKey();
-    LinkedList<ObjectInputStream> list = outputBuffer.get(out);
-    ObjectInputStream ois = list.pop();
-    if (list.isEmpty()) outputBuffer.pollFirstEntry();
+    Row out = outputBuffer.remove();
+    ObjectInputStream ois = out.getStream();
+    out.setStream(null);
     
     try {
       Row increment = (Row) ois.readObject();
       if (increment != null) {
-        list = outputBuffer.get(increment);
-        if (list == null) {
-          list = new LinkedList<ObjectInputStream>();
-          outputBuffer.put(increment, list);
-        }
-        list.push(ois);
+        increment.setStream(ois);
+        outputBuffer.add(increment);
       } else {
-        System.gc();
         ois.close();
+        System.gc();
       }
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
@@ -85,7 +79,7 @@ public class MergeSortIterator implements RowIterator {
     ArrayList<ObjectInputStream> buffers = new ArrayList<ObjectInputStream>();
     File swapDirectory = new File(TableManager.getSwapDir());
     RowComparator comparator = new RowComparator(orderByElements);
-    outputBuffer = new TreeMap<Row, LinkedList<ObjectInputStream>>(comparator);
+    outputBuffer = new PriorityQueue<Row>(comparator);
     ArrayList<Row> buffer = new ArrayList<Row>();
     
     // Phase 1:
@@ -133,12 +127,8 @@ public class MergeSortIterator implements RowIterator {
           continue;
         }
         Row row = (Row) object;
-        LinkedList<ObjectInputStream> list = outputBuffer.get(row);
-        if (list == null) {
-          list = new LinkedList<ObjectInputStream>();
-          outputBuffer.put(row, list);
-        }
-        list.push(ois);
+        row.setStream(ois);
+        outputBuffer.add(row);
       } catch (ClassNotFoundException e) {
         e.printStackTrace();
       } catch (IOException e) {

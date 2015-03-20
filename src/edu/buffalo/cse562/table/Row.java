@@ -22,10 +22,15 @@ import net.sf.jsqlparser.schema.Column;
  * @author Alexander Simeonov
  * @author Sunny Mistry
  */
+/**
+ * @author asosako
+ *
+ */
 public class Row implements Serializable {
   private static final long          serialVersionUID = 3237297077216578415L;
   private HashMap<String, LeafValue> values           = new HashMap<String, LeafValue>();
   private Schema                     schema;
+  private ObjectInputStream          stream;
 
   /**
    * Creates an empty row tuple of LeafValue data elements.
@@ -70,6 +75,25 @@ public class Row implements Serializable {
   public LeafValue getValue(Column column) {
     String name = column.getWholeColumnName().toLowerCase();
     return values.get(name);
+  }
+  
+  /**
+   * Sets an input stream associated with the row.
+   * 
+   * @param stream - input stream associated with the row
+   */
+  public void setStream(ObjectInputStream stream) {
+    this.stream = stream;
+  }
+  
+  
+  /**
+   * Acquires the input stream associated with the row.
+   * 
+   * @return input stream associated with the row
+   */
+  public ObjectInputStream getStream() {
+    return this.stream;
   }
   
   /**
