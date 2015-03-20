@@ -1,5 +1,6 @@
 package edu.buffalo.cse562.iterator;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -22,7 +23,8 @@ import edu.buffalo.cse562.table.TableManager;
  * @author Sunny Mistry
  */
 public class MergeSortIterator implements RowIterator {
-  private static final long          THRESHOLD = 20 << 20; // megabytes converted to bytes
+  private static final long          THRESHOLD     = 30 << 20; // minimum available memory
+  private static final int           STREAM_BUFFER = 10 << 20; // output stream buffer
   private final RowIterator          iterator;
   private final List<OrderByElement> orderByElements;
   private PriorityQueue<Row>         outputBuffer;
@@ -106,7 +108,9 @@ public class MergeSortIterator implements RowIterator {
           temporary.deleteOnExit();
           
           // Flush all rows to disk
-          ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(temporary));
+          FileOutputStream fos = new FileOutputStream(temporary);
+          BufferedOutputStream bos = new BufferedOutputStream(fos, STREAM_BUFFER);
+          ObjectOutputStream oos = new ObjectOutputStream(bos);
           for (Row row : buffer)
             oos.writeObject(row);
           oos.writeObject(null);
