@@ -40,7 +40,7 @@ public class RowComparator implements Comparator<Row> {
       LeafValue rowValue = right.getValue(column);
 
       try {
-        if (thisValue instanceof LongValue || thisValue instanceof DateValue) {
+        if (thisValue instanceof LongValue) {
           if (thisValue.toLong() > rowValue.toLong()) {
             return element.isAsc() ? 1 : -1;
           } else if (thisValue.toLong() < rowValue.toLong()) {
@@ -49,13 +49,21 @@ public class RowComparator implements Comparator<Row> {
         } else if (thisValue instanceof DoubleValue) {
           if (thisValue.toDouble() > rowValue.toDouble()) {
             return element.isAsc() ? 1 : -1;
-          } else if (thisValue.toLong() < rowValue.toLong()) {
+          } else if (thisValue.toDouble() < rowValue.toDouble()) {
             return element.isAsc() ? -1 : 1;
           }
         } else if (thisValue instanceof StringValue) {
           if (thisValue.toString().compareTo(rowValue.toString()) > 0) {
             return element.isAsc() ? 1 : -1;
           } else if (thisValue.toString().compareTo(rowValue.toString()) < 0) {
+            return element.isAsc() ? -1 : 1;
+          }
+        } else if (thisValue instanceof DateValue) {
+          DateValue thisDate = (DateValue) thisValue;
+          DateValue rowDate = (DateValue) rowValue;
+          if (thisDate.getValue().getTime() > rowDate.getValue().getTime()) {
+            return element.isAsc() ? 1 : -1;
+          } else if (thisDate.getValue().getTime() < rowDate.getValue().getTime()) {
             return element.isAsc() ? -1 : 1;
           }
         }
