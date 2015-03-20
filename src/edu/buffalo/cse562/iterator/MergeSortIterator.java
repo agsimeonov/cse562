@@ -1,11 +1,15 @@
 package edu.buffalo.cse562.iterator;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeMap;
 
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import edu.buffalo.cse562.table.Row;
@@ -19,12 +23,10 @@ import edu.buffalo.cse562.table.TableManager;
  * @author Sunny Mistry
  */
 public class MergeSortIterator implements RowIterator {
-  private static final long          THRESHOLD = 10 << 20; // megabytes converted to bytes
-  private final RowIterator          iterator;
-  private final List<OrderByElement> orderByElements;
-  private ArrayList<Row>             buffer;
-  private ArrayList<File>            buffers;
-  private File                       swapDirectory;
+  private static final long                           THRESHOLD = 10 << 20;
+  private final RowIterator                           iterator;
+  private final List<OrderByElement>                  orderByElements;
+  private TreeMap<Row, LinkedList<ObjectInputStream>> outputBuffer;
 
   public MergeSortIterator(RowIterator iterator, List<OrderByElement> orderByElements) {
     this.iterator = iterator;
@@ -34,29 +36,46 @@ public class MergeSortIterator implements RowIterator {
 
   @Override
   public boolean hasNext() {
-    // TODO Auto-generated method stub
-    return false;
+    if (outputBuffer == null) return false;
+    if (outputBuffer.size() == 0) return false;
+    return true;
   }
 
   @Override
   public Row next() {
-    // TODO Auto-generated method stub
-    return null;
+    if (!this.hasNext()) return null;
+    Row out = outputBuffer.firstKey();
+    LinkedList<ObjectInputStream> list = outputBuffer.get(out);
+    ObjectInputStream ois = list.pop();
+    if (list.isEmpty()) outputBuffer.pollFirstEntry();
+    
+    try {
+      Row increment = (Row) ois.readObject();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    
+    return out;
   }
 
   @Override
   public void close() {
-    // TODO Auto-generated method stub
-    
+    if (outputBuffer == null) return;
+    iterator.close();
+    outputBuffer = null;
   }
 
   @Override
   public void open() {
-    if (buffers != null) return;
+    if (outputBuffer != null) return;
     iterator.open();
-    swapDirectory = new File(TableManager.getSwapDir());
-    buffers = new ArrayList<File>();
-    buffer = new ArrayList<Row>();
+    ArrayList<ObjectInputStream> buffers = new ArrayList<ObjectInputStream>();
+    File swapDirectory = new File(TableManager.getSwapDir());
+    RowComparator comparator = new RowComparator(orderByElements);
+    outputBuffer = new TreeMap<Row, LinkedList<ObjectInputStream>>(comparator);
+    ArrayList<Row> buffer = new ArrayList<Row>();
     
     // Phase 1:
     while (iterator.hasNext()) {
@@ -65,27 +84,49 @@ public class MergeSortIterator implements RowIterator {
       // When the memory is full flush the buffer onto disk
       if (Runtime.getRuntime().freeMemory() < THRESHOLD || !iterator.hasNext()) {
         // Sort first
-        buffer.sort(new RowComparator(orderByElements));
+        buffer.sort(comparator);
         
         // Now flush buffer onto disk
         try {
+          // Create file buffer
           File temporary = File.createTempFile("tmp", null, swapDirectory);
-//          temporary.deleteOnExit();
-          buffers.add(temporary);
+          temporary.deleteOnExit();
+          buffers.add(new ObjectInputStream(new FileInputStream(temporary)));
           
+          // Flush all rows to disk
           ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(temporary));
           for (Row row : buffer)
             oos.writeObject(row);
           oos.writeObject(null);
           oos.close();
           
-          buffer = new ArrayList<Row>();
+          // Reset the memory buffer and invoke Java's garbage collector
+          if (iterator.hasNext()) buffer = new ArrayList<Row>();
+          else buffer = null;
           System.gc();
         } catch (IOException e) {
           e.printStackTrace();
         }
       }
     }
+    
+    // Initialize Phase 2:
+    for (ObjectInputStream ois : buffers) {
+      try {
+        Object object = ois.readObject();
+        if (object == null) continue;
+        Row row = (Row) object;
+        LinkedList<ObjectInputStream> list = outputBuffer.get(row);
+        if (list == null) {
+          list = new LinkedList<ObjectInputStream>();
+          outputBuffer.put(row, list);
+        }
+        list.push(ois);
+      } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
   }
-
 }
