@@ -16,17 +16,23 @@ import edu.buffalo.cse562.table.RowComparator;
 import edu.buffalo.cse562.table.TableManager;
 
 /**
- * Two-Phase, Multiway Merge-Sort
+ * Two-Phase, Multiway Merge-Sort. Handles ordering operations over rows in a child iterator.
  * 
  * @author Alexander Simeonov
  * @author Sunny Mistry
  */
 public class MergeSortIterator implements RowIterator {
-  private static final long          THRESHOLD = 20 << 20;
+  private static final long          THRESHOLD = 20 << 20; // megabytes converted to bytes
   private final RowIterator          iterator;
   private final List<OrderByElement> orderByElements;
   private PriorityQueue<Row>         outputBuffer;
 
+  /**
+   * Initializes the iterator.
+   * 
+   * @param iterator - child iterator
+   * @param orderByElements - order conditions
+   */
   public MergeSortIterator(RowIterator iterator, List<OrderByElement> orderByElements) {
     this.iterator = iterator;
     this.orderByElements = orderByElements;
