@@ -59,6 +59,7 @@ public class MergeSortIterator implements RowIterator {
         }
         list.push(ois);
       } else {
+        System.gc();
         ois.close();
       }
     } catch (ClassNotFoundException e) {
@@ -92,7 +93,9 @@ public class MergeSortIterator implements RowIterator {
       buffer.add(iterator.next());
       
       // When the memory is full flush the buffer onto disk
-      if (Runtime.getRuntime().freeMemory() < THRESHOLD || !iterator.hasNext()) {
+      Runtime runtime = Runtime.getRuntime();
+      long memory = runtime.maxMemory() - (runtime.totalMemory() - runtime.freeMemory());
+      if (memory < THRESHOLD || !iterator.hasNext()) {
         // Sort first
         buffer.sort(comparator);
         
@@ -110,8 +113,7 @@ public class MergeSortIterator implements RowIterator {
           oos.close();
           
           // Reset the memory buffer and invoke Java's garbage collector
-          if (iterator.hasNext()) buffer = new ArrayList<Row>();
-          else buffer = null;
+          buffer.clear();
           System.gc();
           
           // Stash the file buffer
