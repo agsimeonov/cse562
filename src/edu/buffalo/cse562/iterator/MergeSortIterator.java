@@ -23,7 +23,7 @@ import edu.buffalo.cse562.table.TableManager;
  * @author Sunny Mistry
  */
 public class MergeSortIterator implements RowIterator {
-  private static final long                           THRESHOLD = 10 << 20;
+  private static final long                           THRESHOLD = 20 << 20;
   private final RowIterator                           iterator;
   private final List<OrderByElement>                  orderByElements;
   private TreeMap<Row, LinkedList<ObjectInputStream>> outputBuffer;
