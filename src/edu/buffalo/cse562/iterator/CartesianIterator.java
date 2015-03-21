@@ -25,10 +25,12 @@ public class CartesianIterator implements RowIterator {
    * 
    * @param left - left child iterator
    * @param right - right child iterator
+   * @param schema - the output schema
    */
-  public CartesianIterator(RowIterator left, RowIterator right) {
+  public CartesianIterator(RowIterator left, RowIterator right, Schema schema) {
     this.leftIterator = left;
     this.rightIterator = right;
+    this.schema = schema;
     open();
   }
 
@@ -58,7 +60,6 @@ public class CartesianIterator implements RowIterator {
     if (rightIterator.hasNext()) {
       Row rightRow = rightIterator.next();
       buffer.add(rightRow);
-      if (schema == null) schema = new Schema(leftRow.getSchema(), rightRow.getSchema());
       return new Row(schema, leftRow, rightRow);
     }
     

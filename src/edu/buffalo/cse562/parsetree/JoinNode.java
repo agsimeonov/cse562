@@ -33,7 +33,9 @@ public class JoinNode extends ParseTree {
   public Iterator<Row> iterator() {
     RowIterator leftIterator = (RowIterator) left.iterator();
     RowIterator rightIterator = (RowIterator) right.iterator();
-    CartesianIterator cartesianIterator = new CartesianIterator(leftIterator, rightIterator);
+    CartesianIterator cartesianIterator = new CartesianIterator(leftIterator,
+                                                                rightIterator,
+                                                                this.getSchema());
     return new SelectIterator(cartesianIterator, expression);
   }
 

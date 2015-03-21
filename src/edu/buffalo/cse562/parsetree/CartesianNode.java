@@ -25,7 +25,9 @@ public class CartesianNode extends ParseTree {
 
   @Override
   public Iterator<Row> iterator() {
-    return new CartesianIterator((RowIterator) left.iterator(), (RowIterator) right.iterator());
+    return new CartesianIterator((RowIterator) left.iterator(),
+                                 (RowIterator) right.iterator(),
+                                 this.getSchema());
   }
 
   @Override
