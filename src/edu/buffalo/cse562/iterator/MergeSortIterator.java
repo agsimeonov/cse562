@@ -9,6 +9,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -31,8 +32,7 @@ public class MergeSortIterator implements RowIterator {
   private final List<OrderByElement> orderByElements;
   private final Schema               inSchema;
   private PriorityQueue<Row>         outputBuffer;
-  private ArrayList<Row>             buffer;
-  private Iterator<Row>              bufferIterator;
+  private LinkedList<Row>            buffer;
 
   /**
    * Initializes the iterator.
@@ -53,8 +53,8 @@ public class MergeSortIterator implements RowIterator {
   @Override
   public boolean hasNext() {
     if (outputBuffer == null) return false;
-    if (outputBuffer.size() == 0) {
-      if (!buffer.isEmpty() && bufferIterator.hasNext()) return true;
+    if (outputBuffer.isEmpty()) {
+      if (!buffer.isEmpty()) return true;
       close();
       return false;
     }
@@ -64,7 +64,7 @@ public class MergeSortIterator implements RowIterator {
   @Override
   public Row next() {
     if (!this.hasNext()) return null;
-    if (!buffer.isEmpty()) return bufferIterator.next();
+    if (!buffer.isEmpty()) return buffer.pop();
     Row out = outputBuffer.remove();
     ObjectInputStream ois = out.getStream();
     out.setStream(null);
@@ -94,7 +94,6 @@ public class MergeSortIterator implements RowIterator {
     iterator.close();
     outputBuffer = null;
     buffer = null;
-    bufferIterator = null;
     System.gc();
   }
 
@@ -106,7 +105,7 @@ public class MergeSortIterator implements RowIterator {
     File swapDirectory = new File(TableManager.getSwapDir());
     RowComparator comparator = new RowComparator(orderByElements, inSchema);
     outputBuffer = new PriorityQueue<Row>(comparator);
-    buffer = new ArrayList<Row>();
+    buffer = new LinkedList<Row>();
     
     // Phase 1:
     while (iterator.hasNext()) {
@@ -118,10 +117,7 @@ public class MergeSortIterator implements RowIterator {
         buffer.sort(comparator);
 
         // Don't use temporary files if not necessary
-        if (!iterator.hasNext() && buffers.isEmpty()) {
-          bufferIterator = buffer.iterator();
-          return; 
-        }
+        if (!iterator.hasNext() && buffers.isEmpty()) return;
         
         // Now flush buffer onto disk
         try {
@@ -133,12 +129,10 @@ public class MergeSortIterator implements RowIterator {
           FileOutputStream fos = new FileOutputStream(temporary);
           BufferedOutputStream bos = new BufferedOutputStream(fos, STREAM_BUFFER);
           ObjectOutputStream oos = new ObjectOutputStream(bos);
-          for (Row row : buffer)
-            oos.writeObject(row);
+          while (!buffer.isEmpty())
+            oos.writeObject(buffer.pop());
           oos.writeObject(null);
           oos.close();
-          
-          // Reset the memory buffer and invoke Java's garbage collectorbuffer.clear();
           System.gc();
           
           // Stash the file buffer
