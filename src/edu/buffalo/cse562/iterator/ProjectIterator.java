@@ -1,12 +1,8 @@
 package edu.buffalo.cse562.iterator;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import edu.buffalo.cse562.evaluate.Evaluate;
 import edu.buffalo.cse562.table.Schema;
 
@@ -17,54 +13,37 @@ import edu.buffalo.cse562.table.Schema;
  * @author Sunny Mistry
  */
 public abstract class ProjectIterator implements RowIterator {
-  protected final RowIterator                iterator;
-  protected final List<SelectExpressionItem> items;
-  protected ArrayList<Expression>            inExpressions;
-  protected Schema                           outSchema;
-  protected Evaluate                         evaluate;
+  protected final RowIterator           iterator;
+  protected final Schema                outSchema;
+  protected final ArrayList<Expression> inExpressions;
+  protected Evaluate                    evaluate;
 
   /**
    * Initializes the iterator.
    * 
    * @param iterator - child iterator
-   * @param items - contains expressions and their aliases
+   * @param inExpressions - contains input expressions
+   * @param outSchema - the output schema
    */
-  public ProjectIterator(RowIterator iterator, List<SelectExpressionItem> items) {
+  public ProjectIterator(RowIterator iterator,
+                         ArrayList<Expression> inExpressions,
+                         Schema outSchema) {
     this.iterator = iterator;
-    this.items = items;
+    this.inExpressions = inExpressions;
+    this.outSchema = outSchema;
     open();
   }
 
   @Override
   public void close() {
     iterator.close();
-    inExpressions = null;
-    outSchema = null;
     evaluate = null;
   }
   
   @Override
   public void open() {
-    if (inExpressions != null) return;
+    if (evaluate != null) return;
     iterator.open();
-    inExpressions = new ArrayList<Expression>();
-    ArrayList<Column> columns = new ArrayList<Column>();
-    Table table = new Table();
     evaluate = new Evaluate();
-
-    for (int i = 0; i < items.size(); i++) {
-      Expression expression = items.get(i).getExpression();
-      inExpressions.add(items.get(i).getExpression());
-
-      String alias = items.get(i).getAlias();
-      if (expression instanceof Column && alias == null) {
-        columns.add((Column) expression);
-      } else {
-        if (alias == null) alias = expression.toString();
-        columns.add(new Column(table, alias));
-      }
-    }
-
-    outSchema = new Schema(columns);
   }
 }

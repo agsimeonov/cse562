@@ -26,7 +26,7 @@ import edu.buffalo.cse562.table.Schema;
  * @author Sunny Mistry
  */
 public class ProjectNode extends ParseTree {
-  protected ArrayList<SelectExpressionItem> expressionItems;
+  protected ArrayList<Expression>           inExpressions;
   protected Schema                          outSchema;
   private boolean                           allColumns = false;
 
@@ -39,7 +39,7 @@ public class ProjectNode extends ParseTree {
   public ProjectNode(ParseTree base, List<SelectItem> items) {
     super(base);
     // Build expression items or return child iterator if wildcard is present
-    this.expressionItems = new ArrayList<SelectExpressionItem>();
+    ArrayList<SelectExpressionItem> expressionItems = new ArrayList<SelectExpressionItem>();
     
     for (SelectItem item : items) {
       if (item instanceof AllColumns) {
@@ -58,7 +58,7 @@ public class ProjectNode extends ParseTree {
     }
     
     // Determine the output schema
-    ArrayList<Expression> inExpressions = new ArrayList<Expression>();
+    inExpressions = new ArrayList<Expression>();
     ArrayList<Column> columns = new ArrayList<Column>();
     Table table = new Table();
 
@@ -86,17 +86,17 @@ public class ProjectNode extends ParseTree {
     boolean hasColumns = false;
     boolean hasFunctions = false;
     
-    for (SelectExpressionItem item : expressionItems) {
-      if (item.getExpression() instanceof Column) hasColumns = true;
-      if (item.getExpression() instanceof Function) hasFunctions = true;
+    for (Expression expression : inExpressions) {
+      if (expression instanceof Column) hasColumns = true;
+      if (expression instanceof Function) hasFunctions = true;
     }
     
     if (hasColumns && hasFunctions) {
-      return new GroupByIterator((RowIterator) left.iterator(), expressionItems);
+      return new GroupByIterator((RowIterator) left.iterator(), inExpressions, outSchema);
     } else if (!hasColumns && hasFunctions) {
-      return new AggregateIterator((RowIterator) left.iterator(), expressionItems);
+      return new AggregateIterator((RowIterator) left.iterator(), inExpressions, outSchema);
     } else {
-      return new NonAggregateIterator((RowIterator) left.iterator(), expressionItems);
+      return new NonAggregateIterator((RowIterator) left.iterator(), inExpressions, outSchema);
     }
   }
 

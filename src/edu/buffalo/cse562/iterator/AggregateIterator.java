@@ -1,14 +1,13 @@
 package edu.buffalo.cse562.iterator;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.LeafValue;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import edu.buffalo.cse562.evaluate.Aggregate;
 import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.table.Schema;
 
 /**
  * Iterates over rows in a given iterator and handles aggregate queries.
@@ -24,10 +23,13 @@ public class AggregateIterator extends ProjectIterator {
    * Initializes the iterator.
    * 
    * @param iterator - child iterator
-   * @param items - contains columns and their aliases
+   * @param inExpressions - contains projection expressions
+   * @param outSchema - contains the outputSchema
    */
-  public AggregateIterator(RowIterator iterator, List<SelectExpressionItem> items) {
-    super(iterator, items);
+  public AggregateIterator(RowIterator iterator,
+                           ArrayList<Expression> inExpressions,
+                           Schema outSchema) {
+    super(iterator, inExpressions, outSchema);
     open();
   }
 
