@@ -1,5 +1,6 @@
 package edu.buffalo.cse562.parsetree;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,10 +35,12 @@ public class ProjectNode extends ParseTree {
    * Initializes the projection node.
    * 
    * @param base - the parent node
+   * @param left - the left node
    * @param items - contains projection expressions and their aliases
    */
-  public ProjectNode(ParseTree base, List<SelectItem> items) {
+  public ProjectNode(ParseTree base, ParseTree left, List<SelectItem> items) {
     super(base);
+    super.left = left;
     // Build expression items or return child iterator if wildcard is present
     ArrayList<SelectExpressionItem> expressionItems = new ArrayList<SelectExpressionItem>();
     
@@ -57,7 +60,7 @@ public class ProjectNode extends ParseTree {
       }
     }
     
-    // Determine the output schema
+    // Determine the output schema and input expressions
     inExpressions = new ArrayList<Expression>();
     ArrayList<Column> columns = new ArrayList<Column>();
     Table table = new Table();
@@ -76,6 +79,25 @@ public class ProjectNode extends ParseTree {
     }
 
     outSchema = new Schema(columns);
+    
+    for (int i = 0; i < inExpressions.size(); i++) {
+      Column column = outSchema.getColumns().get(i);
+      
+      // Handle wildcards
+      if (column.getColumnName() == null) {
+        ArrayList<Column> tableColumns = left.getSchema().getTableColumns(column.getTable());
+
+        for (Column tableColumn : tableColumns) {
+          inExpressions.add(i, tableColumn);
+          outSchema.getColumns().add(i, tableColumn);
+        }
+        
+        inExpressions.remove(i + tableColumns.size());
+        outSchema.getColumns().remove(i + tableColumns.size());
+        
+        column = outSchema.getColumns().get(i);
+      }
+    }
   }
 
   @Override

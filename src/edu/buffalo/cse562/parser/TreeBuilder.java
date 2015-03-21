@@ -56,8 +56,7 @@ public class TreeBuilder implements SelectVisitor {
     
     // Build project tree
     @SuppressWarnings("unchecked")
-    ParseTree projectTree = new ProjectNode(null, plainSelect.getSelectItems());
-    projectTree.setLeft(current);
+    ParseTree projectTree = new ProjectNode(null, current, plainSelect.getSelectItems());
     current.setBase(projectTree);
     current = projectTree;
     

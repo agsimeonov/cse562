@@ -45,21 +45,6 @@ public class NonAggregateIterator extends ProjectIterator {
     for (int i = 0; i < inExpressions.size(); i++) {
       Column column = outSchema.getColumns().get(i);
       
-      // Handle wildcards
-      if (column.getColumnName() == null) {
-        ArrayList<Column> tableColumns = next.getSchema().getTableColumns(column.getTable());
-
-        for (Column tableColumn : tableColumns) {
-          inExpressions.add(i, tableColumn);
-          outSchema.getColumns().add(i, tableColumn);
-        }
-        
-        inExpressions.remove(i + tableColumns.size());
-        outSchema.getColumns().remove(i + tableColumns.size());
-        
-        column = outSchema.getColumns().get(i);
-      }
-      
       try {
         row.setValue(column, evaluate.eval(inExpressions.get(i)));
       } catch (SQLException e) {

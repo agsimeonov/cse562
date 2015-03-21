@@ -96,15 +96,6 @@ public class Row implements Serializable {
     return this.stream;
   }
   
-  /**
-   * Acquires the row schema.
-   * 
-   * @return the row schema
-   */
-  public Schema getSchema() {
-    return schema;
-  }
-  
   @Override
   public int hashCode() {
     Integer hash = 0;
