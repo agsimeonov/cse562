@@ -23,13 +23,13 @@ public class AggregateIterator extends ProjectIterator {
    * Initializes the iterator.
    * 
    * @param iterator - child iterator
-   * @param inExpressions - contains projection expressions
-   * @param outSchema - contains the outputSchema
+   * @param outExpressions - contains projection expressions
+   * @param inSchema - contains the input schema
    */
   public AggregateIterator(RowIterator iterator,
-                           ArrayList<Expression> inExpressions,
-                           Schema outSchema) {
-    super(iterator, inExpressions, outSchema);
+                           ArrayList<Expression> outExpressions,
+                           Schema inSchema) {
+    super(iterator, outExpressions, inSchema);
     open();
   }
 
@@ -43,24 +43,24 @@ public class AggregateIterator extends ProjectIterator {
   @Override
   public Row next() {
     if (!this.hasNext()) return null;
-    LeafValue[] results = new LeafValue[inExpressions.size()];
+    LeafValue[] results = new LeafValue[outExpressions.size()];
     
-    for(Expression e : inExpressions) {
+    for(Expression e : outExpressions) {
       Function function = (Function) e;
       aggregators.add(Aggregate.getAggregate(function, evaluate));
     }
     
     while (iterator.hasNext()) {
       Row next = iterator.next();
-      for (int i = 0; i < inExpressions.size(); i++) {
+      for (int i = 0; i < outExpressions.size(); i++) {
         results[i] = aggregators.get(i).yield(next);
       }
     }
     
-    Row out = new Row(outSchema);
+    Row out = new Row(results.length);
     
     for (int i = 0; i < results.length; i++)
-      out.setValue(outSchema.getColumns().get(i), results[i]);
+      out.setValue(i, results[i]);
     
     ready = false;
     return out;

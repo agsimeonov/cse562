@@ -6,6 +6,7 @@ import net.sf.jsqlparser.expression.BooleanValue;
 import net.sf.jsqlparser.expression.Expression;
 import edu.buffalo.cse562.evaluate.Evaluate;
 import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.table.Schema;
 
 /**
  * Handles selection operation over rows given a where or having expression.
@@ -16,6 +17,7 @@ import edu.buffalo.cse562.table.Row;
 public class SelectIterator implements RowIterator {
   private RowIterator iterator;
   private Expression  expression;
+  private Schema      inSchema;
   private Evaluate    evaluate;
   private Row         row;
 
@@ -24,10 +26,12 @@ public class SelectIterator implements RowIterator {
    * 
    * @param iterator - child iterator
    * @param expressions - where or having expression
+   * @param inSchema - the input schema
    */
-  public SelectIterator(RowIterator iterator, Expression expressions) {
+  public SelectIterator(RowIterator iterator, Expression expressions, Schema inSchema) {
     this.iterator = iterator;
     this.expression = expressions;
+    this.inSchema = inSchema;
     open();
   }
 
@@ -75,7 +79,7 @@ public class SelectIterator implements RowIterator {
   public void open() {
     if (evaluate == null) {
       iterator.open();
-      evaluate = new Evaluate();
+      evaluate = new Evaluate(inSchema);
     }
   }
 }

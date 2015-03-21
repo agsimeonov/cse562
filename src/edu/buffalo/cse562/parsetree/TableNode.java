@@ -16,7 +16,8 @@ import edu.buffalo.cse562.table.TableManager;
  * @author Sunny Mistry
  */
 public class TableNode extends ParseTree {
-  private final Table table;
+  private final Table  table;
+  private final Schema outSchema;
 
   /**
    * Initializes the table node.
@@ -27,6 +28,12 @@ public class TableNode extends ParseTree {
   public TableNode(ParseTree base, Table table) {
     super(base);
     this.table = table;
+    DataTable dataTable = TableManager.getTable(table.getName());
+    outSchema = dataTable.getSchema();
+    if (table.getAlias() != null) {
+      for (int i = 0; i < outSchema.size(); i++)
+        outSchema.getColumns().get(i).getTable().setName(table.getAlias());
+    }
   }
 
   @Override
@@ -36,7 +43,6 @@ public class TableNode extends ParseTree {
 
   @Override
   public Schema getSchema() {
-    DataTable dataTable = TableManager.getTable(table.getName());
-    return dataTable.getSchema();
+    return outSchema;
   }
 }

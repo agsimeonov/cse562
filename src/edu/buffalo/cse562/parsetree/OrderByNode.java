@@ -31,7 +31,7 @@ public class OrderByNode extends ParseTree {
 
   @Override
   public Iterator<Row> iterator() {
-    return new MergeSortIterator((RowIterator) left.iterator(), orderByElements);
+    return new MergeSortIterator((RowIterator) left.iterator(), orderByElements, left.getSchema());
   }
 
   @Override

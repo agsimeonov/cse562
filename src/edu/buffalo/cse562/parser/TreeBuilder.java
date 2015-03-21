@@ -175,15 +175,18 @@ public class TreeBuilder implements SelectVisitor {
     for (int i = 0; i < joins.size(); i++) {
       if (current == null) {
         Expression expr = joins.get(i).getOnExpression();
-        current = expr == null ? new CartesianNode(null) : new JoinNode(null, expr);
-        current.setLeft(getFromItemTree(fromItem));
-        current.setRight(getFromItemTree(joins.get(i).getRightItem()));
+        ParseTree left = getFromItemTree(fromItem);
+        ParseTree right = getFromItemTree(joins.get(i).getRightItem());
+        if (expr == null) current = new CartesianNode(null, left, right);
+        else current = new JoinNode(null, left, right, expr);
       } else {
         Expression expr = joins.get(i).getOnExpression();
-        ParseTree base = expr == null ? new CartesianNode(null) : new JoinNode(null, expr);
+        ParseTree left = current;
+        ParseTree right = getFromItemTree(joins.get(i).getRightItem());
+        ParseTree base;
+        if (expr == null) base = new CartesianNode(null, left, right);
+        else base = new JoinNode(null, left, right, expr);
         current.setBase(base);
-        base.setLeft(current);
-        base.setRight(getFromItemTree(joins.get(i).getRightItem()));
         current = base;
       }
     }

@@ -70,7 +70,7 @@ public class TableIterator implements RowIterator {
     try {
       if (!this.hasNext()) return null;
       
-      Row row = new Row(schema);
+      Row row = new Row(schema.size());
       String[] data = this.hasNext() ? reader.readLine().split("\\|") : null;
       
       for (int i = 0; i < schema.size(); i++) {
@@ -80,21 +80,21 @@ public class TableIterator implements RowIterator {
              
         switch (type) {
           case "int":
-            row.setValue(column, new LongValue(Long.parseLong(data[i])));
+            row.setValue(i, new LongValue(Long.parseLong(data[i])));
             break;
           case "decimal":
-            row.setValue(column, new DoubleValue(Double.parseDouble(data[i])));
+            row.setValue(i, new DoubleValue(Double.parseDouble(data[i])));
             break;
           case "date":
-            row.setValue(column, new DateValue("'" + data[i] + "'"));
+            row.setValue(i, new DateValue("'" + data[i] + "'"));
             break;
           case "varchar":
           case "char":
           case "string":
-            row.setValue(column, new StringValue("'" + data[i] + "'"));
+            row.setValue(i, new StringValue("'" + data[i] + "'"));
             break;
           default:
-            row.setValue(column, new NullValue());
+            row.setValue(i, new NullValue());
         }
       }
       

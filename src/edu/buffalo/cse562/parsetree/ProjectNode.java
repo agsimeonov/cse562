@@ -1,6 +1,5 @@
 package edu.buffalo.cse562.parsetree;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -113,12 +112,13 @@ public class ProjectNode extends ParseTree {
       if (expression instanceof Function) hasFunctions = true;
     }
     
+    Schema inSchema = left.getSchema();
     if (hasColumns && hasFunctions) {
-      return new GroupByIterator((RowIterator) left.iterator(), inExpressions, outSchema);
+      return new GroupByIterator((RowIterator) left.iterator(), inExpressions, inSchema);
     } else if (!hasColumns && hasFunctions) {
-      return new AggregateIterator((RowIterator) left.iterator(), inExpressions, outSchema);
+      return new AggregateIterator((RowIterator) left.iterator(), inExpressions, inSchema);
     } else {
-      return new NonAggregateIterator((RowIterator) left.iterator(), inExpressions, outSchema);
+      return new NonAggregateIterator((RowIterator) left.iterator(), inExpressions, inSchema);
     }
   }
 

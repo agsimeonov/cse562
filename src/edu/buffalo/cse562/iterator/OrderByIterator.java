@@ -7,6 +7,7 @@ import java.util.List;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.RowComparator;
+import edu.buffalo.cse562.table.Schema;
 
 /**
  * Handles ordering operations over rows in a child iterator.
@@ -17,6 +18,7 @@ import edu.buffalo.cse562.table.RowComparator;
 public class OrderByIterator implements RowIterator {
   private final RowIterator          iterator;
   private final List<OrderByElement> orderByElements;
+  private final Schema               inSchema;
   private ArrayList<Row>             buffer;
   private Iterator<Row>              bufferIterator;
 
@@ -25,13 +27,17 @@ public class OrderByIterator implements RowIterator {
    * 
    * @param iterator - child iterator
    * @param orderByElements - order conditions
+   * @param inSchema - the  input schema
    */
-  public OrderByIterator(RowIterator iterator, List<OrderByElement> orderByElements) {
+  public OrderByIterator(RowIterator iterator,
+                         List<OrderByElement> orderByElements,
+                         Schema inSchema) {
     this.iterator = iterator;
     this.orderByElements = orderByElements;
+    this.inSchema = inSchema;
     open();
   }
-  
+
   @Override
   public boolean hasNext() {
     if (buffer == null) return false;
@@ -65,6 +71,6 @@ public class OrderByIterator implements RowIterator {
     buffer = new ArrayList<Row>();
     while (iterator.hasNext())
       buffer.add(iterator.next());
-    buffer.sort(new RowComparator(orderByElements));
+    buffer.sort(new RowComparator(orderByElements, inSchema));
   }
 }

@@ -1,6 +1,7 @@
 package edu.buffalo.cse562.evaluate;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.Function;
@@ -9,6 +10,7 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import edu.buffalo.cse562.Eval;
 import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.table.Schema;
 
 /**
  * Evaluates any expression in the context of a tuple.
@@ -17,8 +19,19 @@ import edu.buffalo.cse562.table.Row;
  * @author Sunny Mistry
  */
 public class Evaluate extends Eval {
-  private Row row;
-  
+  private Row                      row;
+  private HashMap<String, Integer> lookupTable;
+
+  /** 
+   * Initializes the evaluator. 
+   * 
+   * @param schema - the input schema
+   */
+  public Evaluate(Schema schema) {
+    super();
+    lookupTable = schema.getLookupTable();
+  }
+
   /**
    * Sets the row used for the evaluation.
    * 
@@ -36,7 +49,8 @@ public class Evaluate extends Eval {
    */
   @Override
   public LeafValue eval(Column column) throws SQLException {
-    return row == null ? null : row.getValue(column);
+    if (row == null) return null;
+    else return row.getValue(lookupTable.get(column.getWholeColumnName().toLowerCase()));
   }
   
   /**

@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
@@ -65,6 +66,23 @@ public class Schema implements Serializable {
     }
     
     return tableColumns;
+  }
+  
+  /**
+   * Builds an index lookup table for the schema.
+   * 
+   * @return and index lookup table for the schema
+   */
+  public HashMap<String, Integer> getLookupTable() {
+    HashMap<String, Integer> lookupTable = new HashMap<String, Integer>();
+    for (int i = 0; i < this.size(); i++) {
+      Column column = columns.get(i);
+      boolean tableIsSet = !column.getTable().toString().equals("null");
+      Integer integer = new Integer(i);
+      lookupTable.put(column.getWholeColumnName().toLowerCase(), integer);
+      if (tableIsSet) lookupTable.put(column.getColumnName().toLowerCase(), integer);
+    }
+    return lookupTable;
   }
 
   /**

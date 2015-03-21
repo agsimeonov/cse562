@@ -18,19 +18,19 @@ import edu.buffalo.cse562.table.Schema;
  * @author Sunny Mistry
  */
 public class GroupByIterator extends ProjectIterator {
-  private HashMap<Row, ArrayList<ColumnAggregatePair>> buffer;
+  private HashMap<Row, ArrayList<IndexAggregatePair>> buffer;
 
   /**
    * Initializes the iterator.
    * 
    * @param iterator - child iterator
-   * @param inExpressions - contains projection expressions
-   * @param outSchema - contains the outputSchema
+   * @param outExpressions - contains projection expressions
+   * @param inSchema - contains the input schema
    */
   public GroupByIterator(RowIterator iterator,
-                           ArrayList<Expression> inExpressions,
-                           Schema outSchema) {
-    super(iterator, inExpressions, outSchema);
+                         ArrayList<Expression> outExpressions,
+                         Schema inSchema) {
+    super(iterator, outExpressions, inSchema);
     open();
   }
 
@@ -50,11 +50,11 @@ public class GroupByIterator extends ProjectIterator {
     if (!this.hasNext()) return null;
     
     Row row = buffer.keySet().iterator().next();
-    ArrayList<ColumnAggregatePair> pairs = buffer.get(row);
+    ArrayList<IndexAggregatePair> pairs = buffer.get(row);
     buffer.remove(row);
     
-    for (ColumnAggregatePair pair : pairs)
-      row.setValue(pair.column, pair.aggregate.currentResult());
+    for (IndexAggregatePair pair : pairs)
+      row.setValue(pair.index, pair.aggregate.currentResult());
     
     return row;
   }
@@ -73,34 +73,33 @@ public class GroupByIterator extends ProjectIterator {
   public void open() {
     if (buffer != null) return;
     super.open();
-    buffer = new HashMap<Row, ArrayList<ColumnAggregatePair>>();
+    buffer = new HashMap<Row, ArrayList<IndexAggregatePair>>();
     
     while (this.iterator.hasNext()) {
-      ArrayList<ColumnAggregatePair> pairs = new ArrayList<ColumnAggregatePair>();
+      ArrayList<IndexAggregatePair> pairs = new ArrayList<IndexAggregatePair>();
       Row inRow = this.iterator.next();
-      Row outRow = new Row(outSchema);
+      Row outRow = new Row(outExpressions.size());
       evaluate.setRow(inRow);
       
-      for (int i = 0; i < inExpressions.size(); i++) {
-        Expression expression = inExpressions.get(i);
-        Column column = outSchema.getColumns().get(i);
+      for (int i = 0; i < outExpressions.size(); i++) {
+        Expression expression = outExpressions.get(i);
         
-        if (inExpressions.get(i) instanceof Column) {
+        if (outExpressions.get(i) instanceof Column) {
           try {
-            outRow.setValue(column, evaluate.eval(inExpressions.get(i)));
+            outRow.setValue(i, evaluate.eval(outExpressions.get(i)));
           } catch (SQLException e) {
             e.printStackTrace();
           }
         } else {
           Aggregate aggregate = Aggregate.getAggregate((Function) expression, evaluate);
           aggregate.yield(inRow);
-          ColumnAggregatePair pair = new ColumnAggregatePair(column, aggregate);
+          IndexAggregatePair pair = new IndexAggregatePair(i, aggregate);
           pairs.add(pair);
         }
       }
       
       if (buffer.containsKey(outRow)) {
-        for (ColumnAggregatePair pair : buffer.get(outRow))
+        for (IndexAggregatePair pair : buffer.get(outRow))
           pair.aggregate.yield(inRow);
       } else {
         buffer.put(outRow, pairs);
@@ -109,23 +108,23 @@ public class GroupByIterator extends ProjectIterator {
   }
 
   /**
-   * Contains a column and an aggregate associated with it.
+   * Contains an index and an aggregate associated with it.
    * 
    * @author Alexander Simeonov
    * @author Sunny Mistry
    */
-  private class ColumnAggregatePair {
-    private final Column    column;
+  private class IndexAggregatePair {
+    private final int       index;
     private final Aggregate aggregate;
 
     /**
      * Initializes the pair.
      * 
-     * @param column - given column
+     * @param index - given index
      * @param aggregate - aggregate associate with the given column
      */
-    private ColumnAggregatePair(Column column, Aggregate aggregate) {
-      this.column = column;
+    private IndexAggregatePair(int index, Aggregate aggregate) {
+      this.index = index;
       this.aggregate = aggregate;
     }
   }

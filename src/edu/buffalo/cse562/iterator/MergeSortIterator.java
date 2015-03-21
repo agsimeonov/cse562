@@ -14,6 +14,7 @@ import java.util.PriorityQueue;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.RowComparator;
+import edu.buffalo.cse562.table.Schema;
 import edu.buffalo.cse562.table.TableManager;
 
 /**
@@ -27,6 +28,7 @@ public class MergeSortIterator implements RowIterator {
   private static final int           STREAM_BUFFER = 10 << 20; // output stream buffer
   private final RowIterator          iterator;
   private final List<OrderByElement> orderByElements;
+  private final Schema               inSchema;
   private PriorityQueue<Row>         outputBuffer;
 
   /**
@@ -34,10 +36,14 @@ public class MergeSortIterator implements RowIterator {
    * 
    * @param iterator - child iterator
    * @param orderByElements - order conditions
+   * @param inSchema - the  input schema
    */
-  public MergeSortIterator(RowIterator iterator, List<OrderByElement> orderByElements) {
+  public MergeSortIterator(RowIterator iterator,
+                           List<OrderByElement> orderByElements,
+                           Schema inSchema) {
     this.iterator = iterator;
     this.orderByElements = orderByElements;
+    this.inSchema = inSchema;
     open();
   }
 
@@ -86,7 +92,7 @@ public class MergeSortIterator implements RowIterator {
     iterator.open();
     ArrayList<ObjectInputStream> buffers = new ArrayList<ObjectInputStream>();
     File swapDirectory = new File(TableManager.getSwapDir());
-    RowComparator comparator = new RowComparator(orderByElements);
+    RowComparator comparator = new RowComparator(orderByElements, inSchema);
     outputBuffer = new PriorityQueue<Row>(comparator);
     ArrayList<Row> buffer = new ArrayList<Row>();
     

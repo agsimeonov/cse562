@@ -1,14 +1,15 @@
 package edu.buffalo.cse562.table;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.LeafValue;
+import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.StringValue;
-import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
@@ -19,15 +20,18 @@ import net.sf.jsqlparser.statement.select.OrderByElement;
  * @author Sunny Mistry
  */
 public class RowComparator implements Comparator<Row> {
-  private final List<OrderByElement> orderByElements;
+  private final List<OrderByElement>     orderByElements;
+  private final HashMap<String, Integer> lookupTable;
 
   /**
    * Initializes the comparator by setting the order by conditions.
    * 
    * @param orderByElements - order by conditions for the comparator
+   * @param inSchema - schema for row comparison
    */
-  public RowComparator(List<OrderByElement> orderByElements) {
+  public RowComparator(List<OrderByElement> orderByElements, Schema inSchema) {
     this.orderByElements = orderByElements;
+    this.lookupTable = inSchema.getLookupTable();
   }
 
   @Override
@@ -36,8 +40,9 @@ public class RowComparator implements Comparator<Row> {
     
     for (OrderByElement element : orderByElements) {
       Column column = (Column) element.getExpression();
-      LeafValue thisValue = left.getValue(column);
-      LeafValue rowValue = right.getValue(column);
+      Integer index = lookupTable.get(column.getWholeColumnName().toLowerCase());
+      LeafValue thisValue = left.getValue(index);
+      LeafValue rowValue = right.getValue(index);
 
       try {
         if (thisValue instanceof LongValue) {

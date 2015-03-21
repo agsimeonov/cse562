@@ -14,23 +14,23 @@ import edu.buffalo.cse562.table.Schema;
  */
 public abstract class ProjectIterator implements RowIterator {
   protected final RowIterator           iterator;
-  protected final Schema                outSchema;
-  protected final ArrayList<Expression> inExpressions;
+  protected final Schema                inSchema;
+  protected final ArrayList<Expression> outExpressions;
   protected Evaluate                    evaluate;
 
   /**
    * Initializes the iterator.
    * 
    * @param iterator - child iterator
-   * @param inExpressions - contains input expressions
-   * @param outSchema - the output schema
+   * @param outExpressions - contains output expressions
+   * @param inSchema - contains the input schema
    */
   public ProjectIterator(RowIterator iterator,
-                         ArrayList<Expression> inExpressions,
-                         Schema outSchema) {
+                         ArrayList<Expression> outExpressions,
+                         Schema inSchema) {
     this.iterator = iterator;
-    this.inExpressions = inExpressions;
-    this.outSchema = outSchema;
+    this.outExpressions = outExpressions;
+    this.inSchema = inSchema;
     open();
   }
 
@@ -44,6 +44,6 @@ public abstract class ProjectIterator implements RowIterator {
   public void open() {
     if (evaluate != null) return;
     iterator.open();
-    evaluate = new Evaluate();
+    evaluate = new Evaluate(inSchema);
   }
 }

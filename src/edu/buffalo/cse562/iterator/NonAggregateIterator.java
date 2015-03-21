@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.schema.Column;
 import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.Schema;
 
@@ -19,13 +18,13 @@ public class NonAggregateIterator extends ProjectIterator {
    * Initializes the iterator.
    * 
    * @param iterator - child iterator
-   * @param inExpressions - contains projection expressions
-   * @param outSchema - contains the outputSchema
+   * @param outExpressions - contains projection expressions
+   * @param outSchema - contains the input schema
    */
   public NonAggregateIterator(RowIterator iterator,
-                           ArrayList<Expression> inExpressions,
-                           Schema outSchema) {
-    super(iterator, inExpressions, outSchema);
+                              ArrayList<Expression> outExpressions,
+                              Schema inSchema) {
+    super(iterator, outExpressions, inSchema);
   }
 
   @Override
@@ -40,13 +39,11 @@ public class NonAggregateIterator extends ProjectIterator {
     if (!this.hasNext()) return null;
     Row next = iterator.next();
     evaluate.setRow(next);
-    Row row = new Row(outSchema);
+    Row row = new Row(outExpressions.size());
     
-    for (int i = 0; i < inExpressions.size(); i++) {
-      Column column = outSchema.getColumns().get(i);
-      
+    for (int i = 0; i < outExpressions.size(); i++) {
       try {
-        row.setValue(column, evaluate.eval(inExpressions.get(i)));
+        row.setValue(i, evaluate.eval(outExpressions.get(i)));
       } catch (SQLException e) {
         e.printStackTrace();
       }

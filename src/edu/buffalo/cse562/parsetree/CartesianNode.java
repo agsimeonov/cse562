@@ -19,17 +19,20 @@ public class CartesianNode extends ParseTree {
    * Initializes the Cartesian product node.
    * 
    * @param base - the parent node
+   * @param left - left node
+   * @param right - right node
    */
-  public CartesianNode(ParseTree base) {
+  public CartesianNode(ParseTree base, ParseTree left, ParseTree right) {
     super(base);
+    super.left = left;
+    super.right = right;
     outSchema = new Schema(left.getSchema(), right.getSchema());
   }
 
   @Override
   public Iterator<Row> iterator() {
     return new CartesianIterator((RowIterator) left.iterator(),
-                                 (RowIterator) right.iterator(),
-                                 this.getSchema());
+                                 (RowIterator) right.iterator());
   }
 
   @Override

@@ -19,7 +19,7 @@ import net.sf.jsqlparser.statement.create.table.CreateTable;
  */
 public class DataTable {
   private ArrayList<String> types = new ArrayList<String>();
-  private Schema            schema;
+  private CreateTable       createTable;
   private Table             table;
   private String            name;
   private File              data;
@@ -31,17 +31,14 @@ public class DataTable {
    * @throws IOException
    */
   protected DataTable(CreateTable createTable) throws IOException {
-    ArrayList<Column> columns = new ArrayList<Column>();
     table = createTable.getTable();
+    this.createTable = createTable;
+    name = createTable.getTable().getName();
     
     for (Object o : createTable.getColumnDefinitions()) {
       ColumnDefinition columnDefinition = (ColumnDefinition) o;
-      columns.add(new Column(table, columnDefinition.getColumnName()));
       types.add(columnDefinition.getColDataType().getDataType());
     }
-    
-    schema = new Schema(columns);
-    name = createTable.getTable().getName();
     
     // Make sure the data file exists
     Path path = Paths.get(TableManager.getDataDir(), name + ".dat");
@@ -62,12 +59,21 @@ public class DataTable {
   }
   
   /**
-   * Acquires the table schema.
+   * Acquires a new instance of the table schema.
    * 
-   * @return the table schema
+   * @return a new instance of the table schema
    */
   public Schema getSchema() {
-    return schema;
+    ArrayList<Column> columns = new ArrayList<Column>();
+    Table tableCopy = new Table(table.getSchemaName(), table.getName());
+    tableCopy.setAlias(table.getAlias());
+    
+    for (Object o : createTable.getColumnDefinitions()) {
+      ColumnDefinition columnDefinition = (ColumnDefinition) o;
+      columns.add(new Column(tableCopy, columnDefinition.getColumnName()));
+    }
+    
+    return new Schema(columns);
   }
   
   /**

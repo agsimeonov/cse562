@@ -30,7 +30,7 @@ public class SelectNode extends ParseTree {
 
   @Override
   public Iterator<Row> iterator() {
-    return new SelectIterator((RowIterator) left.iterator(), expression);
+    return new SelectIterator((RowIterator) left.iterator(), expression, left.getSchema());
   }
 
   @Override

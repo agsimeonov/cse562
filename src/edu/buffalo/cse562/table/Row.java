@@ -5,7 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.sql.Date;
-import java.util.HashMap;
 import java.util.Objects;
 
 import net.sf.jsqlparser.expression.DateValue;
@@ -14,7 +13,6 @@ import net.sf.jsqlparser.expression.LeafValue;
 import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.StringValue;
-import net.sf.jsqlparser.schema.Column;
 
 /**
  * Represents a row tuple of LeafValue data elements.
@@ -22,59 +20,53 @@ import net.sf.jsqlparser.schema.Column;
  * @author Alexander Simeonov
  * @author Sunny Mistry
  */
-/**
- * @author asosako
- *
- */
 public class Row implements Serializable {
-  private static final long          serialVersionUID = 3237297077216578415L;
-  private HashMap<String, LeafValue> values           = new HashMap<String, LeafValue>();
-  private Schema                     schema;
-  private ObjectInputStream          stream;
+  private static final long serialVersionUID = 3237297077216578415L;
+  private LeafValue[]       values;
+  private ObjectInputStream stream;
 
-  /**
-   * Creates an empty row tuple of LeafValue data elements.
+  /** 
+   * Creates an empty row tuple of LeafValue data elements. 
    * 
-   * @param schema - the expected schema for the row
+   * @param size - row size
    */
-  public Row(Schema schema) {
-    this.schema = schema;
+  public Row(int size) {
+    this.values = new LeafValue[size];
   }
-  
+
   /**
    * Creates a new row that is the concatenation of two given row.
    * 
-   * @param schema - the expected schema for the row
    * @param left - left row for concatenation
    * @param right - right row for concatenation
    */
-  public Row(Schema schema, Row left, Row right) {
-    this.schema = schema;
-    values.putAll(left.values);
-    values.putAll(right.values);
+  public Row(Row left, Row right) {
+    this.values = new LeafValue[left.values.length + right.values.length];
+    int i = 0;
+    for (; i < left.values.length; i++)
+      this.values[i] = left.values[i];
+    for (int j = 0; j < right.values.length; j++, i++)
+      this.values[i] = right.values[j];
   }
   
   /**
-   * Sets a value for a given column.
+   * Sets a value.
    * 
-   * @param column - column the value belongs to
-   * @param value - given value to add
+   * @param index - index of value to set
+   * @param value - given value to set
    */
-  public void setValue(Column column, LeafValue value) {
-    boolean tableIsSet = !column.getTable().toString().equals("null");
-    values.put(column.getWholeColumnName().toLowerCase(), value);
-    if (tableIsSet) values.put(column.getColumnName().toLowerCase(), value);
+  public void setValue(int index, LeafValue value) {
+    this.values[index] = value;
   }
   
   /**
-   * Acquires row value for a given column.
+   * Acquires a value.
    * 
-   * @param column - given column for row value
+   * @param index - given index for row value
    * @return desired row value for the given column, null if the column does not exist
    */
-  public LeafValue getValue(Column column) {
-    String name = column.getWholeColumnName().toLowerCase();
-    return values.get(name);
+  public LeafValue getValue(int index) {
+    return this.values[index];
   }
   
   /**
@@ -100,11 +92,8 @@ public class Row implements Serializable {
   public int hashCode() {
     Integer hash = 0;
     
-    for (int i = 0; i < schema.size(); i++) {
-      Column column = schema.getColumns().get(i);
-      String key = column.getWholeColumnName().toLowerCase();
-      if (!values.keySet().contains(key)) continue;
-      LeafValue value = values.get(key);
+    for (int i = 0; i < values.length; i++) {
+      LeafValue value = values[i];
       
       try {
         if (value instanceof LongValue) {
@@ -113,7 +102,7 @@ public class Row implements Serializable {
           hash = Objects.hash(hash, Double.valueOf(value.toDouble()));
         } else if (value instanceof StringValue) {
           hash = Objects.hash(hash, value.toString());
-        } else {
+        } else if (value instanceof DateValue) {
           long time = ((DateValue) value).getValue().getTime();
           hash = Objects.hash(hash, Long.valueOf(time));
         }
@@ -134,10 +123,9 @@ public class Row implements Serializable {
   public String toString() {
     String rowString = "";
 
-    for (int i = 0; i < schema.size(); i++) {
+    for (int i = 0; i < values.length; i++) {
       try {
-        Column column = schema.getColumns().get(i);
-        LeafValue value = values.get(column.getWholeColumnName().toLowerCase());
+        LeafValue value = values[i];
         
         if (value == null) {
           // Do nothing
@@ -155,7 +143,7 @@ public class Row implements Serializable {
         e.printStackTrace();
       }
 
-      if (i != schema.size() - 1) rowString += "|";
+      if (i != values.length - 1) rowString += "|";
     }
 
     return rowString;
@@ -168,15 +156,8 @@ public class Row implements Serializable {
    * @throws IOException
    */
   private void writeObject(ObjectOutputStream stream) throws IOException {
-    // Handle schema
-    stream.writeObject(schema);
-    
-    // Handle values
-    stream.writeInt(values.size());
-    for (String key : values.keySet()) {
-      stream.writeObject(key);
-      LeafValue value = values.get(key);
-      
+    stream.writeInt(values.length);
+    for (LeafValue value : values) {
       try {
         if (value == null) {
           stream.writeObject(null);
@@ -204,31 +185,25 @@ public class Row implements Serializable {
    * @throws ClassNotFoundException
    */
   private void readObject(ObjectInputStream stream) throws ClassNotFoundException, IOException {
-    // Handle schema
-    schema = (Schema) stream.readObject();
-    
-    // Handle values
-    values = null;
     int size = stream.readInt();
-    values = new HashMap<String, LeafValue>(size);
+    values = new LeafValue[size];
     for (int i = 0; i < size; i++) {
-      String key = (String) stream.readObject();
       Object object = stream.readObject();
       
       if (object == null) {
-        values.put(key, null);
+        values[i] = null;
       } else if (object instanceof Long) {
         Long value = (Long) object;
-        values.put(key, new LongValue(value));
+        values[i] = new LongValue(value);
       } else if (object instanceof Double) {
         Double value = (Double) object;
-        values.put(key, new DoubleValue(value));
+        values[i] = new DoubleValue(value);
       } else if (object instanceof Date) {
         Date value = (Date) object;
-        values.put(key, new DateValue("'" + value.toString() + "'"));
+        values[i] = new DateValue("'" + value.toString() + "'");
       } else {
         String value = (String) object;
-        values.put(key, new StringValue(value));
+        values[i] = new StringValue(value);
       }
     }
   }
