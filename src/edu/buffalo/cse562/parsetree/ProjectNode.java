@@ -55,10 +55,12 @@ public class ProjectNode extends ParseTree {
         AllTableColumns allTableColumns = (AllTableColumns) item;
         Table table = new Table();
         table.setName(allTableColumns.getTable().getName());
-        Column column = new Column(table, null);
-        SelectExpressionItem selectExpressionItem = new SelectExpressionItem();
-        selectExpressionItem.setExpression(column);
-        expressionItems.add(selectExpressionItem);
+        ArrayList<Column> tableColumns = left.getSchema().getTableColumns(table);
+        for (Column tableColumn : tableColumns) {
+          SelectExpressionItem selectExpressionItem = new SelectExpressionItem();
+          selectExpressionItem.setExpression(tableColumn);
+          expressionItems.add(selectExpressionItem);
+        }
       } else {
         expressionItems.add((SelectExpressionItem) item);
       }
@@ -83,25 +85,6 @@ public class ProjectNode extends ParseTree {
     }
 
     outSchema = new Schema(columns);
-    
-    for (int i = 0; i < inExpressions.size(); i++) {
-      Column column = outSchema.getColumns().get(i);
-      
-      // Handle table wildcards
-      if (column.getColumnName() == null) {
-        ArrayList<Column> tableColumns = left.getSchema().getTableColumns(column.getTable());
-
-        for (Column tableColumn : tableColumns) {
-          inExpressions.add(i, tableColumn);
-          outSchema.getColumns().add(i, tableColumn);
-        }
-        
-        inExpressions.remove(i + tableColumns.size());
-        outSchema.getColumns().remove(i + tableColumns.size());
-        
-        column = outSchema.getColumns().get(i);
-      }
-    }
   }
 
   @Override
