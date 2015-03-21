@@ -7,6 +7,7 @@ import edu.buffalo.cse562.iterator.CartesianIterator;
 import edu.buffalo.cse562.iterator.RowIterator;
 import edu.buffalo.cse562.iterator.SelectIterator;
 import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.table.Schema;
 
 /**
  * A node that handles simple joins.
@@ -34,5 +35,10 @@ public class JoinNode extends ParseTree {
     RowIterator rightIterator = (RowIterator) right.iterator();
     CartesianIterator cartesianIterator = new CartesianIterator(leftIterator, rightIterator);
     return new SelectIterator(cartesianIterator, expression);
+  }
+
+  @Override
+  public Schema getSchema() {
+    return new Schema(left.getSchema(), right.getSchema());
   }
 }

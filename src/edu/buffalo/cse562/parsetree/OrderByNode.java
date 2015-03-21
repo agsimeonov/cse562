@@ -7,6 +7,7 @@ import net.sf.jsqlparser.statement.select.OrderByElement;
 import edu.buffalo.cse562.iterator.MergeSortIterator;
 import edu.buffalo.cse562.iterator.RowIterator;
 import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.table.Schema;
 
 /**
  * Handles ordering of elements in the child tree.
@@ -31,5 +32,10 @@ public class OrderByNode extends ParseTree {
   @Override
   public Iterator<Row> iterator() {
     return new MergeSortIterator((RowIterator) left.iterator(), orderByElements);
+  }
+
+  @Override
+  public Schema getSchema() {
+    return left.getSchema();
   }
 }

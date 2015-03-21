@@ -1,6 +1,7 @@
 package edu.buffalo.cse562.parsetree;
 
 import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.table.Schema;
 
 /**
  * A base class for all parse tree nodes.  Provides basic methods, and fields.
@@ -75,4 +76,11 @@ public abstract class ParseTree implements Iterable<Row> {
   public ParseTree getRight() {
     return right;
   }
+  
+  /**
+   * Acquires the node schema.
+   * 
+   * @return the schema for the node
+   */
+  public abstract Schema getSchema();
 }

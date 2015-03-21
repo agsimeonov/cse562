@@ -5,6 +5,7 @@ import java.util.Iterator;
 import edu.buffalo.cse562.iterator.RowIterator;
 import edu.buffalo.cse562.iterator.CartesianIterator;
 import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.table.Schema;
 
 /**
  * A Cartesian product node.
@@ -25,5 +26,10 @@ public class CartesianNode extends ParseTree {
   @Override
   public Iterator<Row> iterator() {
     return new CartesianIterator((RowIterator) left.iterator(), (RowIterator) right.iterator());
+  }
+
+  @Override
+  public Schema getSchema() {
+    return new Schema(left.getSchema(), right.getSchema());
   }
 }

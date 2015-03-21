@@ -6,6 +6,7 @@ import net.sf.jsqlparser.statement.select.Limit;
 import edu.buffalo.cse562.iterator.LimitIterator;
 import edu.buffalo.cse562.iterator.RowIterator;
 import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.table.Schema;
 
 /**
  * Handles limit calls on its child.
@@ -30,5 +31,10 @@ public class LimitNode extends ParseTree {
   @Override
   public Iterator<Row> iterator() {
     return new LimitIterator((RowIterator) left.iterator(), limit);
+  }
+
+  @Override
+  public Schema getSchema() {
+    return left.getSchema();
   }
 }

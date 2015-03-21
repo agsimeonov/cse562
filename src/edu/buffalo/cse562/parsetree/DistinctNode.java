@@ -5,6 +5,7 @@ import java.util.Iterator;
 import edu.buffalo.cse562.iterator.DistinctIterator;
 import edu.buffalo.cse562.iterator.RowIterator;
 import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.table.Schema;
 
 /**
  * Handles distinct calls on its child.
@@ -25,5 +26,10 @@ public class DistinctNode extends ParseTree {
   @Override
   public Iterator<Row> iterator() {
     return new DistinctIterator((RowIterator) this.getLeft().iterator());
+  }
+
+  @Override
+  public Schema getSchema() {
+    return left.getSchema();
   }
 }

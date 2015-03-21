@@ -5,6 +5,7 @@ import java.util.Iterator;
 import edu.buffalo.cse562.iterator.RowIterator;
 import edu.buffalo.cse562.iterator.UnionIterator;
 import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.table.Schema;
 
 /**
  * A Union node.
@@ -25,5 +26,10 @@ public class UnionNode extends ParseTree {
   @Override
   public Iterator<Row> iterator() {
     return new UnionIterator((RowIterator) left.iterator(), (RowIterator) right.iterator());
+  }
+
+  @Override
+  public Schema getSchema() {
+    return left.getSchema();
   }
 }

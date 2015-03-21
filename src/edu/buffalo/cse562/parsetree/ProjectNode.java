@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
@@ -16,6 +17,7 @@ import edu.buffalo.cse562.iterator.GroupByIterator;
 import edu.buffalo.cse562.iterator.NonAggregateIterator;
 import edu.buffalo.cse562.iterator.RowIterator;
 import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.table.Schema;
 
 /**
  * A node that handles projection, be it non-aggregate, aggregate, or group by aggregate.
@@ -24,7 +26,9 @@ import edu.buffalo.cse562.table.Row;
  * @author Sunny Mistry
  */
 public class ProjectNode extends ParseTree {
-  protected List<SelectItem> items;
+  protected ArrayList<SelectExpressionItem> expressionItems;
+  protected Schema                          outSchema;
+  private boolean                           allColumns = false;
 
   /**
    * Initializes the projection node.
@@ -34,17 +38,12 @@ public class ProjectNode extends ParseTree {
    */
   public ProjectNode(ParseTree base, List<SelectItem> items) {
     super(base);
-    this.items = items;
-  }
-
-  @Override
-  public Iterator<Row> iterator() {
     // Build expression items or return child iterator if wildcard is present
-    ArrayList<SelectExpressionItem> expressionItems = new ArrayList<SelectExpressionItem>();
+    this.expressionItems = new ArrayList<SelectExpressionItem>();
     
     for (SelectItem item : items) {
       if (item instanceof AllColumns) {
-        return this.getLeft().iterator();
+        allColumns = true;
       } else if (item instanceof AllTableColumns) {
         AllTableColumns allTableColumns = (AllTableColumns) item;
         Table table = new Table();
@@ -57,6 +56,31 @@ public class ProjectNode extends ParseTree {
         expressionItems.add((SelectExpressionItem) item);
       }
     }
+    
+    // Determine the output schema
+    ArrayList<Expression> inExpressions = new ArrayList<Expression>();
+    ArrayList<Column> columns = new ArrayList<Column>();
+    Table table = new Table();
+
+    for (int i = 0; i < items.size(); i++) {
+      Expression expression = expressionItems.get(i).getExpression();
+      inExpressions.add(expressionItems.get(i).getExpression());
+
+      String alias = expressionItems.get(i).getAlias();
+      if (expression instanceof Column && alias == null) {
+        columns.add((Column) expression);
+      } else {
+        if (alias == null) alias = expression.toString();
+        columns.add(new Column(table, alias));
+      }
+    }
+
+    outSchema = new Schema(columns);
+  }
+
+  @Override
+  public Iterator<Row> iterator() {
+    if (allColumns) return this.getLeft().iterator();
     
     // Determine and return the correct projection iterator
     boolean hasColumns = false;
@@ -74,5 +98,10 @@ public class ProjectNode extends ParseTree {
     } else {
       return new NonAggregateIterator((RowIterator) left.iterator(), expressionItems);
     }
+  }
+
+  @Override
+  public Schema getSchema() {
+    return outSchema;
   }
 }
