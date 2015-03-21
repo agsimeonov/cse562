@@ -122,7 +122,6 @@ public class MergeSortIterator implements RowIterator {
           oos.close();
           
           // Reset the memory buffer and invoke Java's garbage collector
-          System.out.println(buffer.size());
           buffer.clear();
           System.gc();
           
