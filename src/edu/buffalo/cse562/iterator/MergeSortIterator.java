@@ -24,8 +24,8 @@ import edu.buffalo.cse562.table.TableManager;
  * @author Sunny Mistry
  */
 public class MergeSortIterator implements RowIterator {
-  private static final long          THRESHOLD     = 30 << 20; // minimum available memory
-  private static final int           STREAM_BUFFER = 10 << 20; // output stream buffer
+  private static final long          THRESHOLD     = 35 << 20; // minimum available memory
+  private static final int           STREAM_BUFFER = 5 << 20; // output stream buffer
   private final RowIterator          iterator;
   private final List<OrderByElement> orderByElements;
   private final Schema               inSchema;
@@ -68,13 +68,14 @@ public class MergeSortIterator implements RowIterator {
         outputBuffer.add(increment);
       } else {
         ois.close();
-        System.gc();
       }
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
     } catch (IOException e) {
       e.printStackTrace();
     }
+    
+    if (getAvailableMemory() < THRESHOLD) System.gc();
     
     return out;
   }
@@ -101,9 +102,7 @@ public class MergeSortIterator implements RowIterator {
       buffer.add(iterator.next());
       
       // When the memory is full flush the buffer onto disk
-      Runtime runtime = Runtime.getRuntime();
-      long memory = runtime.maxMemory() - (runtime.totalMemory() - runtime.freeMemory());
-      if (memory < THRESHOLD || !iterator.hasNext()) {
+      if (getAvailableMemory() < THRESHOLD || !iterator.hasNext()) {
         // Sort first
         buffer.sort(comparator);
         
@@ -123,6 +122,7 @@ public class MergeSortIterator implements RowIterator {
           oos.close();
           
           // Reset the memory buffer and invoke Java's garbage collector
+          System.out.println(buffer.size());
           buffer.clear();
           System.gc();
           
@@ -151,5 +151,15 @@ public class MergeSortIterator implements RowIterator {
         e.printStackTrace();
       }
     }
+  }
+  
+  /**
+   * Acquires the available memory.
+   * 
+   * @return - the available memory in bytes
+   */
+  private long getAvailableMemory() {
+    Runtime runtime = Runtime.getRuntime();
+    return runtime.maxMemory() - (runtime.totalMemory() - runtime.freeMemory());
   }
 }
