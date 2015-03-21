@@ -46,6 +46,11 @@ public class ProjectNode extends ParseTree {
     for (SelectItem item : items) {
       if (item instanceof AllColumns) {
         allColumns = true;
+        for (Column column : left.getSchema().getColumns()) {
+          SelectExpressionItem selectExpressionItem = new SelectExpressionItem();
+          selectExpressionItem.setExpression(column);
+          expressionItems.add(selectExpressionItem);
+        }
       } else if (item instanceof AllTableColumns) {
         AllTableColumns allTableColumns = (AllTableColumns) item;
         Table table = new Table();
@@ -64,7 +69,7 @@ public class ProjectNode extends ParseTree {
     ArrayList<Column> columns = new ArrayList<Column>();
     Table table = new Table();
 
-    for (int i = 0; i < items.size(); i++) {
+    for (int i = 0; i < expressionItems.size(); i++) {
       Expression expression = expressionItems.get(i).getExpression();
       inExpressions.add(expressionItems.get(i).getExpression());
 
@@ -82,7 +87,7 @@ public class ProjectNode extends ParseTree {
     for (int i = 0; i < inExpressions.size(); i++) {
       Column column = outSchema.getColumns().get(i);
       
-      // Handle wildcards
+      // Handle table wildcards
       if (column.getColumnName() == null) {
         ArrayList<Column> tableColumns = left.getSchema().getTableColumns(column.getTable());
 
