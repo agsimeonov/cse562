@@ -17,6 +17,7 @@ import edu.buffalo.cse562.table.Schema;
  */
 public class JoinNode extends ParseTree {
   private final Expression expression;
+  private final Schema outSchema;
   
   /**
    * Initializes the Join node.
@@ -27,6 +28,7 @@ public class JoinNode extends ParseTree {
   public JoinNode(ParseTree base, Expression expression) {
     super(base);
     this.expression = expression;
+    outSchema = new Schema(left.getSchema(), right.getSchema());
   }
 
   @Override
@@ -41,6 +43,6 @@ public class JoinNode extends ParseTree {
 
   @Override
   public Schema getSchema() {
-    return new Schema(left.getSchema(), right.getSchema());
+    return outSchema;
   }
 }

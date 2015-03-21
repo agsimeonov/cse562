@@ -14,6 +14,7 @@ import edu.buffalo.cse562.table.Schema;
  * @author Sunny Mistry
  */
 public class CartesianNode extends ParseTree {
+  private final Schema outSchema;
   /**
    * Initializes the Cartesian product node.
    * 
@@ -21,6 +22,7 @@ public class CartesianNode extends ParseTree {
    */
   public CartesianNode(ParseTree base) {
     super(base);
+    outSchema = new Schema(left.getSchema(), right.getSchema());
   }
 
   @Override
@@ -32,6 +34,6 @@ public class CartesianNode extends ParseTree {
 
   @Override
   public Schema getSchema() {
-    return new Schema(left.getSchema(), right.getSchema());
+    return outSchema;
   }
 }
