@@ -43,17 +43,14 @@ public class SortJoinIterator implements RowIterator {
   public boolean hasNext() {
     if (stash == null) return doesNotHaveNext();
     if (next != null) return true;
-    if (left == null) {
-      stashIndex = 0;
-      left = leftIterator.next();
-    }
+    if (left == null) left = leftIterator.next();
     if (left == null) return doesNotHaveNext();
-    if (right == null) right = rightIterator.next();
-    if (right == null && stashIndex >= stash.size()) return doesNotHaveNext();
+    if (right == null && stash.isEmpty()) right = rightIterator.next();
+    if (right == null && stash.isEmpty()) return doesNotHaveNext();
     
     // Acquire the correct values
     LeafValue leftValue = left.getValue(leftIndex);
-    LeafValue rightValue = right == null ? null : right.getValue(rightIndex);
+    LeafValue rightValue = stash.isEmpty() ? right.getValue(rightIndex) : null;
     
     // Set the comparison type if it wasn't already
     if (type == NONE) {
@@ -64,49 +61,46 @@ public class SortJoinIterator implements RowIterator {
       else type = MISMATCH;
     }
     
-    if (right == null) {
-      // Finish up all rows on the left
-      Row stashed = stash.get(stashIndex);
-      Integer compare = compareValues(leftValue, stashed.getValue(rightIndex));
-      if (compare == 0) {
-        next = new Row(left, stashed);
-        return true;
-      } else {
-        return doesNotHaveNext();
-      }
+    // Determine what action to take next
+    Integer compare;
+    if (stash.isEmpty()) {
+      compare = compareValues(leftValue, rightValue);
     } else {
-      Integer compare = compareValues(leftValue, rightValue);
-      // Proceed as normal
-      if (compare == 0) {
-        // left == right
-//        if (!stash.isEmpty()) {
-//          LeafValue stashedValue = stash.get(0).getValue(rightIndex);
-//          if (compareValues(leftValue, stashedValue) != 0) {
-//            stash.clear();
-//            stashIndex = 0;
-//          }
-//        }
-//        
-        next = new Row(left, right);
-        stash.add(right);
-        right = null;
-        return true;
-      } else if (compare < 0) {
-        // left < right
-        if (stashIndex >= stash.size()) {
-          left = null;
+      if (stashIndex == 0) {
+        compare = compareValues(leftValue, stash.get(0).getValue(rightIndex));
+        if (compare != 0) {
+          stash.clear();
           return this.hasNext();
-        } else {
-          next = new Row(left, stash.get(stashIndex));
-          return true;
         }
-      } else if (compare > 0) {
-        // left > right
-        right = null;
+      }
+      compare = -1;
+    }
+    
+    // Attempt to produce the next row if one exists
+    if (compare == 0) {
+      // left == right
+      while (compareValues(leftValue, right.getValue(rightIndex)) == 0) {
+        stash.add(right);
+        right = rightIterator.next();
+        if (right == null) break;
+      }
+      return this.hasNext();
+    } else if (compare < 0) {
+      // left < right
+      if (stashIndex >= stash.size()) {
+        stashIndex = 0;
+        left = null;
         return this.hasNext();
       } else {
-        return doesNotHaveNext();
+        next = new Row(left, stash.get(stashIndex));
+        return true;
       }
+    } else if (compare > 0) {
+      // left > right
+      right = null;
+      return this.hasNext();
+    } else {
+      return doesNotHaveNext();
     }
   }
   
