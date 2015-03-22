@@ -40,6 +40,17 @@ public class Schema implements Serializable {
     columns.addAll(left.getColumns());
     columns.addAll(right.getColumns());
   }
+  
+  /**
+   * Acquires the index of a given column.
+   * 
+   * @param column - the given column
+   * @return index for the given column, null if it does not exist.
+   */
+  public Integer getIndex(Column column) {
+    HashMap<String, Integer> lookupTable = this.getLookupTable();
+    return lookupTable.get(column.getWholeColumnName().toLowerCase());
+  }
 
   /**
    * Acquires an ordered list of columns for the schema.
