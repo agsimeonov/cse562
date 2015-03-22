@@ -10,6 +10,11 @@ import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
 import edu.buffalo.cse562.table.Row;
 
+/**
+ * Handles simple joins using the Sort Join algorithm.
+ * 
+ * @author Alexander Simeonov
+ */
 public class SortJoinIterator implements RowIterator {
   private static final int  NONE     = 0;
   private static final int  LONG     = 1;
@@ -28,6 +33,14 @@ public class SortJoinIterator implements RowIterator {
   private Row               right;
   private Row               next;
 
+  /**
+   * Initializes the iterator.
+   * 
+   * @param leftIterator - the left iterator producing sorted results
+   * @param rightIterator - the right iterator producing sorted results
+   * @param leftIndex - the left index used for comparison
+   * @param rightIndex - the right index used for comparison
+   */
   public SortJoinIterator(RowIterator leftIterator,
                           RowIterator rightIterator,
                           int leftIndex,
@@ -61,7 +74,7 @@ public class SortJoinIterator implements RowIterator {
       else type = MISMATCH;
     }
     
-    // Determine what action to take next
+    // Determine whether to increment an iterator or process the stash
     Integer compare;
     if (stash.isEmpty()) {
       compare = compareValues(leftValue, rightValue);
@@ -84,7 +97,8 @@ public class SortJoinIterator implements RowIterator {
         right = rightIterator.next();
         if (right == null) break;
       }
-      return this.hasNext();
+      next = new Row(left, stash.get(stashIndex));
+      return true;
     } else if (compare < 0) {
       // left < right
       if (stashIndex >= stash.size()) {
