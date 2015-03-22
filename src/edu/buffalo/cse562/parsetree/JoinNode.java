@@ -22,9 +22,9 @@ import edu.buffalo.cse562.table.Schema;
  * @author Sunny Mistry
  */
 public class JoinNode extends ParseTree {
-  private final Schema outSchema;
-  private final int    leftIndex;
-  private final int    rightIndex;
+  private final Schema               outSchema;
+  private final int                  leftIndex;
+  private final int                  rightIndex;
   private final List<OrderByElement> leftOrders;
   private final List<OrderByElement> rightOrders;
 
