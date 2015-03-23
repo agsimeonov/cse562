@@ -128,7 +128,7 @@ public abstract class ParseTree implements Iterable<Row> {
     } else {
       string += label + "\n";
     }
-    string += left == null ? "" : left.toString() + "\n";
+    string += left == null ? "" : left.toString();
     
     return string;
   }
