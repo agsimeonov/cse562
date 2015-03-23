@@ -31,12 +31,18 @@ public class SplitSelect {
     List<Expression> list = splitConjunctive(selectNode.getExpression());
     ParseTree parent = selectNode.getBase();
     ParseTree child = selectNode.getLeft();
-    if (parent != null) parent.setLeft(child);
+    if (parent != null) {
+      if (parent.getLeft() == selectNode) parent.setLeft(child);
+      else parent.setRight(child);
+    }
     if (child != null) child.setBase(parent);
     
     for (Expression expression : list) {
       SelectNode node = new SelectNode(parent, expression);
-      if (parent != null) parent.setLeft(node);
+      if (parent != null) {
+        if (parent.getLeft() == child) parent.setLeft(node);
+        else parent.setRight(child);
+      }
       node.setLeft(child);
       if (child != null) child.setBase(node);
       parent = node;
