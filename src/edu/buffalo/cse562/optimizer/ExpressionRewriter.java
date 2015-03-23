@@ -9,24 +9,6 @@ public class ExpressionRewriter {
   public ExpressionRewriter(Expression expression) {
     this.expression = expression;
   }
-  
-//  public List<Expression> splitConjuntive(Expression expression) {
-//    List<Expression> out = new ArrayList<Expression>();
-//
-//    if (expression instanceof AndExpression){
-//      AndExpression andExpression = (AndExpression) expression;
-//      out.addAll(splitConjunctive())
-//      ret.addAll(
-//        splitAndClauses(a.getLeftExpression())
-//      );
-//      ret.addAll(
-//        splitAndClauses(a.getRightExpression())
-//      );
-//    } else {
-//      expression.ad
-//    }
-//    return null;
-//  }
 
   private class ConjunctiveTree {
     private Expression expression;
@@ -49,23 +31,26 @@ public class ExpressionRewriter {
     private Expression reconstruct() {
       Expression out;
       
-      if (this.expression != null) {
-        return out = expression;
+      if (expression != null) {
+        out = expression;
+      } else if (left == null && right == null) {
+        out = null;
       } else if (left != null && right != null) {
-        out = new AndExpression(left.expression, right.expression);
-      } else if (left != null) {
-        out = left.expression;
-      } else if (right != null) {
-        out = right.expression;
-      } else {
         out = new AndExpression(left.reconstruct(), right.reconstruct());
+      } else if (left != null) {
+        return left.reconstruct();
+      } else {
+        return right.reconstruct();
       }
       
       return out;
     }
     
-    private boolean hasExpression(AndExpression andExpression) {
-      return false;
-    }
+//    private boolean removeExpression(EqualsTo andExpression) {
+//      if (expression != null) {
+//        if (expression in)
+//      }
+//      return false;
+//    }
   }
 }
