@@ -42,4 +42,13 @@ public class SelectNode extends ParseTree {
   public String nodeString() {
     return "σ " + expression;
   }
+  
+  /**
+   * Acquires the selection expression.
+   * 
+   * @return the selection expression
+   */
+  public Expression getExpression() {
+    return expression;
+  }
 }

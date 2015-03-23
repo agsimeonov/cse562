@@ -9,7 +9,8 @@ import net.sf.jsqlparser.statement.replace.Replace;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
-import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.optimizer.Optimizer;
+import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.table.TableManager;
 
 /**
@@ -23,8 +24,12 @@ public class StatementParser implements StatementVisitor {
   @Override
   public void visit(Select select) {  
     TreeBuilder treeBuilder = new TreeBuilder(select.getSelectBody());
-    for (Row row : treeBuilder.getRoot())
-      System.out.println(row);
+    ParseTree root = treeBuilder.getRoot();
+    System.out.println(root);
+    Optimizer.optimize(root);
+    System.out.println(root);
+//    for (Row row : treeBuilder.getRoot())
+//      System.out.println(row);
   }
 
   @Override
