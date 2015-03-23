@@ -57,7 +57,6 @@ public class TreeBuilder implements SelectVisitor {
     // Build project tree
     @SuppressWarnings("unchecked")
     ParseTree projectTree = new ProjectNode(null, current, plainSelect.getSelectItems());
-    current.setBase(projectTree);
     current = projectTree;
     
     // Build and insert a select tree for the where clause if necessary
@@ -71,7 +70,6 @@ public class TreeBuilder implements SelectVisitor {
     if (plainSelect.getHaving() != null) {
       ParseTree selectTree = new SelectNode(null, plainSelect.getHaving());
       selectTree.setLeft(current);
-      current.setBase(selectTree);
       current = selectTree;
     }
 
@@ -79,7 +77,6 @@ public class TreeBuilder implements SelectVisitor {
     if (plainSelect.getDistinct() != null) {
       ParseTree distinctTree = new DistinctNode(null);
       distinctTree.setLeft(current);
-      current.setBase(distinctTree);
       current = distinctTree;
     }
     
@@ -89,7 +86,6 @@ public class TreeBuilder implements SelectVisitor {
       List<OrderByElement> orderByElements = plainSelect.getOrderByElements();
       ParseTree orderByTree = new OrderByNode(null, orderByElements);
       orderByTree.setLeft(current);
-      current.setBase(orderByTree);
       current = orderByTree;
     }
     
@@ -97,9 +93,11 @@ public class TreeBuilder implements SelectVisitor {
     if (plainSelect.getLimit() != null) {
       ParseTree limitTree = new LimitNode(null, plainSelect.getLimit());
       limitTree.setLeft(current);
-      current.setBase(limitTree);
       current = limitTree; 
     }
+    
+    // Makes sure correct parent nodes are set for the whole tree
+    current.setParentNodes(null);
     
     root = current;
   }
@@ -186,7 +184,6 @@ public class TreeBuilder implements SelectVisitor {
         ParseTree base;
         if (expr == null) base = new CartesianNode(null, left, right);
         else base = new JoinNode(null, left, right, expr);
-        current.setBase(base);
         current = base;
       }
     }

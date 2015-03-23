@@ -83,4 +83,46 @@ public abstract class ParseTree implements Iterable<Row> {
    * @return the schema for the node
    */
   public abstract Schema getSchema();
+  
+  /**
+   * Acquires the depth of the current node in the tree
+   * 
+   * @return the depth of the current node in the tree
+   */
+  public int getDepth() {
+    if (base == null) {
+      return 0;
+    } else {
+      return base.getDepth() + 1;
+    }
+  }
+  
+  /**
+   * Sets the correct parent nodes for the whole tree.
+   * 
+   * @param parent - the parent node for the root, usually set to null by the user
+   */
+  public void setParentNodes(ParseTree parent) {
+    this.base = parent;
+    if (left != null) left.setParentNodes(this);
+    if (right != null) right.setParentNodes(this);
+  }
+  
+  @Override
+  public String toString() {
+    String label = this.getClass().getSimpleName();
+    int depth = this.getDepth();
+    
+    String string = right == null ? "" : right.toString();
+    if (depth != 0) {
+      for (int i = 0; i < depth - 1; i++)
+        string += "|   ";
+      string += "|---" + label + "\n";
+    } else {
+      string += label + "\n";
+    }
+    string += left == null ? "" : left.toString() + "\n";
+    
+    return string;
+  }
 }
