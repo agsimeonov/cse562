@@ -292,7 +292,8 @@ Code Submission
    As before, all .java files in the src directory at the root of
    your repository will be compiled (and linked against
    JSQLParser). Also as before, the class
-   edu.buffalo.cse562.Main
+   
+        edu.buffalo.cse562.Main
 
    will be invoked with the following arguments:
      * –data data directory: A path to a directory containing the
