@@ -39,4 +39,9 @@ public class CartesianNode extends ParseTree {
   public Schema getSchema() {
     return outSchema;
   }
+
+  @Override
+  public String nodeString() {
+    return "×";
+  }
 }

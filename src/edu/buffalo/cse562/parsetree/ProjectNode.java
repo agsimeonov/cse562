@@ -114,4 +114,9 @@ public class ProjectNode extends ParseTree {
   public Schema getSchema() {
     return outSchema;
   }
+
+  @Override
+  public String nodeString() {
+    return "π";
+  }
 }

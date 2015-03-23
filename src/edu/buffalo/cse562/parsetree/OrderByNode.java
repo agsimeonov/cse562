@@ -38,4 +38,9 @@ public class OrderByNode extends ParseTree {
   public Schema getSchema() {
     return left.getSchema();
   }
+
+  @Override
+  public String nodeString() {
+    return "􏰡􏰡􏰡τ";
+  }
 }

@@ -37,4 +37,9 @@ public class LimitNode extends ParseTree {
   public Schema getSchema() {
     return left.getSchema();
   }
+
+  @Override
+  public String nodeString() {
+    return Long.toString(limit.getRowCount());
+  }
 }

@@ -108,16 +108,23 @@ public abstract class ParseTree implements Iterable<Row> {
     if (right != null) right.setParentNodes(this);
   }
   
+  /**
+   * Acquires a string representation of the node.
+   * 
+   * @return a string representation of the node.
+   */
+  public abstract String nodeString();
+  
   @Override
   public String toString() {
-    String label = this.getClass().getSimpleName();
+    String label = this.nodeString();
     int depth = this.getDepth();
     
     String string = right == null ? "" : right.toString();
     if (depth != 0) {
       for (int i = 0; i < depth - 1; i++)
-        string += "|   ";
-      string += "|---" + label + "\n";
+        string += "|     ";
+      string += "|-----" + label + "\n";
     } else {
       string += label + "\n";
     }

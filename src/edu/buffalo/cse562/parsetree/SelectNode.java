@@ -37,4 +37,9 @@ public class SelectNode extends ParseTree {
   public Schema getSchema() {
     return left.getSchema();
   }
+
+  @Override
+  public String nodeString() {
+    return "σ";
+  }
 }
