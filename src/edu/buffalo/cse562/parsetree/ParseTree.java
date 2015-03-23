@@ -123,8 +123,8 @@ public abstract class ParseTree implements Iterable<Row> {
     String string = right == null ? "" : right.toString();
     if (depth != 0) {
       for (int i = 0; i < depth - 1; i++)
-        string += "|     ";
-      string += "|-----" + label + "\n";
+        string += "│   ";
+      string += "├───" + label + "\n";
     } else {
       string += label + "\n";
     }
