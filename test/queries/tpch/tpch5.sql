@@ -59,8 +59,8 @@ CREATE TABLE REGION (
     );
 
 select
-    n_name,
-    sum(l_extendedprice * (1 - l_discount)) as revenue
+    nation.name,
+    sum(lineitem.extendedprice * (1 - lineitem.discount)) as revenue
 from
     customer,
     orders,
@@ -79,6 +79,6 @@ where
     and orders.orderdate >= DATE('1995-03-15')
     and orders.orderdate < DATE('1996-03-15')
 group by
-    n_name
+    nation.name
 order by
     revenue desc;
