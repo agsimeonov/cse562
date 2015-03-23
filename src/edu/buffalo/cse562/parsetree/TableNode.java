@@ -48,6 +48,7 @@ public class TableNode extends ParseTree {
 
   @Override
   public String nodeString() {
-    return table.getWholeTableName().toUpperCase();
+    String alias = table.getAlias() == null ? "" : " AS " + table.getAlias();
+    return table.getWholeTableName().toUpperCase() + alias;
   }
 }

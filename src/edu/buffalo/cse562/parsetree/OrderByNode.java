@@ -41,6 +41,6 @@ public class OrderByNode extends ParseTree {
 
   @Override
   public String nodeString() {
-    return "􏰡􏰡􏰡τ";
+    return 'τ' + " " +  orderByElements;
   }
 }

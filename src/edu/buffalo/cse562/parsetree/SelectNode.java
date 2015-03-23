@@ -40,6 +40,6 @@ public class SelectNode extends ParseTree {
 
   @Override
   public String nodeString() {
-    return "σ";
+    return "σ " + expression;
   }
 }

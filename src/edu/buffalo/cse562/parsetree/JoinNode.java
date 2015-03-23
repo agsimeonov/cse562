@@ -27,6 +27,7 @@ public class JoinNode extends ParseTree {
   private final int                  rightIndex;
   private final List<OrderByElement> leftOrders;
   private final List<OrderByElement> rightOrders;
+  private final Expression           expression;
 
   /**
    * Initializes the Join node.
@@ -47,6 +48,7 @@ public class JoinNode extends ParseTree {
     // Unwrap the expression
     while (expression instanceof Parenthesis)
       expression = ((Parenthesis) expression).getExpression();
+    this.expression = expression;
     BinaryExpression binaryExpression = (BinaryExpression) expression;
     
     // Get the join columns
@@ -96,6 +98,6 @@ public class JoinNode extends ParseTree {
 
   @Override
   public String nodeString() {
-    return "⋈";
+    return "⋈ " + expression;
   }
 }

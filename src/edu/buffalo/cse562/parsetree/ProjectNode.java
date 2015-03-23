@@ -26,9 +26,9 @@ import edu.buffalo.cse562.table.Schema;
  * @author Sunny Mistry
  */
 public class ProjectNode extends ParseTree {
-  protected ArrayList<Expression>           inExpressions;
-  protected Schema                          outSchema;
-  private boolean                           allColumns = false;
+  protected ArrayList<Expression> inExpressions;
+  protected Schema                outSchema;
+  private boolean                 allColumns = false;
 
   /**
    * Initializes the projection node.
@@ -117,6 +117,6 @@ public class ProjectNode extends ParseTree {
 
   @Override
   public String nodeString() {
-    return "π";
+    return "π " + inExpressions;
   }
 }
