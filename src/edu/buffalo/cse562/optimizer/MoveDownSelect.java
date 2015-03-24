@@ -11,36 +11,19 @@ import edu.buffalo.cse562.table.Schema;
 
 public class MoveDownSelect {
   public static void moveDownAllSelectNodes(ParseTree root) {
-    List<SelectNode> selectNodes = SplitSelect.getAllSelectNodes(root);
-    for (SelectNode selectNode : selectNodes)
-      moveDown(selectNode);
+    List<ParseTree> selectNodes = Optimizer.getAllTypeNodes(root, SelectNode.class);
+    for (ParseTree selectNode : selectNodes)
+      moveDown((SelectNode) selectNode);
   }
   
   public static void moveDown(SelectNode selectNode) {
     if (!(selectNode.getExpression() instanceof BinaryExpression)) return;
     List<Column> columns = getExpressionColumns((BinaryExpression) selectNode.getExpression());
     ParseTree lowestChild = getLowestChild(selectNode.getLeft(), columns);
-    ParseTree parent = selectNode.getBase();
-    ParseTree child = selectNode.getLeft();
     
-    // Make sure we need to move
-    if (lowestChild == child) return;
-    
-    // Stitch previous spot
-    if (parent != null) {
-      if (parent.getLeft() == selectNode) parent.setLeft(child);
-      else parent.setRight(child);
-    }
-    if (child != null) child.setBase(parent);
-    
-    // Move to the new spot
-    parent = lowestChild.getBase();
-    child = lowestChild;
-    selectNode.setLeft(lowestChild);
-    selectNode.setBase(lowestChild.getBase());
-    if (parent.getLeft() == child) parent.setLeft(selectNode);
-    else parent.setRight(selectNode);
-    child.setBase(selectNode);
+    if (lowestChild == selectNode.getLeft()) return;
+    Optimizer.popNode(selectNode);
+    Optimizer.pushNode(selectNode, true, lowestChild.getBase(), lowestChild);
   }
   
   public static ParseTree getLowestChild(ParseTree childNode, List<Column> columns) {

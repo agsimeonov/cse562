@@ -10,41 +10,20 @@ import edu.buffalo.cse562.parsetree.SelectNode;
 
 public class SplitSelect {
   public static void splitAllSelectNodes(ParseTree root) {
-    List<SelectNode> selectNodes = getAllSelectNodes(root);
-    for (SelectNode node : selectNodes)
-      split(node);
-  }
-  
-  public static List<SelectNode> getAllSelectNodes(ParseTree root) {
-    List<SelectNode> list = new ArrayList<SelectNode>();
-    
-    if (root != null) {
-      if (root instanceof SelectNode) list.add((SelectNode) root);
-      if (root.getLeft() != null) list.addAll(getAllSelectNodes(root.getLeft()));
-      if (root.getRight() != null) list.addAll(getAllSelectNodes(root.getRight()));
-    }
-    
-    return list;
+    List<ParseTree> selectNodes = Optimizer.getAllTypeNodes(root, SelectNode.class);
+    for (ParseTree node : selectNodes)
+      split((SelectNode) node);
   }
   
   public static void split(SelectNode selectNode) {
     List<Expression> list = splitConjunctive(selectNode.getExpression());
     ParseTree parent = selectNode.getBase();
     ParseTree child = selectNode.getLeft();
-    if (parent != null) {
-      if (parent.getLeft() == selectNode) parent.setLeft(child);
-      else parent.setRight(child);
-    }
-    if (child != null) child.setBase(parent);
+    Optimizer.popNode(selectNode);
     
     for (Expression expression : list) {
       SelectNode node = new SelectNode(parent, expression);
-      if (parent != null) {
-        if (parent.getLeft() == child) parent.setLeft(node);
-        else parent.setRight(child);
-      }
-      node.setLeft(child);
-      if (child != null) child.setBase(node);
+      Optimizer.pushNode(node, true, parent, child);
       parent = node;
     }
   }
