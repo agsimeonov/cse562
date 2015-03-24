@@ -23,7 +23,7 @@ public class MoveDownSelect {
     
     if (lowestChild == selectNode.getLeft()) return;
     Optimizer.popNode(selectNode);
-    Optimizer.pushNode(selectNode, true, lowestChild.getBase(), lowestChild);
+    Optimizer.pushNode(selectNode, lowestChild.getBase(), lowestChild, null);
   }
   
   public static ParseTree getLowestChild(ParseTree childNode, List<Column> columns) {

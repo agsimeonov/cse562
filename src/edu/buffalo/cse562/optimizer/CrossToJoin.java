@@ -1,21 +1,29 @@
 package edu.buffalo.cse562.optimizer;
 
+import java.util.List;
+
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import edu.buffalo.cse562.parsetree.CartesianNode;
+import edu.buffalo.cse562.parsetree.JoinNode;
 import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.parsetree.SelectNode;
 
 public class CrossToJoin {
-  // get all cross
-  // if select above cross (in sequence) has expression instanceof equals to
-  // convert to join
+  public static void crossToJoin(ParseTree root) {
+    List<ParseTree> cartesianNodes = Optimizer.getAllTypeNodes(root, CartesianNode.class);
+    for (ParseTree node : cartesianNodes)
+      convert((CartesianNode) node);
+  }
   
   public static void convert(CartesianNode node) {
     if (!(node instanceof CartesianNode)) return;
-    SelectNode parent = getSelectParent(node);
+    SelectNode parent = getSelectParent(node.getBase());
     if (parent == null) return;
-
-    
+    Optimizer.popNode(parent);
+    Optimizer.popNode(node);
+    ParseTree base = node.getLeft().getBase();
+    ParseTree join = new JoinNode(base, node.getLeft(), node.getRight(), parent.getExpression());
+    Optimizer.pushNode(join, join.getBase(), join.getLeft(), join.getRight());
   }
   
   /**

@@ -23,7 +23,7 @@ public class SplitSelect {
     
     for (Expression expression : list) {
       SelectNode node = new SelectNode(parent, expression);
-      Optimizer.pushNode(node, true, parent, child);
+      Optimizer.pushNode(node, parent, child, null);
       parent = node;
     }
   }
