@@ -8,13 +8,28 @@ import edu.buffalo.cse562.parsetree.JoinNode;
 import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.parsetree.SelectNode;
 
+/**
+ * Used to perform the Cartesian product to join optimization.
+ * 
+ * @author Alexander Simeonov
+ */
 public class CrossToJoin {
+  /**
+   * Performs the Cartesian product to join operation for the whole tree.
+   * 
+   * @param root - root of the given tree
+   */
   public static void crossToJoin(ParseTree root) {
     List<ParseTree> cartesianNodes = Optimizer.getAllTypeNodes(root, CartesianNode.class);
     for (ParseTree node : cartesianNodes)
       convert((CartesianNode) node);
   }
   
+  /**
+   * Converts a Cartesian node to a Join node if possible.
+   * 
+   * @param node
+   */
   public static void convert(CartesianNode node) {
     if (!(node instanceof CartesianNode)) return;
     SelectNode parent = getSelectParent(node.getBase());

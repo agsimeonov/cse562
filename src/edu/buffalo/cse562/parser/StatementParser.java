@@ -11,6 +11,7 @@ import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
 import edu.buffalo.cse562.optimizer.Optimizer;
 import edu.buffalo.cse562.parsetree.ParseTree;
+import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.TableManager;
 
 /**
@@ -25,11 +26,9 @@ public class StatementParser implements StatementVisitor {
   public void visit(Select select) {  
     TreeBuilder treeBuilder = new TreeBuilder(select.getSelectBody());
     ParseTree root = treeBuilder.getRoot();
-    System.out.println(root);
     Optimizer.optimize(root);
-    System.out.println(root);
-//    for (Row row : treeBuilder.getRoot())
-//      System.out.println(row);
+    for (Row row : treeBuilder.getRoot())
+      System.out.println(row);
   }
 
   @Override

@@ -8,13 +8,28 @@ import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.parsetree.SelectNode;
 
+/**
+ * Used to perform the conjunctive selection split optimization.
+ * 
+ * @author Alexander Simeonov
+ */
 public class SplitSelect {
+  /**
+   * Splits all selection nodes within the given tree.
+   * 
+   * @param root - root of the given tree
+   */
   public static void splitAllSelectNodes(ParseTree root) {
     List<ParseTree> selectNodes = Optimizer.getAllTypeNodes(root, SelectNode.class);
     for (ParseTree node : selectNodes)
       split((SelectNode) node);
   }
   
+  /**
+   * Splits a given selection node.
+   * 
+   * @param selectNode - node to split
+   */
   public static void split(SelectNode selectNode) {
     List<Expression> list = splitConjunctive(selectNode.getExpression());
     ParseTree parent = selectNode.getBase();
@@ -28,6 +43,12 @@ public class SplitSelect {
     }
   }
 
+  /**
+   * Splits an expression conjunctively into a list of expressions.
+   * 
+   * @param expression - the given expression to split
+   * @return a list of expressions
+   */
   public static List<Expression> splitConjunctive(Expression expression) {
     List<Expression> list = new ArrayList<Expression>();
     
