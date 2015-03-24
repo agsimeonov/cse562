@@ -101,7 +101,9 @@ public class MergeSortIterator implements RowIterator {
     if (outputBuffer != null) return;
     iterator.open();
     ArrayList<ObjectInputStream> buffers = new ArrayList<ObjectInputStream>();
-    File swapDirectory = new File(TableManager.getSwapDir());
+    File swapDirectory = null;
+    String swapDir = TableManager.getSwapDir();
+    if (swapDir != null) swapDirectory = new File(swapDir);
     RowComparator comparator = new RowComparator(orderByElements, inSchema);
     outputBuffer = new PriorityQueue<Row>(comparator);
     buffer = new LinkedList<Row>();
