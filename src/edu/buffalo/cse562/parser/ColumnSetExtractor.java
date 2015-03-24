@@ -1,9 +1,10 @@
 package edu.buffalo.cse562.parser;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-import edu.buffalo.cse562.table.TableManager;
 import net.sf.jsqlparser.expression.AllComparisonExpression;
 import net.sf.jsqlparser.expression.AnyComparisonExpression;
 import net.sf.jsqlparser.expression.BinaryExpression;
@@ -50,6 +51,7 @@ import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.AllTableColumns;
 import net.sf.jsqlparser.statement.select.FromItemVisitor;
 import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
@@ -58,6 +60,7 @@ import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.Union;
+import edu.buffalo.cse562.table.TableManager;
 
 /**
  * Used to acquire a set of column names needed from tables in a select expression.
@@ -72,6 +75,7 @@ public class ColumnSetExtractor implements SelectVisitor,
   private Set<String>         columns   = new HashSet<String>();
   private Set<String>         tables    = new HashSet<String>();
   private Set<String>         wildcards = new HashSet<String>();
+  private Map<String, String> aliases = new HashMap<String, String>();
 
   /**
    * Acquires the generated set of column names.
@@ -84,14 +88,6 @@ public class ColumnSetExtractor implements SelectVisitor,
 
   @Override
   public void visit(PlainSelect in) { 
-    // SELECT
-    if (in.getSelectItems() != null) {
-      for (Object object : in.getSelectItems()) {
-        SelectItem item = (SelectItem) object;
-        item.accept(this);
-      }
-    }
-    
     // FROM
     in.getFromItem().accept(this);
     
@@ -101,6 +97,14 @@ public class ColumnSetExtractor implements SelectVisitor,
         Join join = (Join) object;
         if (join.getOnExpression() != null) join.getOnExpression().accept(this);
         if (join.getRightItem() != null) join.getRightItem().accept(this);
+      }
+    }
+    
+    // SELECT
+    if (in.getSelectItems() != null) {
+      for (Object object : in.getSelectItems()) {
+        SelectItem item = (SelectItem) object;
+        item.accept(this);
       }
     }
     
@@ -121,8 +125,8 @@ public class ColumnSetExtractor implements SelectVisitor,
     // ORDER BY
     if (in.getOrderByElements() != null) {
       for (Object object : in.getOrderByElements()) {
-        Expression expression = (Expression) object;
-        expression.accept(this);
+        OrderByElement element = (OrderByElement) object;
+        element.getExpression().accept(this);
       }
     }
     
@@ -149,7 +153,9 @@ public class ColumnSetExtractor implements SelectVisitor,
 
   @Override
   public void visit(AllTableColumns in) {
-    wildcards.add(in.getTable().getWholeTableName().toLowerCase());
+    String name = in.getTable().getWholeTableName().toLowerCase();
+    if (aliases.containsKey(name)) name = aliases.get(name);
+    wildcards.add(name);
   }
 
   @Override
@@ -159,7 +165,9 @@ public class ColumnSetExtractor implements SelectVisitor,
 
   @Override
   public void visit(Table in) {
-    tables.add(in.getWholeTableName().toLowerCase());
+    String name = in.getWholeTableName().toLowerCase();
+    if (in.getAlias() != null) aliases.put(in.getAlias().toLowerCase(), name);
+    tables.add(name);
   }
 
   @Override
@@ -290,7 +298,19 @@ public class ColumnSetExtractor implements SelectVisitor,
 
   @Override
   public void visit(Column in) {
-    columns.add(in.getWholeColumnName().toLowerCase());
+    if (!in.getTable().toString().equals("null")) {
+      String tableName = in.getTable().getWholeTableName().toLowerCase();
+      if (aliases.containsKey(tableName)) {
+        in.getTable().setName(aliases.get(tableName));
+      }
+    }
+    
+    for (String table : tables) {
+      if (TableManager.getTable(table).getSchema().getIndex(in) != null) {
+        columns.add(in.getWholeColumnName().toLowerCase());
+        break;
+      }
+    }
   }
 
   @Override
