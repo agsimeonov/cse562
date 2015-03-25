@@ -76,7 +76,7 @@ public class TableIterator implements RowIterator {
       if (!this.hasNext()) return null;
       
       Row row = new Row(indexLookup.size());
-      String[] data = this.hasNext() ? reader.readLine().split("\\|") : null;
+      String[] data = reader.readLine().split("\\|");
       
       for (int i = 0; i < schema.size(); i++) {
         Integer index = indexLookup.get(i);
