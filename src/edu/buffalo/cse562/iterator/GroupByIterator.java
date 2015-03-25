@@ -76,14 +76,12 @@ public class GroupByIterator extends ProjectIterator {
     buffer = new HashMap<Row, ArrayList<IndexAggregatePair>>();
     
     while (this.iterator.hasNext()) {
-      ArrayList<IndexAggregatePair> pairs = new ArrayList<IndexAggregatePair>();
       Row inRow = this.iterator.next();
       Row outRow = new Row(outExpressions.size());
+      ArrayList<Integer> indexes = new ArrayList<Integer>();
       evaluate.setRow(inRow);
       
       for (int i = 0; i < outExpressions.size(); i++) {
-        Expression expression = outExpressions.get(i);
-        
         if (outExpressions.get(i) instanceof Column) {
           try {
             outRow.setValue(i, evaluate.eval(outExpressions.get(i)));
@@ -91,19 +89,26 @@ public class GroupByIterator extends ProjectIterator {
             e.printStackTrace();
           }
         } else {
-          Aggregate aggregate = Aggregate.getAggregate((Function) expression, evaluate);
-          aggregate.yield(inRow);
-          IndexAggregatePair pair = new IndexAggregatePair(i, aggregate);
-          pairs.add(pair);
+          indexes.add(i);
         }
       }
       
       if (buffer.containsKey(outRow)) {
         for (IndexAggregatePair pair : buffer.get(outRow))
           pair.aggregate.yield(inRow);
-      } else {
-        buffer.put(outRow, pairs);
+        continue;
       }
+
+      ArrayList<IndexAggregatePair> pairs = new ArrayList<IndexAggregatePair>();
+      
+      for (Integer i : indexes) {
+        Aggregate aggregate = Aggregate.getAggregate((Function) outExpressions.get(i), evaluate);
+        aggregate.yield(inRow);
+        IndexAggregatePair pair = new IndexAggregatePair(i, aggregate);
+        pairs.add(pair);
+      }
+      
+      buffer.put(outRow, pairs);
     }
   }
 
