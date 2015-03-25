@@ -298,6 +298,8 @@ public class ColumnSetExtractor implements SelectVisitor,
 
   @Override
   public void visit(Column in) {
+    if (wildcards.contains(WILDCARD)) return;
+    
     if (!in.getTable().toString().equals("null")) {
       String tableName = in.getTable().getWholeTableName().toLowerCase();
       if (aliases.containsKey(tableName)) {

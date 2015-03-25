@@ -26,8 +26,12 @@ public class TableColumns {
     ArrayList<Column> columns = schema.getColumns();
     HashMap<String, Integer> lookupTable = schema.getLookupTable();
     ArrayList<Column> out = new ArrayList<Column>();
-    for (String column : columnSet)
-      if (lookupTable.containsKey(column)) out.add(columns.get(lookupTable.get(column)));
+    for (String column : columnSet) {
+      if (lookupTable.containsKey(column)) {
+        Column c = columns.get(lookupTable.get(column));
+        if (!out.contains(c)) out.add(c);
+      }
+    }
     node.setOptimalSchema(new Schema(out));
   }
 }
