@@ -321,10 +321,22 @@ public class ColumnSetExtractor implements SelectVisitor,
   }
 
   @Override
-  public void visit(CaseExpression in) {}
+  public void visit(CaseExpression in) {
+    if (in.getElseExpression() != null) in.getElseExpression().accept(this);
+    if (in.getSwitchExpression() != null) in.getSwitchExpression().accept(this);
+    if (in.getWhenClauses() != null) {
+      for (Object object : in.getWhenClauses()) {
+        WhenClause when = (WhenClause) object;
+        when.accept(this);
+      }
+    }
+  }
 
   @Override
-  public void visit(WhenClause in) {}
+  public void visit(WhenClause in) {
+    if (in.getThenExpression() != null) in.getThenExpression().accept(this);
+    if (in.getWhenExpression() != null) in.getWhenExpression().accept(this);
+  }
 
   @Override
   public void visit(ExistsExpression in) {}
