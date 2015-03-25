@@ -51,4 +51,13 @@ public class TableNode extends ParseTree {
     String alias = table.getAlias() == null ? "" : " AS " + table.getAlias();
     return table.getWholeTableName().toUpperCase() + alias;
   }
+  
+  /**
+   * Acquires the table associated with this node.
+   * 
+   * @return the table associated with this node
+   */
+  public Table getTable() {
+    return table;
+  }
 }
