@@ -22,7 +22,7 @@ public class Optimizer {
     SplitSelect.splitAllSelectNodes(root);
     MoveDownSelect.moveDownAllSelectNodes(root);
     CrossToJoin.crossToJoin(root);
-//    TableColumns.setOptimalTableSchemas(root, columnSet);
+    TableSchema.setOptimalTableSchemas(root, columnSet);
   }
 
   /**

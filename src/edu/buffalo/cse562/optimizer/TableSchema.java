@@ -12,7 +12,18 @@ import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.Schema;
 import edu.buffalo.cse562.table.TableManager;
 
-public class TableColumns {
+/**
+ * Optimizes the table schema, by determining and using the minimal amount of columns.
+ * 
+ * @author Alexander Simeonov
+ */
+public class TableSchema {
+  /**
+   * Optimizes the table schema for all table nodes in the given tree.
+   * 
+   * @param root - root of the given tree
+   * @param columnSet - optimal set of columns
+   */
   public static void setOptimalTableSchemas(ParseTree root, Set<String> columnSet) {
     List<ParseTree> tables = Optimizer.getAllTypeNodes(root, TableNode.class);
     for (ParseTree node : tables) {
@@ -20,6 +31,12 @@ public class TableColumns {
     }
   }
   
+  /**
+   * Optimizes the table schema for a given table node.
+   * 
+   * @param node - given table node
+   * @param columnSet - optimal set of columns
+   */
   public static void setOptimalSchema(TableNode node, Set<String> columnSet) {
     DataTable dataTable = TableManager.getTable(node.getTable().getWholeTableName().toLowerCase());
     Schema schema = dataTable.getSchema();
