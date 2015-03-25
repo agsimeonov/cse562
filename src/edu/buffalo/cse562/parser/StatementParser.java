@@ -1,5 +1,9 @@
 package edu.buffalo.cse562.parser;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
@@ -29,8 +33,16 @@ public class StatementParser implements StatementVisitor {
     select.getSelectBody().accept(extractor);
     ParseTree root = treeBuilder.getRoot();
     Optimizer.optimize(root, extractor.getColumns());
-    for (Row row : treeBuilder.getRoot())
-      System.out.println(row);
+    BufferedWriter print = new BufferedWriter(new OutputStreamWriter(System.out));
+    try {
+      for (Row row : treeBuilder.getRoot()) {
+        print.write(row.toString());
+        print.write("\n");
+      }
+      print.flush();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   @Override
