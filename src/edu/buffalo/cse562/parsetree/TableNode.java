@@ -17,7 +17,7 @@ import edu.buffalo.cse562.table.TableManager;
  */
 public class TableNode extends ParseTree {
   private final Table  table;
-  private final Schema outSchema;
+  private Schema outSchema;
 
   /**
    * Initializes the table node.
@@ -38,7 +38,7 @@ public class TableNode extends ParseTree {
 
   @Override
   public Iterator<Row> iterator() {
-    return new TableIterator(table);
+    return new TableIterator(table, outSchema);
   }
 
   @Override
@@ -59,5 +59,14 @@ public class TableNode extends ParseTree {
    */
   public Table getTable() {
     return table;
+  }
+  
+  /**
+   * Used by the optimizer to set the optimal schema.
+   * 
+   * @param schema - the optimal schema
+   */
+  public void setOptimalSchema(Schema schema) {
+    outSchema = schema;
   }
 }

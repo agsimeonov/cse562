@@ -22,12 +22,7 @@ import edu.buffalo.cse562.table.Schema;
  * @author Sunny Mistry
  */
 public class JoinNode extends ParseTree {
-  private final Schema               outSchema;
-  private final int                  leftIndex;
-  private final int                  rightIndex;
-  private final List<OrderByElement> leftOrders;
-  private final List<OrderByElement> rightOrders;
-  private final Expression           expression;
+  private final Expression expression;
 
   /**
    * Initializes the Join node.
@@ -42,13 +37,14 @@ public class JoinNode extends ParseTree {
     super.left = left;
     super.right = right;
     
-    // Set the output schema
-    outSchema = new Schema(left.getSchema(), right.getSchema());
-    
     // Unwrap the expression
     while (expression instanceof Parenthesis)
       expression = ((Parenthesis) expression).getExpression();
     this.expression = expression;
+  }
+
+  @Override
+  public Iterator<Row> iterator() {
     BinaryExpression binaryExpression = (BinaryExpression) expression;
     
     // Get the join columns
@@ -63,6 +59,8 @@ public class JoinNode extends ParseTree {
     
     // Initialize the correct left and right columns and their index
     Integer index = left.getSchema().getIndex(columnOne);
+    int leftIndex;
+    int rightIndex;
     if (index == null) {
       leftIndex = left.getSchema().getIndex(columnTwo);
       leftOrder.setExpression(columnTwo);
@@ -76,14 +74,11 @@ public class JoinNode extends ParseTree {
     }
     
     // Initialize the order rules
-    leftOrders = new ArrayList<OrderByElement>(1);
-    rightOrders = new ArrayList<OrderByElement>(1);
+    List<OrderByElement> leftOrders = new ArrayList<OrderByElement>(1);
+    List<OrderByElement> rightOrders = new ArrayList<OrderByElement>(1);
     leftOrders.add(leftOrder);
     rightOrders.add(rightOrder);
-  }
-
-  @Override
-  public Iterator<Row> iterator() {
+    
     RowIterator leftIterator = (RowIterator) left.iterator();
     RowIterator rightIterator = (RowIterator) right.iterator();
     leftIterator = new MergeSortIterator(leftIterator, leftOrders, left.getSchema());
@@ -93,7 +88,7 @@ public class JoinNode extends ParseTree {
 
   @Override
   public Schema getSchema() {
-    return outSchema;
+    return new Schema(left.getSchema(), right.getSchema());
   }
 
   @Override

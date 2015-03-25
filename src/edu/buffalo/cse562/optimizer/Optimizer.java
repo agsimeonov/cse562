@@ -2,6 +2,7 @@ package edu.buffalo.cse562.optimizer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import edu.buffalo.cse562.parsetree.ParseTree;
 
@@ -15,11 +16,13 @@ public class Optimizer {
    * Performs all optimization steps on the given tree.
    * 
    * @param root - root of the given tree
+   * @param columnSet - the set of columns needed from the table nodes
    */
-  public static void optimize(ParseTree root) {
+  public static void optimize(ParseTree root, Set<String> columnSet) {
     SplitSelect.splitAllSelectNodes(root);
     MoveDownSelect.moveDownAllSelectNodes(root);
     CrossToJoin.crossToJoin(root);
+    TableColumns.setOptimalTableSchemas(root, columnSet);
   }
 
   /**

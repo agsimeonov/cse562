@@ -23,10 +23,12 @@ import edu.buffalo.cse562.table.TableManager;
 public class StatementParser implements StatementVisitor {
 
   @Override
-  public void visit(Select select) {  
+  public void visit(Select select) {
     TreeBuilder treeBuilder = new TreeBuilder(select.getSelectBody());
+    ColumnSetExtractor extractor = new ColumnSetExtractor();
+    select.getSelectBody().accept(extractor);
     ParseTree root = treeBuilder.getRoot();
-    Optimizer.optimize(root);
+    Optimizer.optimize(root, extractor.getColumns());
     for (Row row : treeBuilder.getRoot())
       System.out.println(row);
   }
