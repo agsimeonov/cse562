@@ -15,11 +15,11 @@ import edu.buffalo.cse562.table.Schema;
  * @author Sunny Mistry
  */
 public class SelectIterator implements RowIterator {
-  private RowIterator iterator;
-  private Expression  expression;
-  private Schema      inSchema;
-  private Evaluate    evaluate;
-  private Row         row;
+  private final RowIterator iterator;
+  private final Expression  expression;
+  private final Schema      inSchema;
+  private Evaluate          evaluate;
+  private Row               row;
 
   /**
    * Initializes the iterator.
@@ -44,13 +44,9 @@ public class SelectIterator implements RowIterator {
       evaluate.setRow(next);
 
       try {
-        if (expression != null) {
-          BooleanValue booleanValue = (BooleanValue) evaluate.eval(expression);
-          if (booleanValue == null) return false;
-          if (booleanValue.getValue()) {
-            row = next;
-            return true;
-          }
+        if (((BooleanValue) evaluate.eval(expression)).getValue()) {
+          row = next;
+          return true;
         }
       } catch (SQLException e) {
         e.printStackTrace();
@@ -71,15 +67,15 @@ public class SelectIterator implements RowIterator {
 
   @Override
   public void close() {
+    if (evaluate == null) return;
     iterator.close();
     evaluate = null;
   }
 
   @Override
   public void open() {
-    if (evaluate == null) {
-      iterator.open();
-      evaluate = new Evaluate(inSchema);
-    }
+    if (evaluate != null) return;
+    iterator.open();
+    evaluate = new Evaluate(inSchema);
   }
 }
