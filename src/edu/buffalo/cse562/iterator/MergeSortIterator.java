@@ -26,8 +26,8 @@ import edu.buffalo.cse562.table.TableManager;
  * @author Sunny Mistry
  */
 public class MergeSortIterator implements RowIterator {
-  private static final long          THRESHOLD = 35 << 20; // minimum available memory
-  private static final int           RESET     = 1000;
+  private static final long          THRESHOLD = 45 << 20; // minimum available memory
+  private static final int           RESET     = 2000;
   private final RowIterator          iterator;
   private final List<OrderByElement> orderByElements;
   private final Schema               inSchema;
