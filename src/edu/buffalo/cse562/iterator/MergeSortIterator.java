@@ -1,5 +1,6 @@
 package edu.buffalo.cse562.iterator;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,8 +26,8 @@ import edu.buffalo.cse562.table.TableManager;
  * @author Sunny Mistry
  */
 public class MergeSortIterator implements RowIterator {
-  private static final long          THRESHOLD     = 35 << 20; // minimum available memory
-  private static final int           STREAM_BUFFER = 5 << 20; // output stream buffer
+  private static final long          THRESHOLD = 25 << 20; // minimum available memory
+  private static final int           RESET     = 1000;
   private final RowIterator          iterator;
   private final List<OrderByElement> orderByElements;
   private final Schema               inSchema;
@@ -128,16 +129,23 @@ public class MergeSortIterator implements RowIterator {
           
           // Flush all rows to disk
           FileOutputStream fos = new FileOutputStream(temporary);
-          BufferedOutputStream bos = new BufferedOutputStream(fos, STREAM_BUFFER);
+          BufferedOutputStream bos = new BufferedOutputStream(fos);
           ObjectOutputStream oos = new ObjectOutputStream(bos);
-          while (!buffer.isEmpty())
+          for (int i = 0; !buffer.isEmpty(); i++) {
             oos.writeObject(buffer.pop());
+            if (i == RESET) {
+              oos.reset();
+              i = 0;
+            }
+          }
           oos.writeObject(null);
           oos.close();
           System.gc();
           
           // Stash the file buffer
-          buffers.add(new ObjectInputStream(new FileInputStream(temporary)));
+          FileInputStream fis = new FileInputStream(temporary);
+          BufferedInputStream bif = new BufferedInputStream(fis);
+          buffers.add(new ObjectInputStream(bif));
         } catch (IOException e) {
           e.printStackTrace();
         }
