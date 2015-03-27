@@ -48,7 +48,7 @@ public class HashJoinIterator implements RowIterator {
   @Override
   public boolean hasNext() {
     if (table == null) return false;
-    if (!rightIterator.hasNext()) return doesNotHaveNext(); 
+    if (current == null && !rightIterator.hasNext()) return doesNotHaveNext(); 
     
     if (current == null) {
       while (rightIterator.hasNext()) {
@@ -68,6 +68,7 @@ public class HashJoinIterator implements RowIterator {
   
   @Override
   public Row next() {
+    if (!this.hasNext()) return null;
     Row next = new Row(current.next(), right);
     if (!current.hasNext()) current = null;
     return next;
@@ -86,7 +87,7 @@ public class HashJoinIterator implements RowIterator {
     table = new HashMap<Object, LinkedList<Row>>();
     type = NONE;
     
-    while (!leftIterator.hasNext()) {
+    while (leftIterator.hasNext()) {
       Row left = leftIterator.next();
       LeafValue leaf = left.getValue(leftIndex);
       
