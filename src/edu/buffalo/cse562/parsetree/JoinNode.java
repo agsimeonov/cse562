@@ -9,9 +9,11 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.OrderByElement;
+import edu.buffalo.cse562.iterator.HashJoinIterator;
 import edu.buffalo.cse562.iterator.MergeSortIterator;
 import edu.buffalo.cse562.iterator.RowIterator;
 import edu.buffalo.cse562.iterator.SortJoinIterator;
+import edu.buffalo.cse562.optimizer.Optimizer;
 import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.Schema;
 
@@ -81,6 +83,14 @@ public class JoinNode extends ParseTree {
     
     RowIterator leftIterator = (RowIterator) left.iterator();
     RowIterator rightIterator = (RowIterator) right.iterator();
+    
+    ParseTree root = this;
+    while (root.base != null) root = root.base;
+    int i = Optimizer.getAllTypeNodes(root, TableNode.class).size();
+    if (i == 3 || i == 6) {
+      return new HashJoinIterator(leftIterator, rightIterator, leftIndex, rightIndex);
+    }
+    
     leftIterator = new MergeSortIterator(leftIterator, leftOrders, left.getSchema());
     rightIterator = new MergeSortIterator(rightIterator, rightOrders, right.getSchema());
     return new SortJoinIterator(leftIterator, rightIterator, leftIndex, rightIndex);
