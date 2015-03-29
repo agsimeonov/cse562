@@ -4,7 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -14,25 +13,28 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import net.sf.jsqlparser.expression.DateValue;
-import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.LeafValue;
 import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
-import net.sf.jsqlparser.expression.LongValue;
 import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.TableManager;
 
 public class GraceJoinIterator implements RowIterator {
-  private static final int                 NONE   = 0;
-  private static final int                 LONG   = 1;
-  private static final int                 DOUBLE = 2;
-  private static final int                 DATE   = 3;
-  private static final int                 STRING = 4;
-  private final RowIterator                leftIterator;
-  private final RowIterator                rightIterator;
-  private final int                        leftIndex;
-  private final int                        rightIndex;
-  private HashMap<Object, LinkedList<Row>> table;
-  private int                              type;
+  private static final long      THRESHOLD = 15 << 20; // minimum available memory
+  private static final int       NONE      = 0;
+  private static final int       LONG      = 1;
+  private static final int       DOUBLE    = 2;
+  private static final int       DATE      = 3;
+  private static final int       STRING    = 4;
+  private final RowIterator      leftIterator;
+  private final RowIterator      rightIterator;
+  private final int              leftIndex;
+  private final int              rightIndex;
+  private File                   swapDirectory;
+  private HashMap<Object, InOut> leftBuffer;
+  private HashMap<Object, InOut> rightBuffer;
+  private boolean                bufferRight;
+  private int                    type;
+  private Row                    next;
   private Row                              right;
   private Iterator<Row>                    current;
 
@@ -57,68 +59,116 @@ public class GraceJoinIterator implements RowIterator {
   
   @Override
   public boolean hasNext() {
-    if (table == null) return false;
-    if (current == null && !rightIterator.hasNext()) return doesNotHaveNext(); 
-    
-    if (current == null) {
-      while (rightIterator.hasNext()) {
-        right = rightIterator.next();
-        LeafValue leaf = right.getValue(rightIndex);
-        Object key = getKey(leaf);
-        if (table.containsKey(key)) {
-          current = table.get(key).iterator();
+    if (leftBuffer == null) return false;
+    if (next != null) return true;
+    if (leftBuffer.isEmpty()) return doesNotHaveNext();
+
+    try {
+      if (bufferRight) {
+        if (rightBuffer == null || rightBuffer.isEmpty()) return doesNotHaveNext();
+        for (Object key : leftBuffer.keySet()) {
+          if (rightBuffer.containsKey(key)) {
+            Row left = leftBuffer.get(key).pop();
+            Row right = rightBuffer.get(key).pop();
+            if (left == null || right == null) {
+              if (left != null) leftBuffer.get(key).in.close();
+              leftBuffer.put(key, null);
+              rightBuffer.remove(key);
+            } else {
+              next = new Row(left, right);
+              return true;
+            }
+          }
+        }
+      } else {
+        if (current == null || !current.hasNext()) {
+          while (rightIterator.hasNext()) {
+            right = rightIterator.next();
+            LeafValue leaf = right.getValue(rightIndex);
+            Object key = getKey(leaf);
+            if (leftBuffer.containsKey(key)) current = leftBuffer.get(key).list.iterator();
+          }
+        }
+        
+        if (current != null && current.hasNext() && right != null) {
+          next = new Row (current.next(), right);
           return true;
         }
       }
-      return doesNotHaveNext();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
     
-    return true;
+    return doesNotHaveNext();
   }
   
   @Override
   public Row next() {
     if (!this.hasNext()) return null;
-    Row next = new Row(current.next(), right);
-    if (!current.hasNext()) current = null;
-    return next;
+    Row out = next;
+    next = null;
+    return out;
   }
   
   @Override
   public void close() {
-    if (table == null) return;
-    table = null;
+    if (leftBuffer == null) return;
+    swapDirectory = null;
+    bufferRight = false;
     type = NONE;
+    leftBuffer = null;
+    rightBuffer = null;
+    next = null;
   }
   
   @Override
   public void open() {
-    if (table != null) return;
-    table = new HashMap<Object, LinkedList<Row>>();
+    if (leftBuffer != null) return;
+    swapDirectory = new File(TableManager.getSwapDir());
+    bufferRight = false;
     type = NONE;
     
-    while (leftIterator.hasNext()) {
-      Row left = leftIterator.next();
-      LeafValue leaf = left.getValue(leftIndex);
-      
-      if (type == NONE) {
-        if (leaf instanceof LongValue) type = LONG;
-        else if (leaf instanceof DoubleValue) type = DOUBLE;
-        else if (leaf instanceof DateValue) type = DATE;
-        else type = STRING;
-      }
+    try {
+      leftBuffer = getBuffer(leftIterator, leftIndex);
+      if (bufferRight) rightBuffer = getBuffer(rightIterator, rightIndex);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+  
+  /**
+   * Acquires the available memory.
+   * 
+   * @return - the available memory in bytes
+   */
+  private static long getAvailableMemory() {
+    Runtime runtime = Runtime.getRuntime();
+    return runtime.maxMemory() - (runtime.totalMemory() - runtime.freeMemory());
+  }
+  
+  private HashMap<Object, InOut> getBuffer(RowIterator iterator, int index) throws IOException {
+    HashMap<Object, InOut> buffer = new HashMap<Object, InOut>();
+    
+    while (iterator.hasNext()) {
+      Row row = iterator.next();
+      LeafValue leaf = row.getValue(index);
       
       Object key = getKey(leaf);
       
-      LinkedList<Row> values;
-      if (table.containsKey(key)) {
-        values = table.get(key);
+      InOut values;
+      if (buffer.containsKey(key)) {
+        values = buffer.get(key);
       } else {
-        values = new LinkedList<Row>();
-        table.put(key, values);
+        values = new InOut();
+        buffer.put(key, values);
       }
-      values.add(left);
+      
+      values.push(row);
     }
+    
+    return buffer;
   }
   
   private Object getKey(LeafValue leaf) {
@@ -151,23 +201,54 @@ public class GraceJoinIterator implements RowIterator {
     return false;
   }
   
-  private static class InOut {
-    private final ObjectInputStream in;
-    private final ObjectOutputStream out;
-    private static File swapDirectory;
-    
-    private InOut() throws IOException {
-      if (swapDirectory != null) swapDirectory = new File(TableManager.getSwapDir());
-      File temporary = File.createTempFile("tmp", null, swapDirectory);
-      temporary.deleteOnExit();
-      
-      FileInputStream fis = new FileInputStream(temporary);
-      BufferedInputStream bif = new BufferedInputStream(fis);
-      in = new ObjectInputStream(bif);
+  private class InOut {
+    private ObjectInputStream  in;
+    private ObjectOutputStream out;
+    private LinkedList<Row>    list;
 
-      FileOutputStream fos = new FileOutputStream(temporary);
-      BufferedOutputStream bos = new BufferedOutputStream(fos);
-      out = new ObjectOutputStream(bos);
+    private void push(Row row) throws IOException {
+      if (getAvailableMemory() < THRESHOLD) {
+        bufferRight = true;
+
+        if (out == null) {
+          File temporary = File.createTempFile("tmp", null, swapDirectory);
+          temporary.deleteOnExit();
+          
+          FileInputStream fis = new FileInputStream(temporary);
+          BufferedInputStream bif = new BufferedInputStream(fis);
+          in = new ObjectInputStream(bif);
+
+          FileOutputStream fos = new FileOutputStream(temporary);
+          BufferedOutputStream bos = new BufferedOutputStream(fos);
+          out = new ObjectOutputStream(bos);
+        }
+        
+        out.writeObject(row);
+      } else {
+        if (list == null) list = new LinkedList<Row>();
+        list.add(row);
+      }
+    }
+    
+    private Row pop() throws ClassNotFoundException, IOException {
+      if (out != null) {
+        out.writeObject(null);
+        out.close();
+        out = null;
+      }
+      
+      if (list != null && !list.isEmpty()) {
+        return list.pop();
+      } else if (in != null) {
+        Row row = (Row) in.readObject();
+        if (row == null) {
+          in.close();
+          in = null;
+        }
+        return row;
+      } else {
+        return null;
+      }
     }
   }
 }
