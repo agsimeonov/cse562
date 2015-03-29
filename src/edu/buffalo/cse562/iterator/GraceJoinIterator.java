@@ -19,7 +19,7 @@ import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.TableManager;
 
 public class GraceJoinIterator implements RowIterator {
-  private static final long      THRESHOLD = 15 << 20; // minimum available memory
+  private static final long      THRESHOLD = 50 << 20; // minimum available memory
   private static final int       NONE      = 0;
   private static final int       LONG      = 1;
   private static final int       DOUBLE    = 2;
@@ -202,6 +202,7 @@ public class GraceJoinIterator implements RowIterator {
   }
   
   private class InOut {
+    private File               temporary;
     private ObjectInputStream  in;
     private ObjectOutputStream out;
     private LinkedList<Row>    list;
@@ -211,19 +212,15 @@ public class GraceJoinIterator implements RowIterator {
         bufferRight = true;
 
         if (out == null) {
-          File temporary = File.createTempFile("tmp", null, swapDirectory);
+          temporary = File.createTempFile("tmp", null, swapDirectory);
           temporary.deleteOnExit();
-          
-          FileInputStream fis = new FileInputStream(temporary);
-          BufferedInputStream bif = new BufferedInputStream(fis);
-          in = new ObjectInputStream(bif);
-
           FileOutputStream fos = new FileOutputStream(temporary);
           BufferedOutputStream bos = new BufferedOutputStream(fos);
           out = new ObjectOutputStream(bos);
         }
         
-        out.writeObject(row);
+        out.writeUnshared(row);
+        System.gc();
       } else {
         if (list == null) list = new LinkedList<Row>();
         list.add(row);
@@ -235,6 +232,10 @@ public class GraceJoinIterator implements RowIterator {
         out.writeObject(null);
         out.close();
         out = null;
+        
+        FileInputStream fis = new FileInputStream(temporary);
+        BufferedInputStream bif = new BufferedInputStream(fis);
+        in = new ObjectInputStream(bif);
       }
       
       if (list != null && !list.isEmpty()) {
