@@ -695,10 +695,9 @@ Representing, Storing, and Reading Tuples
    [2]Cursor.  Of note, BDB’s cursor interface supports [3]index
    lookups.
 
-   [*] http://odin.cse.buffalo.edu/resources/berkeleydb/GettingStartedGuide/
-   [1] usingDbt.html
-   [2] Cursors.html
-   [3] Positioning.html#cursorsearch
+   [1] http://odin.cse.buffalo.edu/resources/berkeleydb/GettingStartedGuide/usingDbt.html
+   [2] http://odin.cse.buffalo.edu/resources/berkeleydb/GettingStartedGuide/Cursors.html
+   [3] http://odin.cse.buffalo.edu/resources/berkeleydb/GettingStartedGuide/Positioning.html#cursorsearch
 
 Secondary Indexes
 
@@ -765,9 +764,8 @@ Locking Policies
    under [1]LockMode.[2]READ_UNCOMMITTED.  See below for ways to
    set this parameter globally.
 
-   [*] http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/
-   [1] LockMode.html
-   [2] LockMode.html#READ_UNCOMMITTED
+   [1] http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/LockMode.html
+   [2] http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/LockMode.html#READ_UNCOMMITTED
 
 Config Options
 
@@ -791,21 +789,20 @@ Config Options
           + [14]setQueueSize
      __________________________________________________________
      
-   [*]  http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/
-   [1]  EnvironmentConfig.html
-   [2]  EnvironmentMutableConfig.html#setCachePercent(int)
-   [3]  EnvironmentConfig.html#setLocking(boolean)
-   [4]  EnvironmentConfig.html#setConfigParam(java.lang.String,%20java.lang.String)
-   [5]  EnvironmentConfig.html#ENV_RUN_CLEANER
-   [6]  EnvironmentConfig.html#ENV_RUN_CHECKPOINTER
-   [7]  Environment.html#cleanLog()
-   [8]  DatabaseConfig.html
-   [9]  SecondaryConfig.html
-   [10] DatabaseConfig.html#setReadOnly(boolean)
-   [11] DatabaseConfig.html#setTransactional(boolean)
-   [12] DiskOrderedCursorConfig.html
-   [13] DiskOrderedCursorConfig.html#setInternalMemoryLimit(long)
-   [14] DiskOrderedCursorConfig.html#setQueueSize(int)
+   [1]  http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/EnvironmentConfig.html
+   [2]  http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/EnvironmentMutableConfig.html#setCachePercent(int)
+   [3]  http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/EnvironmentConfig.html#setLocking(boolean)
+   [4]  http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/EnvironmentConfig.html#setConfigParam(java.lang.String,%20java.lang.String)
+   [5]  http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/EnvironmentConfig.html#ENV_RUN_CLEANER
+   [6]  http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/EnvironmentConfig.html#ENV_RUN_CHECKPOINTER
+   [7]  http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/Environment.html#cleanLog()
+   [8]  http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/DatabaseConfig.html
+   [9]  http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/SecondaryConfig.html
+   [10] http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/DatabaseConfig.html#setReadOnly(boolean)
+   [11] http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/DatabaseConfig.html#setTransactional(boolean)
+   [12] http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/DiskOrderedCursorConfig.html
+   [13] http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/DiskOrderedCursorConfig.html#setInternalMemoryLimit(long)
+   [14] http://odin.cse.buffalo.edu/resources/berkeleydb/java/com/sleepycat/je/DiskOrderedCursorConfig.html#setQueueSize(int)
     
 Interface
 
