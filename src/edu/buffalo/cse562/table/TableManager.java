@@ -18,6 +18,7 @@ public final class TableManager {
   private static final AbstractMap<String, DataTable> DB_TABLES = new HashMap<String, DataTable>();
   private static String                               dataDir;
   private static String                               swapDir;
+  private static String                               dbDir;
 
   /**
    * Creates a new database table.
@@ -43,7 +44,7 @@ public final class TableManager {
   /**
    * Acquires the data directory path for the database.
    * 
-   * @return the data directory path for the database.
+   * @return the data directory path for the database
    */
   public static String getDataDir() {
     return dataDir;
@@ -52,10 +53,19 @@ public final class TableManager {
   /**
    * Acquires the swap directory path for the database.
    * 
-   * @return the swap directory path for the database.
+   * @return the swap directory path for the database
    */
   public static String getSwapDir() {
     return swapDir;
+  }
+
+  /**
+   * Acquires the directory for permanent data files.
+   * 
+   * @return the the directory for permanent data files
+   */
+  public static String getDbDir() {
+    return dbDir;
   }
 
   /**
@@ -88,6 +98,18 @@ public final class TableManager {
    * @throws NotDirectoryException when the given path is not a valid directory
    */
   public static void setSwapDir(String path) throws IOException, NotDirectoryException {
+    dbDir = path;
+    setDir(path);
+  }
+  
+  /**
+   * Sets (and creates if necessary) a valid directory for permanent data files.
+   * 
+   * @param path - path to the permanent data file directory
+   * @throws IOException when the given directory could not be created
+   * @throws NotDirectoryException when the given path is not a valid directory
+   */
+  public static void setDbDir(String path) throws IOException, NotDirectoryException {
     swapDir = path;
     setDir(path);
   }
