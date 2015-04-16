@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.NotDirectoryException;
 import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.Set;
 
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 
@@ -76,6 +77,15 @@ public final class TableManager {
    */
   public static DataTable getTable(String name) {
     return DB_TABLES.get(name.toLowerCase());
+  }
+  
+  /**
+   * Acquires all database table names.
+   * 
+   * @return all database table names
+   */
+  public static Set<String> getAllTableNames() {
+    return DB_TABLES.keySet();
   }
 
   /**
