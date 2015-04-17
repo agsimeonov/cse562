@@ -28,6 +28,7 @@ public class StatementParser implements StatementVisitor {
 
   @Override
   public void visit(Select select) {
+    if (TableManager.getLoad()) return;
     TreeBuilder treeBuilder = new TreeBuilder(select.getSelectBody());
     ColumnSetExtractor extractor = new ColumnSetExtractor();
     select.getSelectBody().accept(extractor);

@@ -17,6 +17,7 @@ import net.sf.jsqlparser.statement.create.table.CreateTable;
  */
 public final class TableManager {
   private static final AbstractMap<String, DataTable> DB_TABLES = new HashMap<String, DataTable>();
+  private static boolean                              load      = false;
   private static String                               dataDir;
   private static String                               swapDir;
   private static String                               dbDir;
@@ -40,6 +41,24 @@ public final class TableManager {
         return false;
       }
     }
+  }
+  
+  /**
+   * Sets whether --load is set or not.
+   * 
+   * @param load - true if set otherwise false
+   */
+  public static void setLoad(boolean load) {
+    TableManager.load = load;
+  }
+  
+  /**
+   * Checks whether --load is set or not.
+   * 
+   * @return true if set otherwise false
+   */
+  public static boolean getLoad() {
+    return load;
   }
 
   /**
