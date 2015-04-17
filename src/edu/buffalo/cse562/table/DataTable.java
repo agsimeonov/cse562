@@ -66,14 +66,21 @@ public class DataTable {
   public Schema getSchema() {
     ArrayList<Column> columns = new ArrayList<Column>();
     Table tableCopy = new Table(table.getSchemaName(), table.getName());
+    Integer primaryIndex = null;
     tableCopy.setAlias(table.getAlias());
     
     for (Object o : createTable.getColumnDefinitions()) {
       ColumnDefinition columnDefinition = (ColumnDefinition) o;
+      if (columnDefinition.getColumnSpecStrings() != null) {
+        for (Object item : columnDefinition.getColumnSpecStrings())
+          if (((String) item).toLowerCase().equals("primary")) primaryIndex = columns.size();
+      }
       columns.add(new Column(tableCopy, columnDefinition.getColumnName()));
     }
     
-    return new Schema(columns);
+    Schema out = new Schema(columns);
+    out.setPrimaryIndex(primaryIndex);
+    return out;
   }
   
   /**

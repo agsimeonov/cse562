@@ -29,6 +29,7 @@ public class DatabaseManager {
     for (String name : DATABASES.keySet()) {
       DataTable dataTable = TableManager.getTable(name);
       TableIterator iterator = new TableIterator(dataTable.getTable(), dataTable.getSchema());
+      Integer primaryIndex = dataTable.getSchema().getPrimaryIndex();
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       DataOutputStream dataOut = new DataOutputStream(out);
       Database database = DATABASES.get(name);
@@ -42,9 +43,9 @@ public class DatabaseManager {
           e.printStackTrace();
         }
         
+        DatabaseEntry key = new DatabaseEntry(row.getByteValue(primaryIndex));
         DatabaseEntry data = new DatabaseEntry(out.toByteArray());
-        // TODO: ACQUIRE AND SET THE KEY!
-        database.put(null, data, data);
+        database.put(null, key, data);
         environment.sync();
         out.reset();
       }

@@ -19,6 +19,7 @@ import net.sf.jsqlparser.schema.Table;
 public class Schema implements Serializable {
   private static final long serialVersionUID = -1119625585280544652L;
   private ArrayList<Column> columns;
+  private Integer primaryIndex;
 
   /**
    * Creates the schema for a given table.
@@ -50,6 +51,24 @@ public class Schema implements Serializable {
   public Integer getIndex(Column column) {
     HashMap<String, Integer> lookupTable = this.getLookupTable();
     return lookupTable.get(column.getWholeColumnName().toLowerCase());
+  }
+  
+  /**
+   * Acquires the primary key index.
+   * 
+   * @return the primary key index, null if none such
+   */
+  public Integer getPrimaryIndex() {
+    return primaryIndex;
+  }
+  
+  /**
+   * Sets the primary key index.
+   * 
+   * @param primaryIndex - the primary key index
+   */
+  public void setPrimaryIndex(Integer primaryIndex) {
+    this.primaryIndex = primaryIndex;
   }
 
   /**

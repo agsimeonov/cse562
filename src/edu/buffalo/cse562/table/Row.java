@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -150,6 +152,37 @@ public class Row implements Serializable {
     }
 
     return rowString;
+  }
+  
+  /**
+   * Acquires a value in the form of a byte array.
+   * 
+   * @param index - given index for row value
+   * @return desired row value as byte array, null if the column does not exist or unsuccessful
+   */
+  public byte[] getByteValue(int index) {
+    LeafValue value = this.getValue(index);
+
+    try {
+      if (value == null) {
+        return null;
+      } else if (value instanceof LongValue) {
+        return ByteBuffer.allocate(Long.BYTES).putLong(value.toLong()).array();
+      } else if (value instanceof DoubleValue) {
+        return ByteBuffer.allocate(Double.BYTES).putDouble(value.toDouble()).array();
+      } else if (value instanceof DateValue) {
+        long time = ((DateValue) value).getValue().getTime();
+        return ByteBuffer.allocate(Long.BYTES).putLong(time).array();
+      } else {
+        return value.toString().getBytes("UTF-8");
+      }
+    } catch (InvalidLeaf e) {
+      e.printStackTrace();
+      return null;
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+      return null;
+    }
   }
   
   /**
