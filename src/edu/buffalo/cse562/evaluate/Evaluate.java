@@ -51,7 +51,7 @@ public class Evaluate extends Eval {
    */
   @Override
   public LeafValue eval(Column column) throws SQLException {
-    return row.getValue(lookupTable.get(column.getWholeColumnName()));
+    return row.getValue(lookupTable.get(column.getWholeColumnName().toLowerCase()));
   }
   
   /**
