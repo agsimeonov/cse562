@@ -46,7 +46,6 @@ public class DatabaseManager {
         DatabaseEntry key = new DatabaseEntry(row.getByteValue(primaryIndex));
         DatabaseEntry data = new DatabaseEntry(out.toByteArray());
         database.put(null, key, data);
-        environment.sync();
         out.reset();
       }
     }

@@ -19,7 +19,7 @@ import net.sf.jsqlparser.schema.Table;
 public class Schema implements Serializable {
   private static final long serialVersionUID = -1119625585280544652L;
   private ArrayList<Column> columns;
-  private Integer primaryIndex;
+  private Integer           primaryIndex;
 
   /**
    * Creates the schema for a given table.
