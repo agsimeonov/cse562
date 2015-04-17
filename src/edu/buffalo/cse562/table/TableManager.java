@@ -120,7 +120,7 @@ public final class TableManager {
    * @throws NotDirectoryException when the given path is not a valid directory
    */
   public static void setDbDir(String path) throws IOException, NotDirectoryException {
-    swapDir = path;
+    dbDir = path;
     setDir(path);
   }
   

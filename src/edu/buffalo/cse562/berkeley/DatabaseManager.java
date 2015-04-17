@@ -1,20 +1,22 @@
 package edu.buffalo.cse562.berkeley;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseConfig;
+import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
 
+import edu.buffalo.cse562.iterator.TableIterator;
 import edu.buffalo.cse562.table.DataTable;
+import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.TableManager;
 
 public class DatabaseManager {
@@ -26,31 +28,25 @@ public class DatabaseManager {
 
     for (String name : DATABASES.keySet()) {
       DataTable dataTable = TableManager.getTable(name);
-      dataTable.getDataFile();
-
-      try {
-        BufferedReader reader = new BufferedReader(new FileReader(dataTable.getDataFile()));
-        while (reader.ready()) {
-          String[] data = reader.readLine().split("\\|");
-          for (int i = 0; i < dataTable.getSchema().size(); i++) {
-            switch (dataTable.getTypes().get(i).toLowerCase()) {
-              case "int":
-                break;
-              case "decimal":
-                break;
-              case "date":
-                break;
-              default:
-                // string
-                break;
-            }
-          }
+      TableIterator iterator = new TableIterator(dataTable.getTable(), dataTable.getSchema());
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      DataOutputStream dataOut = new DataOutputStream(out);
+      Database database = DATABASES.get(name);
+      
+      while (iterator.hasNext()) {
+        Row row = iterator.next();
+        
+        try {
+          row.writeOut(dataOut);
+        } catch (IOException e) {
+          e.printStackTrace();
         }
-        reader.close();
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
-      } catch (IOException e) {
-        e.printStackTrace();
+        
+        DatabaseEntry data = new DatabaseEntry(out.toByteArray());
+        // TODO: ACQUIRE AND SET THE KEY!
+        database.put(null, data, data);
+        environment.sync();
+        out.reset();
       }
     }
     
@@ -59,7 +55,6 @@ public class DatabaseManager {
   
   public static void open() {
     if (environment != null) return;
-    
     try {
       EnvironmentConfig environmentConfig = new EnvironmentConfig();
       environmentConfig.setAllowCreate(true);
