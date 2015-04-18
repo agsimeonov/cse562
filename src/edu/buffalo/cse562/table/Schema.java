@@ -77,7 +77,7 @@ public class Schema implements Serializable {
    * 
    * @param primary - the primary key index
    */
-  public void setPrimaryIndex(Index primary) {
+  public void setPrimaryKey(Index primary) {
     this.primary = primary;
   }
 

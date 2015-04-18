@@ -79,7 +79,7 @@ public class DataTable {
     for (Object o : createTable.getIndexes()) {
       Index index = (Index) o;
       if (index.getType().toLowerCase().contains("primary")) {
-        out.setPrimaryIndex(index);
+        out.setPrimaryKey(index);
         break;
       }
     }
