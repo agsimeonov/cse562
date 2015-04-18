@@ -1,15 +1,12 @@
 package edu.buffalo.cse562.table;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 import java.sql.Date;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import net.sf.jsqlparser.expression.DateValue;
@@ -155,44 +152,17 @@ public class Row implements Serializable {
   }
   
   /**
-   * Acquires a value in the form of a byte array.
-   * 
-   * @param index - given index for row value
-   * @return desired row value as byte array, null if the column does not exist or unsuccessful
-   */
-  public byte[] getByteValue(int index) {
-    LeafValue value = this.getValue(index);
-
-    try {
-      if (value == null) {
-        return null;
-      } else if (value instanceof LongValue) {
-        return ByteBuffer.allocate(Long.BYTES).putLong(value.toLong()).array();
-      } else if (value instanceof DoubleValue) {
-        return ByteBuffer.allocate(Double.BYTES).putDouble(value.toDouble()).array();
-      } else if (value instanceof DateValue) {
-        long time = ((DateValue) value).getValue().getTime();
-        return ByteBuffer.allocate(Long.BYTES).putLong(time).array();
-      } else {
-        return value.toString().getBytes("UTF-8");
-      }
-    } catch (InvalidLeaf e) {
-      e.printStackTrace();
-      return null;
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
-      return null;
-    }
-  }
-  
-  /**
    * Used during serialization. Tiny, no reflection overhead, however not very flexible.
    * 
    * @param out - the data output stream used for serialization
+   * @param indexes - only serialize select indexes
    * @throws IOException
    */
-  public void writeOut(DataOutputStream out) throws IOException {
-    for (LeafValue value : values) {
+  public void writeOut(DataOutputStream out, List<Integer> indexes) throws IOException {
+    for (int i = 0; i < values.length; i++) {
+      if (indexes != null && !indexes.contains(i)) continue;
+      LeafValue value = values[i];
+      
       try {
         if (value instanceof DateValue) out.writeLong(((DateValue) value).getValue().getTime());
         else if (value instanceof DoubleValue) out.writeDouble(value.toDouble());
@@ -202,41 +172,6 @@ public class Row implements Serializable {
         e.printStackTrace();
       }
     }
-  }
-  
-  /**
-   * Used during deserialization. Tiny, no reflection overhead, however not very flexible.
-   * 
-   * @param in - the data input stream used for deserialization
-   * @param types - used to determine leaf value types in the output row
-   * @return the next row in the data input stream
-   */
-  public static Row readIn(DataInputStream in, ArrayList<String> types) {
-    Row row = new Row(types.size());
-    
-    for (int index = 0; index < types.size(); index++) {
-      try {
-        switch (types.get(index).toLowerCase()) {
-          case "int":
-            row.setValue(index, new LongValue(in.readLong()));
-            break;
-          case "decimal":
-            row.setValue(index, new DoubleValue(in.readDouble()));
-            break;
-          case "date":
-            Date date = new Date(in.readLong());
-            row.setValue(index, new DateValue("'" + date.toString() + "'"));
-            break;
-          default:
-            row.setValue(index, new StringValue(in.readUTF()));
-            break;
-        }
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
-    
-    return row;
   }
 
   /**

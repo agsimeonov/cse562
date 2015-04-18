@@ -6,9 +6,11 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.create.table.Index;
 
 /**
  * Represents the schema for a table and its rows.
@@ -19,7 +21,7 @@ import net.sf.jsqlparser.schema.Table;
 public class Schema implements Serializable {
   private static final long serialVersionUID = -1119625585280544652L;
   private ArrayList<Column> columns;
-  private Integer           primaryIndex;
+  private Index             primary;
 
   /**
    * Creates the schema for a given table.
@@ -54,21 +56,29 @@ public class Schema implements Serializable {
   }
   
   /**
-   * Acquires the primary key index.
+   * Acquires the primary key indexes in the lookup table.
    * 
-   * @return the primary key index, null if none such
+   * @return the primary key indexes in the lookup table
    */
-  public Integer getPrimaryIndex() {
-    return primaryIndex;
+  public List<Integer> getPrimaryIndexes() {
+    List<Integer> out = new ArrayList<Integer>();
+    HashMap<String, Integer> lookupTable = this.getLookupTable();
+    
+    for (Object o : primary.getColumnsNames()) {
+      String name = (String) o;
+      out.add(lookupTable.get(name.toLowerCase()));
+    }
+    
+    return out;
   }
   
   /**
    * Sets the primary key index.
    * 
-   * @param primaryIndex - the primary key index
+   * @param primary - the primary key index
    */
-  public void setPrimaryIndex(Integer primaryIndex) {
-    this.primaryIndex = primaryIndex;
+  public void setPrimaryIndex(Index primary) {
+    this.primary = primary;
   }
 
   /**

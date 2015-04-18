@@ -10,6 +10,7 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.create.table.Index;
 
 /**
  * Manages the schema, type, and data file relationship for a table.
@@ -66,20 +67,23 @@ public class DataTable {
   public Schema getSchema() {
     ArrayList<Column> columns = new ArrayList<Column>();
     Table tableCopy = new Table(table.getSchemaName(), table.getName());
-    Integer primaryIndex = null;
     tableCopy.setAlias(table.getAlias());
     
     for (Object o : createTable.getColumnDefinitions()) {
       ColumnDefinition columnDefinition = (ColumnDefinition) o;
-      if (columnDefinition.getColumnSpecStrings() != null) {
-        for (Object item : columnDefinition.getColumnSpecStrings())
-          if (((String) item).toLowerCase().equals("primary")) primaryIndex = columns.size();
-      }
       columns.add(new Column(tableCopy, columnDefinition.getColumnName()));
     }
     
     Schema out = new Schema(columns);
-    out.setPrimaryIndex(primaryIndex);
+    
+    for (Object o : createTable.getIndexes()) {
+      Index index = (Index) o;
+      if (index.getType().toLowerCase().contains("primary")) {
+        out.setPrimaryIndex(index);
+        break;
+      }
+    }
+    
     return out;
   }
   

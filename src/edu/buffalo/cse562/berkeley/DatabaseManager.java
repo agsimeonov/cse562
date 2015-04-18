@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,7 +30,7 @@ public class DatabaseManager {
     for (String name : DATABASES.keySet()) {
       DataTable dataTable = TableManager.getTable(name);
       TableIterator iterator = new TableIterator(dataTable.getTable(), dataTable.getSchema());
-      Integer primaryIndex = dataTable.getSchema().getPrimaryIndex();
+      List<Integer> primaryIndexes = dataTable.getSchema().getPrimaryIndexes();
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       DataOutputStream dataOut = new DataOutputStream(out);
       Database database = DATABASES.get(name);
@@ -38,15 +39,16 @@ public class DatabaseManager {
         Row row = iterator.next();
         
         try {
-          row.writeOut(dataOut);
+          row.writeOut(dataOut, null);
+          DatabaseEntry data = new DatabaseEntry(out.toByteArray());
+          out.reset();
+          row.writeOut(dataOut, primaryIndexes);
+          DatabaseEntry key = new DatabaseEntry(out.toByteArray());
+          out.reset();
+          database.put(null, key, data);
         } catch (IOException e) {
           e.printStackTrace();
         }
-        
-        DatabaseEntry key = new DatabaseEntry(row.getByteValue(primaryIndex));
-        DatabaseEntry data = new DatabaseEntry(out.toByteArray());
-        database.put(null, key, data);
-        out.reset();
       }
     }
     
