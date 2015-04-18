@@ -159,18 +159,32 @@ public class Row implements Serializable {
    * @throws IOException
    */
   public void writeOut(DataOutputStream out, List<Integer> indexes) throws IOException {
-    for (int i = 0; i < values.length; i++) {
-      if (indexes != null && !indexes.contains(i)) continue;
-      LeafValue value = values[i];
-      
-      try {
-        if (value instanceof DateValue) out.writeLong(((DateValue) value).getValue().getTime());
-        else if (value instanceof DoubleValue) out.writeDouble(value.toDouble());
-        else if (value instanceof LongValue) out.writeLong(value.toLong());
-        else out.writeUTF(value.toString());
-      } catch (InvalidLeaf e) {
-        e.printStackTrace();
+    if (indexes == null) {
+      for (LeafValue value : values)
+        writeOutHelper(out, value);
+    } else {
+      for (Integer i : indexes) {
+        LeafValue value = values[i];
+        writeOutHelper(out, value);
       }
+    }
+  }
+  
+  /**
+   * Common code for writeOut, does the actual writing out.
+   * 
+   * @param out - stream to write out to
+   * @param value - value to write out
+   * @throws IOException
+   */
+  private void writeOutHelper(DataOutputStream out, LeafValue value) throws IOException {
+    try {
+      if (value instanceof DateValue) out.writeLong(((DateValue) value).getValue().getTime());
+      else if (value instanceof DoubleValue) out.writeDouble(value.toDouble());
+      else if (value instanceof LongValue) out.writeLong(value.toLong());
+      else out.writeUTF(value.toString());
+    } catch (InvalidLeaf e) {
+      e.printStackTrace();
     }
   }
 
