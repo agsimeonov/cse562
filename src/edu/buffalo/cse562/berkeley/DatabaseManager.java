@@ -55,6 +55,10 @@ public class DatabaseManager {
     close();
   }
   
+  public static Database getDatabase(String name) {
+    return DATABASES.get(name.toLowerCase());
+  }
+  
   public static void open() {
     if (environment != null) return;
     try {
