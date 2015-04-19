@@ -1,6 +1,8 @@
 package edu.buffalo.cse562.berkeley.cursor;
 
-import net.sf.jsqlparser.expression.LongValue;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.util.ArrayList;
 
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.Database;
@@ -12,12 +14,14 @@ import edu.buffalo.cse562.iterator.RowIterator;
 import edu.buffalo.cse562.table.Row;
 
 public class TableCursor implements RowIterator {
+  private final ArrayList<String> types;
   private final Database database;
   private Cursor cursor;
   private Row next;
   
-  public TableCursor(Database database) {
+  public TableCursor(Database database, ArrayList<String> types) {
     this.database = database;
+    this.types = types;
   }
 
   @Override
@@ -27,9 +31,9 @@ public class TableCursor implements RowIterator {
     DatabaseEntry key = new DatabaseEntry();
     DatabaseEntry data = new DatabaseEntry();
     if (cursor.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-      // TODO Convert byte array to row
-      next = new Row(2);
-      System.out.println(data);
+      ByteArrayInputStream byteIn = new ByteArrayInputStream(data.getData());
+      DataInputStream dataIn = new DataInputStream(byteIn);
+      next = Row.readIn(dataIn, types);
       return true;
     }
     this.close();

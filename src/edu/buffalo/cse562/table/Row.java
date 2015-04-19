@@ -1,11 +1,13 @@
 package edu.buffalo.cse562.table;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -186,6 +188,41 @@ public class Row implements Serializable {
     } catch (InvalidLeaf e) {
       e.printStackTrace();
     }
+  }
+  
+  /**
+   * Used during deserialization. Tiny, no reflection overhead, however not very flexible.
+   * 
+   * @param in - the data input stream used for deserialization
+   * @param types - used to determine leaf value types in the output row
+   * @return the next row in the data input stream
+   */
+  public static Row readIn(DataInputStream in, ArrayList<String> types) {
+    Row row = new Row(types.size());
+    
+    for (int index = 0; index < types.size(); index++) {
+      try {
+        switch (types.get(index).toLowerCase()) {
+          case "int":
+            row.setValue(index, new LongValue(in.readLong()));
+            break;
+          case "decimal":
+            row.setValue(index, new DoubleValue(in.readDouble()));
+            break;
+          case "date":
+            Date date = new Date(in.readLong());
+            row.setValue(index, new DateValue("'" + date.toString() + "'"));
+            break;
+          default:
+            row.setValue(index, new StringValue(in.readUTF()));
+            break;
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    
+    return row;
   }
 
   /**
