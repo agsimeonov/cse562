@@ -22,6 +22,7 @@ public class TableCursor implements RowIterator {
   public TableCursor(Database database, ArrayList<String> types) {
     this.database = database;
     this.types = types;
+    this.open();
   }
 
   @Override
