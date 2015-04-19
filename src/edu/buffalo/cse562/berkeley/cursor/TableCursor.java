@@ -4,9 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.util.ArrayList;
 
-import com.sleepycat.je.Cursor;
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseEntry;
+import com.sleepycat.je.DiskOrderedCursor;
+import com.sleepycat.je.DiskOrderedCursorConfig;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 
@@ -16,7 +17,7 @@ import edu.buffalo.cse562.table.Row;
 public class TableCursor implements RowIterator {
   private final ArrayList<String> types;
   private final Database database;
-  private Cursor cursor;
+  private DiskOrderedCursor cursor;
   private Row next;
   
   public TableCursor(Database database, ArrayList<String> types) {
@@ -31,7 +32,7 @@ public class TableCursor implements RowIterator {
     if (next != null) return true;
     DatabaseEntry key = new DatabaseEntry();
     DatabaseEntry data = new DatabaseEntry();
-    if (cursor.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+    if (cursor.getNext(key, data, LockMode.READ_UNCOMMITTED) == OperationStatus.SUCCESS) {
       ByteArrayInputStream byteIn = new ByteArrayInputStream(data.getData());
       DataInputStream dataIn = new DataInputStream(byteIn);
       next = Row.readIn(dataIn, types);
@@ -60,6 +61,6 @@ public class TableCursor implements RowIterator {
   @Override
   public void open() {
     if (cursor != null) return;
-    cursor = database.openCursor(null, null);
+    cursor = database.openCursor(DiskOrderedCursorConfig.DEFAULT);
   }
 }
