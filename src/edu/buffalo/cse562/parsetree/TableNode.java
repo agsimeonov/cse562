@@ -1,11 +1,9 @@
 package edu.buffalo.cse562.parsetree;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import net.sf.jsqlparser.schema.Table;
-import edu.buffalo.cse562.berkeley.DatabaseManager;
-import edu.buffalo.cse562.berkeley.cursor.TableCursor;
+import edu.buffalo.cse562.iterator.TableIterator;
 import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.Schema;
@@ -40,11 +38,7 @@ public class TableNode extends ParseTree {
 
   @Override
   public Iterator<Row> iterator() {
-    DatabaseManager.open();
-    DataTable dataTable = TableManager.getTable(table.getWholeTableName().toLowerCase());
-    ArrayList<String> types = dataTable.getTypes();
-    return new TableCursor(DatabaseManager.getDatabase(table.getWholeTableName()), types);
-//    return new TableIterator(table, outSchema);
+    return new TableIterator(table, outSchema);
   }
 
   @Override
