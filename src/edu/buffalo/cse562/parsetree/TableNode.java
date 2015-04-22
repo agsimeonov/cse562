@@ -38,6 +38,7 @@ public class TableNode extends ParseTree {
 
   @Override
   public Iterator<Row> iterator() {
+    
     return new TableIterator(table, outSchema);
   }
 
