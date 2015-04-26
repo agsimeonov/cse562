@@ -13,6 +13,7 @@ import net.sf.jsqlparser.statement.replace.Replace;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
+import edu.buffalo.cse562.berkeley.DatabaseManager;
 import edu.buffalo.cse562.optimizer.Optimizer;
 import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.table.Row;
@@ -29,6 +30,7 @@ public class StatementParser implements StatementVisitor {
   @Override
   public void visit(Select select) {
     if (TableManager.getLoad()) return;
+    if (TableManager.getDbDir() != null) DatabaseManager.open();
     TreeBuilder treeBuilder = new TreeBuilder(select.getSelectBody());
     ColumnSetExtractor extractor = new ColumnSetExtractor();
     select.getSelectBody().accept(extractor);
@@ -44,6 +46,7 @@ public class StatementParser implements StatementVisitor {
     } catch (IOException e) {
       e.printStackTrace();
     }
+    if (TableManager.getDbDir() != null) DatabaseManager.close();
   }
 
   @Override
