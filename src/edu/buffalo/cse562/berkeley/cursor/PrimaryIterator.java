@@ -12,13 +12,13 @@ import com.sleepycat.je.OperationStatus;
 import edu.buffalo.cse562.iterator.RowIterator;
 import edu.buffalo.cse562.table.Row;
 
-public class TableCursor implements RowIterator {
+public class PrimaryIterator implements RowIterator {
   private final ArrayList<String> types;
   private final Database database;
   private DiskOrderedCursor cursor;
   private Row next;
   
-  public TableCursor(Database database, ArrayList<String> types) {
+  public PrimaryIterator(Database database, ArrayList<String> types) {
     this.database = database;
     this.types = types;
     this.open();
