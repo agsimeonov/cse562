@@ -82,7 +82,8 @@ public class DatabaseManager {
           SecondaryConfig secondaryConfig = new SecondaryConfig();
           secondaryConfig.setAllowCreate(true);
           secondaryConfig.setKeyCreator(new KeyCreator(i));
-          secondary.add(environment.openSecondaryDatabase(null, name, primary, secondaryConfig));
+          String secName = name + i.toString();
+          secondary.add(environment.openSecondaryDatabase(null, secName, primary, secondaryConfig));
         }
         
         DbUnit dbUnit = new DbUnit(primary, secondary);
