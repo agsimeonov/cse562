@@ -1,8 +1,14 @@
 package edu.buffalo.cse562.parsetree;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import net.sf.jsqlparser.schema.Table;
+
+import com.sleepycat.je.Database;
+
+import edu.buffalo.cse562.berkeley.DatabaseManager;
+import edu.buffalo.cse562.berkeley.cursor.TableCursor;
 import edu.buffalo.cse562.iterator.TableIterator;
 import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.Row;
@@ -38,7 +44,13 @@ public class TableNode extends ParseTree {
 
   @Override
   public Iterator<Row> iterator() {
-    return new TableIterator(table, outSchema);
+    if (TableManager.getDbDir() != null) {
+      Database database = DatabaseManager.getDatabase(table.getWholeTableName());
+      ArrayList<String> types = TableManager.getTable(table.getWholeTableName()).getTypes();
+      return new TableCursor(database, types);
+    } else {
+      return new TableIterator(table, outSchema);
+    }
   }
 
   @Override
@@ -67,6 +79,6 @@ public class TableNode extends ParseTree {
    * @param schema - the optimal schema
    */
   public void setOptimalSchema(Schema schema) {
-    outSchema = schema;
+    if (TableManager.getDbDir() == null) outSchema = schema;
   }
 }
