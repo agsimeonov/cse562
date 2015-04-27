@@ -3,23 +3,22 @@ package edu.buffalo.cse562.berkeley.cursor;
 import java.util.ArrayList;
 
 import com.sleepycat.je.DatabaseEntry;
-import com.sleepycat.je.DiskOrderedCursor;
-import com.sleepycat.je.DiskOrderedCursorConfig;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
+import com.sleepycat.je.SecondaryCursor;
 import com.sleepycat.je.SecondaryDatabase;
 
 import edu.buffalo.cse562.iterator.RowIterator;
 import edu.buffalo.cse562.table.Row;
 
-public class SecondaryCursor implements RowIterator {
+public class SecondaryIterator implements RowIterator {
   private final SecondaryDatabase secondary;
   private final ArrayList<String> types;
-  private DiskOrderedCursor       cursor;
+  private SecondaryCursor         cursor;
   private DatabaseEntry           key;
   private Row                     next;
 
-  public SecondaryCursor(SecondaryDatabase secondary, ArrayList<String> types) {
+  public SecondaryIterator(SecondaryDatabase secondary, ArrayList<String> types) {
     this.secondary = secondary;
     this.types = types;
   }
@@ -30,7 +29,7 @@ public class SecondaryCursor implements RowIterator {
     if (key == null) return false;
     if (next != null) return true;
     DatabaseEntry data = new DatabaseEntry();
-    if (cursor.getNext(key, data, LockMode.READ_UNCOMMITTED) == OperationStatus.SUCCESS) {
+    if (cursor.getNextDup(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
       next = Row.readIn(data, types);
       return true;
     }
@@ -58,7 +57,7 @@ public class SecondaryCursor implements RowIterator {
   @Override
   public void open() {
     if (cursor != null) return;
-    cursor = secondary.openCursor(DiskOrderedCursorConfig.DEFAULT);
+    cursor = secondary.openCursor(null, null);
   }
   
   public void setKey(DatabaseEntry key) {
