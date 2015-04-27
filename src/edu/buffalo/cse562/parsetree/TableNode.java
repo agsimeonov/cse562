@@ -8,7 +8,7 @@ import net.sf.jsqlparser.schema.Table;
 import com.sleepycat.je.Database;
 
 import edu.buffalo.cse562.berkeley.DatabaseManager;
-import edu.buffalo.cse562.berkeley.cursor.TableCursor;
+import edu.buffalo.cse562.berkeley.cursor.PrimaryIterator;
 import edu.buffalo.cse562.iterator.TableIterator;
 import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.Row;
@@ -47,7 +47,7 @@ public class TableNode extends ParseTree {
     if (TableManager.getDbDir() != null) {
       Database database = DatabaseManager.getDatabase(table.getWholeTableName());
       ArrayList<String> types = TableManager.getTable(table.getWholeTableName()).getTypes();
-      return new TableCursor(database, types);
+      return new PrimaryIterator(database, types);
     } else {
       return new TableIterator(table, outSchema);
     }
