@@ -67,7 +67,6 @@ public class DatabaseManager {
     try {
       EnvironmentConfig environmentConfig = new EnvironmentConfig();
       environmentConfig.setAllowCreate(true);
-      environmentConfig.setLocking(false);
       environment = new Environment(new File(TableManager.getDbDir()), environmentConfig);
       
       for (String name : TableManager.getAllTableNames()) {
