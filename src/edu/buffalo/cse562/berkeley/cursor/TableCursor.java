@@ -1,7 +1,5 @@
 package edu.buffalo.cse562.berkeley.cursor;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.util.ArrayList;
 
 import com.sleepycat.je.Database;
@@ -33,9 +31,7 @@ public class TableCursor implements RowIterator {
     DatabaseEntry key = new DatabaseEntry();
     DatabaseEntry data = new DatabaseEntry();
     if (cursor.getNext(key, data, LockMode.READ_UNCOMMITTED) == OperationStatus.SUCCESS) {
-      ByteArrayInputStream byteIn = new ByteArrayInputStream(data.getData());
-      DataInputStream dataIn = new DataInputStream(byteIn);
-      next = Row.readIn(dataIn, types);
+      next = Row.readIn(data, types);
       return true;
     }
     this.close();

@@ -1,18 +1,27 @@
 package edu.buffalo.cse562.berkeley;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
+
+import net.sf.jsqlparser.expression.LeafValue;
 
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.SecondaryDatabase;
 import com.sleepycat.je.SecondaryKeyCreator;
 
+import edu.buffalo.cse562.table.Row;
+
 public class KeyCreator implements SecondaryKeyCreator {
-  
-  private int columnIndex; 
-  public KeyCreator(int columnIndex) {
-    this.columnIndex = columnIndex; 
+  private final ArrayList<String> types;
+  private final int               index;
+  ByteArrayOutputStream           byteOut = new ByteArrayOutputStream();
+  DataOutputStream                dataOut = new DataOutputStream(byteOut);
+
+  public KeyCreator(ArrayList<String> types, int index) {
+    this.types = types;
+    this.index = index;
   }
 
   @Override
@@ -20,28 +29,16 @@ public class KeyCreator implements SecondaryKeyCreator {
                                     DatabaseEntry key,
                                     DatabaseEntry data,
                                     DatabaseEntry result) {
-    
-
-    Byte keyByte = key.getData()[7];
-    Byte dataByte = data.getData()[15];
-
-    ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-    DataOutputStream dataOut = new DataOutputStream(byteOut);
+    Row row = Row.readIn(data, types);
+    LeafValue value = row.getValue(index);
     try {
-      dataOut.write(keyByte);
-      dataOut.write(dataByte);
+      Row.writeOutHelper(dataOut, value);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
+      return false;
     }
-    
-        
-    System.out.print("Data: ");
-    System.out.println(Arrays.toString(data.getData()));
     result.setData(byteOut.toByteArray());
-    System.out.print("result: ");
-    System.out.println(Arrays.toString(result.getData()));
+    byteOut.reset();
     return true;
   }
-
 }

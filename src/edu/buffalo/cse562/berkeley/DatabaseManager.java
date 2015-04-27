@@ -81,7 +81,8 @@ public class DatabaseManager {
         for (Integer i : secondaryIndexes) {
           SecondaryConfig secondaryConfig = new SecondaryConfig();
           secondaryConfig.setAllowCreate(true);
-          secondaryConfig.setKeyCreator(new KeyCreator(i));
+          secondaryConfig.setSortedDuplicates(true);
+          secondaryConfig.setKeyCreator(new KeyCreator(dataTable.getTypes(), i));
           String secName = name + i.toString();
           secondary.add(environment.openSecondaryDatabase(null, secName, primary, secondaryConfig));
         }

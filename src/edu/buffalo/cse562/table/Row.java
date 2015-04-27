@@ -1,5 +1,6 @@
 package edu.buffalo.cse562.table;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -17,6 +18,8 @@ import net.sf.jsqlparser.expression.LeafValue;
 import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.StringValue;
+
+import com.sleepycat.je.DatabaseEntry;
 
 /**
  * Represents a row tuple of LeafValue data elements.
@@ -179,7 +182,7 @@ public class Row implements Serializable {
    * @param value - value to write out
    * @throws IOException
    */
-  private void writeOutHelper(DataOutputStream out, LeafValue value) throws IOException {
+  public static void writeOutHelper(DataOutputStream out, LeafValue value) throws IOException {
     try {
       if (value instanceof DateValue) out.writeLong(((DateValue) value).getValue().getTime());
       else if (value instanceof DoubleValue) out.writeDouble(value.toDouble());
@@ -223,6 +226,19 @@ public class Row implements Serializable {
     }
     
     return row;
+  }
+  
+  /**
+   * Converts a DatabaseEntry row into a Row.
+   * 
+   * @param row - DatabaseEntry row
+   * @param types - used to determine leaf value types in the output row
+   * @return a Row representation of the DatabaseEntry
+   */
+  public static Row readIn(DatabaseEntry row, ArrayList<String> types) {
+    ByteArrayInputStream byteIn = new ByteArrayInputStream(row.getData());
+    DataInputStream dataIn = new DataInputStream(byteIn);
+    return readIn(dataIn, types);
   }
 
   /**
