@@ -66,12 +66,23 @@ public class DataTable {
    */
   public Schema getSchema() {
     ArrayList<Column> columns = new ArrayList<Column>();
+    ArrayList<Column> secondary = new ArrayList<Column>();
     Table tableCopy = new Table(table.getSchemaName(), table.getName());
     tableCopy.setAlias(table.getAlias());
     
     for (Object o : createTable.getColumnDefinitions()) {
       ColumnDefinition columnDefinition = (ColumnDefinition) o;
-      columns.add(new Column(tableCopy, columnDefinition.getColumnName()));
+      Column column = new Column(tableCopy, columnDefinition.getColumnName());
+      columns.add(column);
+      
+      if (columnDefinition.getColumnSpecStrings() == null) continue;
+      
+      for (Object specString : columnDefinition.getColumnSpecStrings()) {
+        if (((String) specString).toLowerCase().contains("reference")) {
+          secondary.add(column);
+          break;
+        }
+      }
     }
     
     Schema out = new Schema(columns);
@@ -83,6 +94,8 @@ public class DataTable {
         break;
       }
     }
+    
+    out.setSecondaryKeys(secondary);
     
     return out;
   }

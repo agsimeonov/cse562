@@ -22,6 +22,7 @@ public class Schema implements Serializable {
   private static final long serialVersionUID = -1119625585280544652L;
   private ArrayList<Column> columns;
   private Index             primary;
+  private ArrayList<Column> secondary;
 
   /**
    * Creates the schema for a given table.
@@ -79,6 +80,30 @@ public class Schema implements Serializable {
    */
   public void setPrimaryKey(Index primary) {
     this.primary = primary;
+  }
+  
+  /**
+   * Sets the columns that act as secondary keys.
+   * 
+   * @param secondary - list of columns that act a secondary keys
+   */
+  public void setSecondaryKeys(ArrayList<Column> secondary) {
+    this.secondary = secondary;
+  }
+  
+  /**
+   * Acquires the secondary key indexes in the lookup table.
+   * 
+   * @return the secondary key indexes in the lookup table
+   */
+  public List<Integer> getSecondaryIndexes() {
+    List<Integer> out = new ArrayList<Integer>();
+    HashMap<String, Integer> lookupTable = this.getLookupTable();
+    
+    for (Column column : secondary)
+      out.add(lookupTable.get(column.getWholeColumnName().toLowerCase()));
+    
+    return out;
   }
 
   /**
