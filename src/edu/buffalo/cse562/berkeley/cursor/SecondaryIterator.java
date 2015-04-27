@@ -29,7 +29,7 @@ public class SecondaryIterator implements RowIterator {
     if (key == null) return false;
     if (next != null) return true;
     DatabaseEntry data = new DatabaseEntry();
-    if (cursor.getNextDup(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+    if (cursor.getNextDup(key, data, LockMode.READ_UNCOMMITTED) == OperationStatus.SUCCESS) {
       next = Row.readIn(data, types);
       return true;
     }
