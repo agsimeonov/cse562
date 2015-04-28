@@ -46,6 +46,16 @@ public class Schema implements Serializable {
   }
   
   /**
+   * Acquires a column at a specific index.
+   * 
+   * @param index - index for the column
+   * @return column at specified index
+   */
+  public Column getColumn(int index) {
+    return columns.get(index);
+  }
+  
+  /**
    * Acquires the index of a given column.
    * 
    * @param column - the given column
