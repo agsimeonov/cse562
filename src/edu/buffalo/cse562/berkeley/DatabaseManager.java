@@ -70,12 +70,17 @@ public class DatabaseManager {
     try {
       EnvironmentConfig environmentConfig = new EnvironmentConfig();
       environmentConfig.setAllowCreate(true);
+      environmentConfig.setLocking(false);
+      environmentConfig.setConfigParam(EnvironmentConfig.ENV_RUN_CLEANER, "false");
+      environmentConfig.setConfigParam(EnvironmentConfig.ENV_RUN_CHECKPOINTER, "false");
+      
       environment = new Environment(new File(TableManager.getDbDir()), environmentConfig);
       
       for (String name : TableManager.getAllTableNames()) {
         if (DATABASES.containsKey(name)) continue;
         DatabaseConfig databaseConfig = new DatabaseConfig();
         databaseConfig.setAllowCreate(true);
+        if (!TableManager.getLoad()) databaseConfig.setReadOnly(true);
         Database primary = environment.openDatabase(null, name, databaseConfig);
         
         DataTable dataTable = TableManager.getTable(name);
@@ -87,6 +92,7 @@ public class DatabaseManager {
           SecondaryConfig secondaryConfig = new SecondaryConfig();
           secondaryConfig.setAllowCreate(true);
           secondaryConfig.setSortedDuplicates(true);
+          if (!TableManager.getLoad()) secondaryConfig.setReadOnly(true);
           secondaryConfig.setKeyCreator(new KeyCreator(dataTable.getTypes(), i));
           String secName = name + i.toString();
           secondary.add(environment.openSecondaryDatabase(null, secName, primary, secondaryConfig));
