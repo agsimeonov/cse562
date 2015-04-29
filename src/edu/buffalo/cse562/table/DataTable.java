@@ -70,28 +70,47 @@ public class DataTable {
     Table tableCopy = new Table(table.getSchemaName(), table.getName());
     tableCopy.setAlias(table.getAlias());
     
-    for (Object o : createTable.getColumnDefinitions()) {
-      ColumnDefinition columnDefinition = (ColumnDefinition) o;
-      Column column = new Column(tableCopy, columnDefinition.getColumnName());
-      columns.add(column);
-      
-      if (columnDefinition.getColumnSpecStrings() == null) continue;
-      
-      for (Object specString : columnDefinition.getColumnSpecStrings()) {
-        if (((String) specString).toLowerCase().contains("reference")) {
-          secondary.add(column);
+    Schema out = new Schema(columns);
+    Index primaryIndex = null;
+    
+    if (createTable.getIndexes() != null) {
+      for (Object o : createTable.getIndexes()) {
+        Index index = (Index) o;
+        if (index.getType().toLowerCase().contains("primary")) {
+          primaryIndex = index;
+          out.setPrimaryKey(index);
           break;
         }
       }
     }
     
-    Schema out = new Schema(columns);
-    
-    for (Object o : createTable.getIndexes()) {
-      Index index = (Index) o;
-      if (index.getType().toLowerCase().contains("primary")) {
-        out.setPrimaryKey(index);
-        break;
+    for (Object o : createTable.getColumnDefinitions()) {
+      ColumnDefinition columnDefinition = (ColumnDefinition) o;
+      Column column = new Column(tableCopy, columnDefinition.getColumnName());
+      columns.add(column);
+      
+      if (primaryIndex != null) {
+        boolean found = false;
+        for (Object name : primaryIndex.getColumnsNames()) {
+          String columnName = (String) name;
+          if (columnName.toLowerCase().equals(column.getWholeColumnName().toLowerCase()) ||
+              columnName.toLowerCase().equals(column.getColumnName().toLowerCase())) {
+            secondary.add(column);
+            found = true;
+            break;
+          }
+        }
+        if (found) continue;
+      }
+      
+      if (columnDefinition.getColumnSpecStrings() == null) continue;
+      
+      for (Object specString : columnDefinition.getColumnSpecStrings()) {
+        
+        if (((String) specString).toLowerCase().contains("reference")) {
+          secondary.add(column);
+          break;
+        }
       }
     }
     
