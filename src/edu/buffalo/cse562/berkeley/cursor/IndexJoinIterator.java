@@ -13,14 +13,14 @@ import edu.buffalo.cse562.table.Row;
 
 public class IndexJoinIterator implements RowIterator {
   private final RowIterator       left;
-  private final SecondaryIterator right;
+  private final RowIterator       right;
   private final int               leftIndex;
   private boolean                 isOpen = false;
   private Row                     leftRow;
   private DatabaseEntry           key;
   private Row                     next;
 
-  public IndexJoinIterator(RowIterator left, SecondaryIterator right, int leftIndex) {
+  public IndexJoinIterator(RowIterator left, RowIterator right, int leftIndex) {
     this.left = left;
     this.right = right;
     this.leftIndex = leftIndex;
@@ -66,6 +66,7 @@ public class IndexJoinIterator implements RowIterator {
   @Override
   public void close() {
     if (!isOpen) return;
+    isOpen = false;
     left.close();
     right.close();
     leftRow = null;
@@ -76,7 +77,13 @@ public class IndexJoinIterator implements RowIterator {
   @Override
   public void open() {
     if (isOpen) return;
+    isOpen = true;
     left.open();
+  }
+  
+  @Override
+  public void setKey(DatabaseEntry key) {
+    right.setKey(key);
   }
   
   private DatabaseEntry getKey(Row row) {

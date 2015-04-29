@@ -17,6 +17,7 @@ public class SecondaryIterator implements RowIterator {
   private SecondaryCursor         cursor;
   private DatabaseEntry           key;
   private Row                     next;
+  private OperationStatus         status;
 
   public SecondaryIterator(SecondaryDatabase secondary, ArrayList<String> types) {
     this.secondary = secondary;
@@ -29,10 +30,18 @@ public class SecondaryIterator implements RowIterator {
     if (key == null) return false;
     if (next != null) return true;
     DatabaseEntry data = new DatabaseEntry();
-    if (cursor.getNextDup(key, data, LockMode.READ_UNCOMMITTED) == OperationStatus.SUCCESS) {
+    
+    if (status == null) {
+      status = cursor.getSearchKey(key, data, LockMode.READ_UNCOMMITTED);
+      if (status == OperationStatus.SUCCESS) {
+        next = Row.readIn(data, types);
+        return true;
+      }
+    } else if (cursor.getNextDup(key, data, LockMode.READ_UNCOMMITTED) == OperationStatus.SUCCESS) {
       next = Row.readIn(data, types);
       return true;
     }
+    
     this.close();
     return false;
   }
@@ -52,16 +61,20 @@ public class SecondaryIterator implements RowIterator {
     cursor = null;
     key = null;
     next = null;
+    status = null;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public void open() {
+    if (key == null) return;
     if (cursor != null) return;
-    cursor = secondary.openCursor(null, null);
+    cursor = secondary.openSecondaryCursor(null, null);
   }
   
+  @Override
   public void setKey(DatabaseEntry key) {
-    this.open();
     this.key = key;
+    this.open();
   }
 }

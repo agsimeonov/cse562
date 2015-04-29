@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.sf.jsqlparser.schema.Column;
+
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseConfig;
 import com.sleepycat.je.DatabaseEntry;
@@ -21,6 +23,7 @@ import com.sleepycat.je.SecondaryDatabase;
 import edu.buffalo.cse562.iterator.TableIterator;
 import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.Row;
+import edu.buffalo.cse562.table.Schema;
 import edu.buffalo.cse562.table.TableManager;
 
 public class DatabaseManager {
@@ -76,8 +79,10 @@ public class DatabaseManager {
         Database primary = environment.openDatabase(null, name, databaseConfig);
         
         DataTable dataTable = TableManager.getTable(name);
-        List<Integer> secondaryIndexes = dataTable.getSchema().getSecondaryIndexes();
+        Schema schema = dataTable.getSchema();
+        List<Integer> secondaryIndexes = schema.getSecondaryIndexes();
         List<SecondaryDatabase> secondary = new ArrayList<SecondaryDatabase>();
+        List<Column> columns = new ArrayList<Column>();
         for (Integer i : secondaryIndexes) {
           SecondaryConfig secondaryConfig = new SecondaryConfig();
           secondaryConfig.setAllowCreate(true);
@@ -85,9 +90,10 @@ public class DatabaseManager {
           secondaryConfig.setKeyCreator(new KeyCreator(dataTable.getTypes(), i));
           String secName = name + i.toString();
           secondary.add(environment.openSecondaryDatabase(null, secName, primary, secondaryConfig));
+          columns.add(schema.getColumn(i));
         }
         
-        DbUnit dbUnit = new DbUnit(primary, secondary);
+        DbUnit dbUnit = new DbUnit(primary, secondary, columns);
         DATABASES.put(name, dbUnit);
       }
     } catch (DatabaseException e) {
@@ -117,10 +123,25 @@ public class DatabaseManager {
   private static class DbUnit {
     private Database primary;
     private List<SecondaryDatabase> secondary;
+    private List<Column> columns;
     
-    private DbUnit(Database primary, List<SecondaryDatabase> secondary) {
+    private DbUnit(Database primary, List<SecondaryDatabase> secondary, List<Column> columns) {
       this.primary = primary;
       this.secondary = secondary;
+      this.columns = columns;
     }
+  }
+  
+  public static SecondaryDatabase getSecondary(String name, Column column) {
+    DbUnit unit = DATABASES.get(name);
+    String columnName = column.getWholeColumnName().toLowerCase();
+    
+    for (int i = 0; i < unit.secondary.size(); i++) {
+      if (columnName.equals(unit.columns.get(i).getWholeColumnName().toLowerCase())) {
+        return unit.secondary.get(i);
+      }
+    }
+    
+    return null;
   }
 }

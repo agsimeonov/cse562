@@ -2,6 +2,8 @@ package edu.buffalo.cse562.iterator;
 
 import java.util.Iterator;
 
+import com.sleepycat.je.DatabaseEntry;
+
 import edu.buffalo.cse562.table.Row;
 
 /**
@@ -24,4 +26,11 @@ public interface RowIterator extends Iterator<Row> {
    * you must call {@link #close()} first to restart the iterator.
    */
   public void open();
+  
+  /**
+   * Used to set the key for a secondary iterator.
+   * 
+   * @param key - key for a secondary iterator
+   */
+  public default void setKey(DatabaseEntry key) {}
 }

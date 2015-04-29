@@ -4,6 +4,9 @@ import java.sql.SQLException;
 
 import net.sf.jsqlparser.expression.BooleanValue;
 import net.sf.jsqlparser.expression.Expression;
+
+import com.sleepycat.je.DatabaseEntry;
+
 import edu.buffalo.cse562.evaluate.Evaluate;
 import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.Schema;
@@ -17,9 +20,9 @@ import edu.buffalo.cse562.table.Schema;
 public class SelectIterator implements RowIterator {
   private final RowIterator iterator;
   private final Expression  expression;
-  private final Schema      inSchema;
-  private Evaluate          evaluate;
+  private final Evaluate    evaluate;
   private Row               row;
+  private boolean           isOpen = false;
 
   /**
    * Initializes the iterator.
@@ -31,7 +34,7 @@ public class SelectIterator implements RowIterator {
   public SelectIterator(RowIterator iterator, Expression expressions, Schema inSchema) {
     this.iterator = iterator;
     this.expression = expressions;
-    this.inSchema = inSchema;
+    evaluate = new Evaluate(inSchema);
     open();
   }
 
@@ -67,15 +70,20 @@ public class SelectIterator implements RowIterator {
 
   @Override
   public void close() {
-    if (evaluate == null) return;
+    if (!isOpen) return;
     iterator.close();
-    evaluate = null;
+    isOpen = false;
   }
 
   @Override
   public void open() {
-    if (evaluate != null) return;
+    if (isOpen) return;
     iterator.open();
-    evaluate = new Evaluate(inSchema);
+    isOpen = true;
+  }
+  
+  @Override
+  public void setKey(DatabaseEntry key) {
+    iterator.setKey(key);
   }
 }
