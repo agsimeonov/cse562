@@ -48,20 +48,20 @@ public class TableNode extends ParseTree {
 
   @Override
   public Iterator<Row> iterator() {
-    if (TableManager.getDbDir() != null) {
-      ArrayList<String> types = TableManager.getTable(table.getWholeTableName()).getTypes();
-      String name = table.getWholeTableName();
-      
-      if (secondaryColumn != null) {
-        SecondaryDatabase secondary = DatabaseManager.getSecondary(name, secondaryColumn);
-        return new SecondaryIterator(secondary, types);
-      }
-      
-      Database database = DatabaseManager.getDatabase(name);
-      return new PrimaryIterator(database, types);
-    } else {
+//    if (TableManager.getDbDir() != null) {
+//      ArrayList<String> types = TableManager.getTable(table.getWholeTableName()).getTypes();
+//      String name = table.getWholeTableName();
+//      
+//      if (secondaryColumn != null) {
+//        SecondaryDatabase secondary = DatabaseManager.getSecondary(name, secondaryColumn);
+//        return new SecondaryIterator(secondary, types);
+//      }
+//      
+//      Database database = DatabaseManager.getDatabase(name);
+//      return new PrimaryIterator(database, types);
+//    } else {
       return new TableIterator(table, outSchema);
-    }
+//    }
   }
 
   @Override
@@ -90,7 +90,9 @@ public class TableNode extends ParseTree {
    * @param schema - the optimal schema
    */
   public void setOptimalSchema(Schema schema) {
-    if (TableManager.getDbDir() == null) outSchema = schema;
+//    if (TableManager.getDbDir() == null) {
+      outSchema = schema;
+//    }
   }
   
   /**
