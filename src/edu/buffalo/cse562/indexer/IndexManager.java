@@ -1,8 +1,11 @@
 package edu.buffalo.cse562.indexer;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,8 +21,6 @@ import edu.buffalo.cse562.table.TableManager;
 public class IndexManager {
   public static void preprocess() {
     for (String name : TableManager.getAllTableNames()) {
-      System.out.println(name);
-      System.gc();
       DataTable dataTable = TableManager.getTable(name);
       TableIterator iterator = new TableIterator(dataTable.getTable(), dataTable.getSchema());
       ArrayList<Column> columns = dataTable.getSchema().getColumns();
@@ -77,7 +78,28 @@ public class IndexManager {
       }
     }
   }
-  
+
+  @SuppressWarnings("unchecked")
+  public static HashMap<Long, List<Row>> getDatabase(String name) {
+    HashMap<Long, List<Row>> database = null;
+    
+    try {
+      File databaseFile = new File(TableManager.getDbDir(), name.toLowerCase());
+      FileInputStream fin = new FileInputStream(databaseFile);
+      ObjectInputStream in = new ObjectInputStream(fin);
+      database = (HashMap<Long, List<Row>>) in.readObject();
+      in.close();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    }
+    
+    return database;
+  }
+
   /** This class may never be instantiated. */
   private IndexManager() {}
 }
