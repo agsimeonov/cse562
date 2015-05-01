@@ -19,35 +19,68 @@ import edu.buffalo.cse562.table.TableManager;
 public class IndexManager {
   public static void preprocess() { 
     // customer
-    Map<Long, List<Row>> customer = getDatabase("customer");
+    Map<Long, List<Row>> customer = getDatabase("customer", "customer.custkey");
     writeOut(customer, "customer");
     
     // orders
-    Map<Long, List<Row>> orders = process(customer, "orders");
-    customer = null;
-    System.gc();
+    Map<Long, List<Row>> orders = process(customer, "orders", "orders.custkey");
     
     // lineitem
-    Map<Long, List<Row>> lineitem = process(orders, "lineitem");
+    orders = rekey(orders, "orders", "orders.orderkey");
+    System.gc();
+    process(orders, "lineitem", "lineitem.orderkey");
     orders = null;
     System.gc();
     
     // supplier
-    process(lineitem, "supplier");
+    customer = rekey(customer, "customer", "customer.nationkey");
+    System.gc();
+    process(customer, "supplier", "supplier.suppkey");
+    customer = null;
+    System.gc();
     
     // nation
-    Map<Long, List<Row>> nation = process(lineitem, "nation");
-    lineitem = null;
+    writeOut(getDatabase("nation", "nation.nationkey"), "nation");
     System.gc();
     
     // region
-    process(nation, "region");
-    nation = null;
+    writeOut(getDatabase("region", "region.regionkey"), "region");
     System.gc();
   }
   
-  private static Map<Long, List<Row>> process(Map<Long, List<Row>> left, String name) {
-    Map<Long, List<Row>> full = getDatabase(name);
+  private static Map<Long, List<Row>> rekey(Map<Long, List<Row>> db, String name, String colName) {
+    Map<Long, List<Row>> database = new HashMap<Long, List<Row>>();
+    DataTable dataTable = TableManager.getTable(name);
+    ArrayList<Column> columns = dataTable.getSchema().getColumns();
+    int index;
+    for (index = 0; index < columns.size(); index++) {
+      String columnName = columns.get(index).getWholeColumnName().toLowerCase();
+      if (columnName.equals(colName)) break;
+    }
+    
+    for (List<Row> list : db.values()) {
+      for (Row value : list) {
+        Long key = null;
+        
+        try {
+          key = value.getValue(index).toLong();
+        } catch (InvalidLeaf e) {
+          e.printStackTrace();
+        }
+        
+        List<Row> values = database.containsKey(key) ? database.get(key) : new ArrayList<Row>();
+        values.add(value);
+        database.put(key, values);
+      }
+    }
+    
+    return database;
+  }
+  
+  private static Map<Long, List<Row>> process(Map<Long, List<Row>> left, 
+                                              String name, 
+                                              String colName) {
+    Map<Long, List<Row>> full = getDatabase(name, colName);
     Map<Long, List<Row>> optimal = getOptimal(left, full);
     full = null;
     System.gc();
@@ -82,7 +115,7 @@ public class IndexManager {
     return optimal;
   }
   
-  private static Map<Long, List<Row>> getDatabase(String name) {
+  private static Map<Long, List<Row>> getDatabase(String name, String colName) {
     DataTable dataTable = TableManager.getTable(name);
     TableIterator iterator = new TableIterator(dataTable.getTable(), dataTable.getSchema());
     ArrayList<Column> columns = dataTable.getSchema().getColumns();
@@ -91,27 +124,7 @@ public class IndexManager {
     
     for (index = 0; index < columns.size(); index++) {
       String columnName = columns.get(index).getWholeColumnName().toLowerCase();
-      boolean found = false;
-      switch (name.toLowerCase()) {
-        case "lineitem":
-          if (columnName.equals("lineitem.orderkey")) found = true;
-          break;
-        case "orders":
-          if (columnName.equals("orders.custkey")) found = true;
-          break;
-        case "supplier":
-          if (columnName.equals("supplier.nationkey")) found = true;
-          break;
-        case "nation":
-          if (columnName.equals("nation.nationkey")) found = true;
-          break;
-        case "region":
-          if (columnName.equals("region.regionkey")) found = true;
-          break;
-        case "customer":
-          if (columnName.equals("customer.custkey")) found = true;
-      }
-      if (found) break;
+      if (columnName.equals(colName)) break;
     }
     
     while (iterator.hasNext()) {
