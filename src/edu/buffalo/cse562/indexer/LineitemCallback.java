@@ -36,7 +36,7 @@ public class LineitemCallback implements Callback {
       }
       if (mode == 10) {
         String flag = row.getValue(lineitem_returnflag).toString();
-        if (flag.equals("'R'")) return true;
+        if (!flag.equals("'R'")) return true;
       }
       return !keySet.contains(row.getValue(lineitem_orderkey).toLong());
     } catch (InvalidLeaf e) {
