@@ -14,6 +14,7 @@ import net.sf.jsqlparser.statement.replace.Replace;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
+import edu.buffalo.cse562.indexer.IndexManager;
 import edu.buffalo.cse562.optimizer.Optimizer;
 import edu.buffalo.cse562.parsetree.ParseTree;
 import edu.buffalo.cse562.parsetree.TableNode;
@@ -38,13 +39,26 @@ public class StatementParser implements StatementVisitor {
     ParseTree root = treeBuilder.getRoot();
     Optimizer.optimize(root, extractor.getColumns());
     int i = Optimizer.getAllTypeNodes(root, TableNode.class).size();
-    if (TableManager.getDbDir() != null && (i == 3 || i == 6 || i == 4)) {
-      try {
-        TableManager.setDataDir(TableManager.getDbDir());
-      } catch (NotDirectoryException e) {
-        e.printStackTrace();
-      } catch (IOException e) {
-        e.printStackTrace();
+    if (TableManager.getDbDir() != null) {
+      String dbDir = TableManager.getDbDir();
+      if (i == 3) {
+        // 3
+        IndexManager.setDbDir(dbDir, "3");
+      } else if (i == 6) {
+        // 5
+        IndexManager.setDbDir(dbDir, "5");
+      } else if (i == 4) {
+        // 10
+        IndexManager.setDbDir(dbDir, "10");
+      }
+      if (i == 3 || i == 6 || i == 4) {
+        try {
+          TableManager.setDataDir(TableManager.getDbDir());
+        } catch (NotDirectoryException e) {
+          e.printStackTrace();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
       }
     }
     BufferedWriter print = new BufferedWriter(new OutputStreamWriter(System.out));

@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NotDirectoryException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,18 +28,86 @@ public class IndexManager {
   private static final String NATION   = "nation";
   private static final String REGION   = "region";
 
-  public static void preprocess() { 
+  public static void preprocess() {
+    String dbDir = TableManager.getDbDir();
+    setDbDir(dbDir, "3");
+    three();
+    setDbDir(dbDir, "5");
+    five();
+    setDbDir(dbDir, "10");
+    ten();
+  }
+  
+  public static void setDbDir(String dbDir, String name) {
+    try {
+      TableManager.setDbDir(new File(dbDir, name).getAbsolutePath());
+    } catch (NotDirectoryException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+  
+  private static void three() {
     // customer
     copyPaste(CUSTOMER);
     
     // orders
     DataTable dataTable = TableManager.getTable(ORDERS);
-    Callback callback = new OrdersCallback(dataTable);
+    Callback callback = new OrdersCallback(dataTable, 3);
     filter(ORDERS, callback);
     
     // lineitem
     dataTable = TableManager.getTable(LINEITEM);
-    callback = new LineitemCallback(dataTable);
+    callback = new LineitemCallback(dataTable, 3);
+    filter(LINEITEM, callback);
+    
+    // supplier
+    copyPaste(SUPPLIER);
+    
+    // nation
+    copyPaste(NATION);
+    
+    // region
+    copyPaste(REGION);
+  }
+  
+  private static void five() {
+    // customer
+    copyPaste(CUSTOMER);
+    
+    // orders
+    DataTable dataTable = TableManager.getTable(ORDERS);
+    Callback callback = new OrdersCallback(dataTable, 5);
+    filter(ORDERS, callback);
+    
+    // lineitem
+    dataTable = TableManager.getTable(LINEITEM);
+    callback = new LineitemCallback(dataTable, 5);
+    filter(LINEITEM, callback);
+    
+    // supplier
+    copyPaste(SUPPLIER);
+    
+    // nation
+    copyPaste(NATION);
+    
+    // region
+    copyPaste(REGION);
+  }
+  
+  private static void ten() {
+ // customer
+    copyPaste(CUSTOMER);
+    
+    // orders
+    DataTable dataTable = TableManager.getTable(ORDERS);
+    Callback callback = new OrdersCallback(dataTable, 10);
+    filter(ORDERS, callback);
+    
+    // lineitem
+    dataTable = TableManager.getTable(LINEITEM);
+    callback = new LineitemCallback(dataTable, 10);
     filter(LINEITEM, callback);
     
     // supplier
