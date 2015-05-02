@@ -15,8 +15,8 @@ public class OrdersCallback implements Callback {
     index = dataTable.getSchema().getLookupTable().get("orders.orderdate");
     threshold = new DateValue("'1996-03-15'").getValue().getTime();
     if (mode == 3) threshold = new DateValue("'1995-04-15'").getValue().getTime();
-    threshold_five = new DateValue("'1997-02-01'").getValue().getTime();
-    threshold_five_lower = new DateValue("'1995-12-01'").getValue().getTime();
+    threshold_five = new DateValue("'1997-01-02'").getValue().getTime();
+    threshold_five_lower = new DateValue("'1995-12-31'").getValue().getTime();
     this.mode = mode;
   }
 
