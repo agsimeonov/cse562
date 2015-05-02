@@ -45,7 +45,6 @@ public class StatementParser implements StatementVisitor {
         // 3
         IndexManager.setDbDir(dbDir, "3");
       } else if (i == 6) {
-        System.err.println(select);
         // 5
         IndexManager.setDbDir(dbDir, "5");
       } else if (i == 4) {
