@@ -10,7 +10,7 @@ import java.util.LinkedHashSet;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.statement.Statement;
-import edu.buffalo.cse562.berkeley.DatabaseManager;
+import edu.buffalo.cse562.indexer.IndexManager;
 import edu.buffalo.cse562.parser.StatementParser;
 import edu.buffalo.cse562.table.TableManager;
 
@@ -72,7 +72,7 @@ public class Main {
           stmt.accept(new StatementParser());
         }
       }
-      if (TableManager.getLoad()) DatabaseManager.preprocess();
+      if (TableManager.getLoad()) IndexManager.preprocess();
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     } catch (NotDirectoryException e) {
