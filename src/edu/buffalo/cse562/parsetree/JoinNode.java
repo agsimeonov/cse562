@@ -97,13 +97,13 @@ public class JoinNode extends ParseTree {
     ParseTree root = this;
     while (root.base != null) root = root.base;
     int i = Optimizer.getAllTypeNodes(root, TableNode.class).size();
-//    if (i == 3 || i == 6) {
+    if (i == 3 || i == 6) {
       return new HashJoinIterator(leftIterator, rightIterator, leftIndex, rightIndex);
-//    }
-//    
-//    leftIterator = new MergeSortIterator(leftIterator, leftOrders, left.getSchema());
-//    rightIterator = new MergeSortIterator(rightIterator, rightOrders, right.getSchema());
-//    return new SortJoinIterator(leftIterator, rightIterator, leftIndex, rightIndex);
+    }
+    
+    leftIterator = new MergeSortIterator(leftIterator, leftOrders, left.getSchema());
+    rightIterator = new MergeSortIterator(rightIterator, rightOrders, right.getSchema());
+    return new SortJoinIterator(leftIterator, rightIterator, leftIndex, rightIndex);
   }
 
   @Override
