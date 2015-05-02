@@ -45,9 +45,20 @@ public class StatementParser implements StatementVisitor {
         // 3
         IndexManager.setDbDir(dbDir, "3");
       } else if (i == 6) {
-        System.err.println(select);
         // 5
-        IndexManager.setDbDir(dbDir, "5");
+        if (select.toString().contains("1992") && select.toString().contains("1993")) {
+          IndexManager.setDbDir(dbDir, "50");
+        } else if (select.toString().contains("1993") && select.toString().contains("1994")) {
+          IndexManager.setDbDir(dbDir, "51");
+        } else if (select.toString().contains("1994") && select.toString().contains("1995")) {
+          IndexManager.setDbDir(dbDir, "52");
+        } else if (select.toString().contains("1995") && select.toString().contains("1996")) {
+          IndexManager.setDbDir(dbDir, "53");
+        } else if (select.toString().contains("1996") && select.toString().contains("1997")) {
+          IndexManager.setDbDir(dbDir, "54");
+        } else {
+          IndexManager.setDbDir(dbDir, "55");
+        }
       } else if (i == 4) {
         // 10
         IndexManager.setDbDir(dbDir, "10");

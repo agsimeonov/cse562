@@ -35,8 +35,23 @@ public class IndexManager {
     setDbDir(dbDir, "3");
     three();
     dataTable.setDataFile(orders);
-    setDbDir(dbDir, "5");
-    five();
+    setDbDir(dbDir, "50");
+    five(0);
+    dataTable.setDataFile(orders);
+    setDbDir(dbDir, "51");
+    five(1);
+    dataTable.setDataFile(orders);
+    setDbDir(dbDir, "52");
+    five(2);
+    dataTable.setDataFile(orders);
+    setDbDir(dbDir, "53");
+    five(3);
+    dataTable.setDataFile(orders);
+    setDbDir(dbDir, "54");
+    five(4);
+    dataTable.setDataFile(orders);
+    setDbDir(dbDir, "55");
+    five(5);
     dataTable.setDataFile(orders);
     setDbDir(dbDir, "10");
     ten();
@@ -76,13 +91,13 @@ public class IndexManager {
     copyPaste(REGION);
   }
   
-  private static void five() {
+  private static void five(int range) {
     // customer
     copyPaste(CUSTOMER);
     
     // orders
     DataTable dataTable = TableManager.getTable(ORDERS);
-    Callback callback = new OrdersCallback(dataTable, 5);
+    Callback callback = new OrdersCallback(dataTable, 5, range);
     filter(ORDERS, callback);
     
     // lineitem
