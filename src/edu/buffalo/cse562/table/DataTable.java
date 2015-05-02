@@ -19,11 +19,11 @@ import net.sf.jsqlparser.statement.create.table.Index;
  * @author Sunny Mistry
  */
 public class DataTable {
-  private ArrayList<String> types = new ArrayList<String>();
+  private ArrayList<String> types    = new ArrayList<String>();
+  private File              dataFile = null;
   private CreateTable       createTable;
   private Table             table;
   private String            name;
-  private File              data;
 
   /**
    * Creates the table by storing its schema and associating it with a file.
@@ -39,23 +39,6 @@ public class DataTable {
     for (Object o : createTable.getColumnDefinitions()) {
       ColumnDefinition columnDefinition = (ColumnDefinition) o;
       types.add(columnDefinition.getColDataType().getDataType());
-    }
-    
-    // Make sure the data file exists
-    Path path = Paths.get(TableManager.getDataDir(), name + ".dat");
-    data = path.toFile();
-    if (!data.exists()) {
-      path = Paths.get(TableManager.getDataDir(), name.toLowerCase() + ".dat");
-      data = path.toFile();
-      if (!data.exists()) {
-        path = Paths.get(TableManager.getDataDir(), name.toUpperCase() + ".dat");
-        data = path.toFile();
-        if (!data.exists()) {
-          if (!data.createNewFile()) {
-            throw new IOException("Could not create data file for table " + name);
-          }
-        }
-      }            
     }
   }
   
@@ -138,11 +121,40 @@ public class DataTable {
   }
   
   /**
+   * Sets the data file.
+   * 
+   * @param file - the data file
+   */
+  public void setDataFile(File file) {
+    dataFile = file;
+  }
+  
+  /**
    * Acquires the data file for this table.
    * 
    * @return the data file for this table
    */
   public File getDataFile() {
+    if (dataFile != null) return dataFile;
+    Path path = Paths.get(TableManager.getDataDir(), name + ".dat");
+    File data = path.toFile();
+    if (!data.exists()) {
+      path = Paths.get(TableManager.getDataDir(), name.toLowerCase() + ".dat");
+      data = path.toFile();
+      if (!data.exists()) {
+        path = Paths.get(TableManager.getDataDir(), name.toUpperCase() + ".dat");
+        data = path.toFile();
+        if (!data.exists()) {
+          try {
+            if (!data.createNewFile()) {
+              throw new IOException("Could not create data file for table " + name);
+            }
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        }
+      }            
+    }
     return data;
   }
   

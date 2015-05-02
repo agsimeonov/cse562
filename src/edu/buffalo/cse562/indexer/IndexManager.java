@@ -1,148 +1,118 @@
 package edu.buffalo.cse562.indexer;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
-import net.sf.jsqlparser.schema.Column;
 import edu.buffalo.cse562.iterator.TableIterator;
 import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.TableManager;
 
 public class IndexManager {
+  private static final String CUSTOMER = "customer";
+  public static final String  ORDERS   = "orders";
+  private static final String LINEITEM = "lineitem";
+  private static final String SUPPLIER = "supplier";
+  private static final String NATION   = "nation";
+  private static final String REGION   = "region";
+
   public static void preprocess() { 
     // customer
-    Map<Long, List<Row>> customer = getDatabase("customer", "customer.custkey");
-    writeOut(customer, "customer");
+    copyPaste(CUSTOMER);
     
     // orders
-    Map<Long, List<Row>> orders = process(customer, "orders", "orders.custkey");
+    DataTable dataTable = TableManager.getTable(ORDERS);
+    Callback callback = new OrdersCallback(dataTable);
+    filter(ORDERS, callback);
     
     // lineitem
-    orders = rekey(orders, "orders", "orders.orderkey");
-    System.gc();
-    process(orders, "lineitem", "lineitem.orderkey");
-    orders = null;
-    System.gc();
+    dataTable = TableManager.getTable(LINEITEM);
+    callback = new LineitemCallback(dataTable);
+    filter(LINEITEM, callback);
     
     // supplier
-    customer = rekey(customer, "customer", "customer.nationkey");
-    System.gc();
-    process(customer, "supplier", "supplier.suppkey");
-    customer = null;
-    System.gc();
+    copyPaste(SUPPLIER);
     
     // nation
-    writeOut(getDatabase("nation", "nation.nationkey"), "nation");
-    System.gc();
+    copyPaste(NATION);
     
     // region
-    writeOut(getDatabase("region", "region.regionkey"), "region");
-    System.gc();
+    copyPaste(REGION);
   }
   
-  private static Map<Long, List<Row>> rekey(Map<Long, List<Row>> db, String name, String colName) {
-    Map<Long, List<Row>> database = new HashMap<Long, List<Row>>();
+  public static Map<Long, List<Row>> getDatabase(String name, String key, File file) {
     DataTable dataTable = TableManager.getTable(name);
-    ArrayList<Column> columns = dataTable.getSchema().getColumns();
-    int index;
-    for (index = 0; index < columns.size(); index++) {
-      String columnName = columns.get(index).getWholeColumnName().toLowerCase();
-      if (columnName.equals(colName)) break;
-    }
+    dataTable.setDataFile(file);
+    TableIterator iterator = new TableIterator(dataTable.getTable(), dataTable.getSchema());
+    int index = dataTable.getSchema().getLookupTable().get(key);
+    Map<Long, List<Row>> out = new HashMap<Long, List<Row>>();
     
-    for (List<Row> list : db.values()) {
-      for (Row value : list) {
-        Long key = null;
-        
-        try {
-          key = value.getValue(index).toLong();
-        } catch (InvalidLeaf e) {
-          e.printStackTrace();
-        }
-        
-        List<Row> values = database.containsKey(key) ? database.get(key) : new ArrayList<Row>();
-        values.add(value);
-        database.put(key, values);
+    while (iterator.hasNext()) {
+      Row next = iterator.next();
+      
+      try {
+        long keyLong = next.getValue(index).toLong();
+        List<Row> value = out.containsKey(keyLong) ? out.get(keyLong) : new ArrayList<Row>();
+        value.add(next);
+        out.put(keyLong, value);
+      } catch (InvalidLeaf e) {
+        e.printStackTrace();
       }
     }
     
-    return database;
+    return out;
   }
   
-  private static Map<Long, List<Row>> process(Map<Long, List<Row>> left, 
-                                              String name, 
-                                              String colName) {
-    Map<Long, List<Row>> full = getDatabase(name, colName);
-    Map<Long, List<Row>> optimal = getOptimal(left, full);
-    full = null;
-    System.gc();
-    writeOut(optimal, name);
-    return optimal;
-  }
-  
-  private static void writeOut(Map<Long, List<Row>> db, String name) {
-    File file = new File(TableManager.getDbDir(), name + ".dat");
+  private static void filter(String name, Callback callback) {
+    DataTable dataTable = TableManager.getTable(name);
+    TableIterator iterator = new TableIterator(dataTable.getTable(), dataTable.getSchema());
 
     try {
-      FileWriter fileWriter = new FileWriter(file);
-      BufferedWriter writer = new BufferedWriter(fileWriter);
-      for (List<Row> list : db.values()) {
-        for (Row row : list) {
-          writer.write(row.toString());
-          writer.newLine();
-        }
+      FileWriter fwriter = new FileWriter(getDestination(name));
+      BufferedWriter writer = new BufferedWriter(fwriter);
+      
+      while (iterator.hasNext()) {
+        Row next = iterator.next();
+        if (callback.decide(next)) continue; 
+        writer.write(next.toString());
+        writer.newLine();
       }
+      
       writer.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
   
-  private static Map<Long, List<Row>> getOptimal(Map<Long, List<Row>> left, 
-                                                 Map<Long, List<Row>> right) {
-    Map<Long, List<Row>> optimal = new HashMap<Long, List<Row>>();
-    for (Long key : left.keySet()) {
-      if (right.containsKey(key)) optimal.put(key, right.get(key));
-    }
-    return optimal;
+  private static File getDestination(String name) {
+    return new File(TableManager.getDbDir(), name.toLowerCase() + ".dat");
   }
   
-  private static Map<Long, List<Row>> getDatabase(String name, String colName) {
-    DataTable dataTable = TableManager.getTable(name);
-    TableIterator iterator = new TableIterator(dataTable.getTable(), dataTable.getSchema());
-    ArrayList<Column> columns = dataTable.getSchema().getColumns();
-    Map<Long, List<Row>> database = new HashMap<Long, List<Row>>();
-    int index;
-    
-    for (index = 0; index < columns.size(); index++) {
-      String columnName = columns.get(index).getWholeColumnName().toLowerCase();
-      if (columnName.equals(colName)) break;
+  private static void copyPaste(String name) {
+    File source = TableManager.getTable(name).getDataFile();
+    File destination = getDestination(name);
+    FileOutputStream fout;
+    try {
+      fout = new FileOutputStream(destination);
+      BufferedOutputStream out = new BufferedOutputStream(fout);
+      Files.copy(source.toPath(), out);
+      out.close();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
-    
-    while (iterator.hasNext()) {
-      Row value = iterator.next();
-      Long key = null;
-      
-      try {
-        key = value.getValue(index).toLong();
-      } catch (InvalidLeaf e) {
-        e.printStackTrace();
-      }
-      
-      List<Row> values = database.containsKey(key) ? database.get(key) : new ArrayList<Row>();
-      values.add(value);
-      database.put(key, values);
-    }
-    
-    return database;
   }
 
   /** This class may never be instantiated. */
