@@ -30,10 +30,14 @@ public class IndexManager {
 
   public static void preprocess() {
     String dbDir = TableManager.getDbDir();
+    DataTable dataTable = TableManager.getTable(ORDERS);
+    File orders = dataTable.getDataFile();
     setDbDir(dbDir, "3");
     three();
+    dataTable.setDataFile(orders);
     setDbDir(dbDir, "5");
     five();
+    dataTable.setDataFile(orders);
     setDbDir(dbDir, "10");
     ten();
   }
