@@ -21,15 +21,15 @@ public class LineitemCallback implements Callback {
     keySet = IndexManager.getDatabase(IndexManager.ORDERS, "orders.orderkey", ordersFile).keySet();
     lineitem_orderkey = dataTable.getSchema().getLookupTable().get("lineitem.orderkey");
     lineitem_shipdate = dataTable.getSchema().getLookupTable().get("lineitem.shipdate");
-    if (mode == 3) threshold = new DateValue("'1995-03-15'").getValue().getTime();
+    if (mode == 3) threshold = new DateValue("'1994-03-15'").getValue().getTime();
     this.mode = mode;
   }
   
   @Override
   public boolean decide(Row row) {
     try {
-      long time = ((DateValue) row.getValue(lineitem_shipdate)).getValue().getTime();
       if (mode == 3) {
+        long time = ((DateValue) row.getValue(lineitem_shipdate)).getValue().getTime();
         return (time <= threshold) ||!keySet.contains(row.getValue(lineitem_orderkey).toLong());
       }
       return !keySet.contains(row.getValue(lineitem_orderkey).toLong());
