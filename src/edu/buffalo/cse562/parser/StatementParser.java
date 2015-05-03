@@ -37,18 +37,8 @@ public class StatementParser implements StatementVisitor {
   public void visit(Select select) {
     if (TableManager.getLoad()) return;
 //    if (TableManager.getDbDir() != null) DatabaseManager.open();
-    TreeBuilder treeBuilder = new TreeBuilder(select.getSelectBody());
-    ColumnSetExtractor extractor = new ColumnSetExtractor();
-    select.getSelectBody().accept(extractor);
-    ParseTree root = treeBuilder.getRoot();
-    Optimizer.optimize(root, extractor.getColumns());
-    int i = Optimizer.getAllTypeNodes(root, TableNode.class).size();
     if (TableManager.getDbDir() != null) {
-      String dbDir = TableManager.getDbDir();
-      if (i == 3) {
-        // 3
-        IndexManager.setDbDir(dbDir, "3");
-      } else if (i == 6) {
+      if (select.toString().toLowerCase().contains("region")) {
         PlainSelect plain = ((PlainSelect)select.getSelectBody());
         plain.setFromItem(TableManager.getTable("customer").getTable());
         List<Join> joins = new ArrayList<Join>();
@@ -73,7 +63,21 @@ public class StatementParser implements StatementVisitor {
         region.setRightItem(TableManager.getTable("region").getTable());
         joins.add(region);
         plain.setJoins(joins);
-        System.out.println(plain);
+      }
+    }
+    TreeBuilder treeBuilder = new TreeBuilder(select.getSelectBody());
+    ColumnSetExtractor extractor = new ColumnSetExtractor();
+    select.getSelectBody().accept(extractor);
+    ParseTree root = treeBuilder.getRoot();
+    Optimizer.optimize(root, extractor.getColumns());
+    System.out.println(root);
+    int i = Optimizer.getAllTypeNodes(root, TableNode.class).size();
+    if (TableManager.getDbDir() != null) {
+      String dbDir = TableManager.getDbDir();
+      if (i == 3) {
+        // 3
+        IndexManager.setDbDir(dbDir, "3");
+      } else if (i == 6) {
         // 5
         if (select.toString().contains("1992") && select.toString().contains("1993")) {
           IndexManager.setDbDir(dbDir, "50");
