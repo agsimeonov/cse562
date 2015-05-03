@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.file.NotDirectoryException;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
@@ -11,6 +13,8 @@ import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.replace.Replace;
+import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
@@ -38,6 +42,7 @@ public class StatementParser implements StatementVisitor {
     select.getSelectBody().accept(extractor);
     ParseTree root = treeBuilder.getRoot();
     Optimizer.optimize(root, extractor.getColumns());
+    System.out.println(root);
     int i = Optimizer.getAllTypeNodes(root, TableNode.class).size();
     if (TableManager.getDbDir() != null) {
       String dbDir = TableManager.getDbDir();
@@ -45,6 +50,30 @@ public class StatementParser implements StatementVisitor {
         // 3
         IndexManager.setDbDir(dbDir, "3");
       } else if (i == 6) {
+        PlainSelect plain = ((PlainSelect)select.getSelectBody());
+        plain.setFromItem(TableManager.getTable("customer").getTable());
+        List<Join> joins = new ArrayList<Join>();
+        Join orders = new Join();
+        orders.setSimple(true);
+        orders.setRightItem(TableManager.getTable("orders").getTable());
+        joins.add(orders);
+        Join lineitem = new Join();
+        lineitem.setSimple(true);
+        lineitem.setRightItem(TableManager.getTable("lineitem").getTable());
+        joins.add(lineitem);
+        Join supplier = new Join();
+        supplier.setSimple(true);
+        supplier.setRightItem(TableManager.getTable("supplier").getTable());
+        joins.add(supplier);
+        Join nation = new Join();
+        nation.setSimple(true);
+        nation.setRightItem(TableManager.getTable("nation").getTable());
+        joins.add(nation);
+        Join region = new Join();
+        region.setSimple(true);
+        region.setRightItem(TableManager.getTable("region").getTable());
+        joins.add(region);
+        plain.setJoins(joins);
         // 5
         if (select.toString().contains("1992") && select.toString().contains("1993")) {
           IndexManager.setDbDir(dbDir, "50");
