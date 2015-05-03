@@ -70,7 +70,6 @@ public class StatementParser implements StatementVisitor {
     select.getSelectBody().accept(extractor);
     ParseTree root = treeBuilder.getRoot();
     Optimizer.optimize(root, extractor.getColumns());
-    System.out.println(root);
     int i = Optimizer.getAllTypeNodes(root, TableNode.class).size();
     if (TableManager.getDbDir() != null) {
       String dbDir = TableManager.getDbDir();
