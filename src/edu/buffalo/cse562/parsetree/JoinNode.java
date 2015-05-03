@@ -9,7 +9,6 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.OrderByElement;
-import edu.buffalo.cse562.berkeley.cursor.IndexJoinIterator;
 import edu.buffalo.cse562.iterator.HashJoinIterator;
 import edu.buffalo.cse562.iterator.MergeSortIterator;
 import edu.buffalo.cse562.iterator.RowIterator;
@@ -17,7 +16,6 @@ import edu.buffalo.cse562.iterator.SortJoinIterator;
 import edu.buffalo.cse562.optimizer.Optimizer;
 import edu.buffalo.cse562.table.Row;
 import edu.buffalo.cse562.table.Schema;
-import edu.buffalo.cse562.table.TableManager;
 
 /**
  * A node that handles simple joins.
@@ -116,15 +114,15 @@ public class JoinNode extends ParseTree {
     return "⋈ " + expression;
   }
   
-  /**
-   * Sets the secondary column
-   */
-  private void setSecondaryColumn(Column column) {
-    ParseTree node = right;
-    
-    while (node.getLeft() != null)
-      node = node.getLeft();
-    
-    ((TableNode) node).setSecondary(column);
-  }
+//  /**
+//   * Sets the secondary column
+//   */
+//  private void setSecondaryColumn(Column column) {
+//    ParseTree node = right;
+//    
+//    while (node.getLeft() != null)
+//      node = node.getLeft();
+//    
+//    ((TableNode) node).setSecondary(column);
+//  }
 }

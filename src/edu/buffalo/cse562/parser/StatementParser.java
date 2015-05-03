@@ -42,7 +42,6 @@ public class StatementParser implements StatementVisitor {
     select.getSelectBody().accept(extractor);
     ParseTree root = treeBuilder.getRoot();
     Optimizer.optimize(root, extractor.getColumns());
-    System.out.println(root);
     int i = Optimizer.getAllTypeNodes(root, TableNode.class).size();
     if (TableManager.getDbDir() != null) {
       String dbDir = TableManager.getDbDir();
@@ -74,6 +73,7 @@ public class StatementParser implements StatementVisitor {
         region.setRightItem(TableManager.getTable("region").getTable());
         joins.add(region);
         plain.setJoins(joins);
+        System.out.println(plain);
         // 5
         if (select.toString().contains("1992") && select.toString().contains("1993")) {
           IndexManager.setDbDir(dbDir, "50");

@@ -1,17 +1,8 @@
 package edu.buffalo.cse562.parsetree;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 
-import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-
-import com.sleepycat.je.Database;
-import com.sleepycat.je.SecondaryDatabase;
-
-import edu.buffalo.cse562.berkeley.DatabaseManager;
-import edu.buffalo.cse562.berkeley.cursor.PrimaryIterator;
-import edu.buffalo.cse562.berkeley.cursor.SecondaryIterator;
 import edu.buffalo.cse562.iterator.TableIterator;
 import edu.buffalo.cse562.table.DataTable;
 import edu.buffalo.cse562.table.Row;
@@ -27,7 +18,7 @@ import edu.buffalo.cse562.table.TableManager;
 public class TableNode extends ParseTree {
   private final Table  table;
   private Schema outSchema;
-  private Column secondaryColumn = null;
+//  private Column secondaryColumn = null;
 
   /**
    * Initializes the table node.
@@ -95,12 +86,12 @@ public class TableNode extends ParseTree {
 //    }
   }
   
-  /**
-   * Sets the secondary key column.
-   * 
-   * @param the secondary key column
-   */
-  public void setSecondary(Column secondaryColumn) {
-    this.secondaryColumn = secondaryColumn;
-  }
+//  /**
+//   * Sets the secondary key column.
+//   * 
+//   * @param the secondary key column
+//   */
+//  public void setSecondary(Column secondaryColumn) {
+//    this.secondaryColumn = secondaryColumn;
+//  }
 }
